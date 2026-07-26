@@ -1,0 +1,83 @@
+<div class="layout-wrapper">
+  <aside class="sidebar-container" [class.expanded]="isExpanded">
+    <div class="sidebar-header">
+      <div class="brand-group">
+        <div class="logo-wrapper">
+          <img src="assets/Images/Logo.png" alt="logo" class="logo-img" />
+        </div>
+        <span class="brand-text" *ngIf="isExpanded">BUFFET</span>
+      </div>
+
+      <button class="close-btn" *ngIf="isExpanded" (click)="toggleSidebar()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+
+    <div class="user-profile-section">
+      <div class="profile-row" [class.justify-center]="!isExpanded">
+        <div class="user-info">
+          <div class="avatar-circle">
+            <mat-icon>person</mat-icon>
+          </div>
+          <span class="username" *ngIf="isExpanded">{{ userName }}</span>
+        </div>
+        <span class="profile-badge-btn" *ngIf="isExpanded">ยินดีต้อนรับ</span>
+      </div>
+    </div>
+
+    <div class="menu-list">
+      <ul>
+        <li *ngFor="let item of menuItems">
+          <a
+            pRipple
+            [routerLink]="item.route"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }"
+            class="menu-item"
+            [title]="!isExpanded ? item.label : ''"
+            (click)="closeSidebar()"
+          >
+            <mat-icon class="menu-icon">{{ item.icon }}</mat-icon>
+            <span class="menu-label" *ngIf="isExpanded">{{ item.label }}</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="sidebar-footer">
+      <a
+        pRipple
+        class="menu-item logout"
+        (click)="logout()"
+        [title]="!isExpanded ? 'ออกจากระบบ' : ''"
+      >
+        <mat-icon class="menu-icon">logout</mat-icon>
+        <span class="menu-label" *ngIf="isExpanded">ออกจากระบบ</span>
+      </a>
+    </div>
+  </aside>
+
+  <div class="main-wrapper">
+    <nav class="navbar">
+      <div class="navbar-left">
+        <button class="hamburger-btn" (click)="toggleSidebar()">
+          <mat-icon>menu</mat-icon>
+        </button>
+
+        <div class="brand-logo"></div>
+      </div>
+
+      <div class="navbar-right">
+        <a href="#" class="nav-link">Home</a>
+        <div class="profile-dropdown">
+          <span class="profile-text"> profile </span>
+          <mat-icon>arrow_drop_down</mat-icon>
+        </div>
+      </div>
+    </nav>
+
+    <div class="content-area">
+      <ng-content></ng-content>
+    </div>
+  </div>
+</div>

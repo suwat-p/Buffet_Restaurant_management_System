@@ -1,0 +1,218 @@
+// Variables
+$bg-dark: #000000;
+$card-dark: #121212;
+$text-white: #ffffff;
+$text-gray: #aaaaaa;
+
+// Zebra Stripe Row Colors (แกะโทนสีมืดสลับแถบจากตัวอย่าง)
+$bg-row-odd: #181818;
+$bg-row-even: #222222;
+$bg-header: #0a0a0a;
+
+$color-free: #2e7d32;
+$color-reserved: #ef6c00;
+$color-occupied: #c62828;
+$color-selected-bg: #ffffff;
+$color-selected-text: #000000;
+
+// Button Details (สีน้ำเงินตามแบบ)
+$btn-blue: #0056b3;
+$btn-blue-hover: #0069d9;
+
+:root {
+  --primary-gold: #ffca28;
+  --bg-dark-overlay: rgba(0, 0, 0, 0.75);
+  --glass-bg: rgba(20, 20, 20, 0.85);
+  --border-glass: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+:host {
+  display: block;
+  width: 100%;
+
+  .createbill-container {
+    background-color: $bg-dark;
+    min-height: 100vh;
+    padding: 20px;
+    color: $text-white;
+    font-family: 'Sarabun', sans-serif;
+
+    @media (max-width: 480px) {
+      padding: 10px;
+    }
+
+    .bill-container {
+      width: 100%;
+
+      .customer-management-wrapper {
+        background: $card-dark;
+        border: var(--border-glass);
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+        overflow: hidden;
+
+        @media (max-width: 480px) {
+          padding: 12px;
+        }
+
+        .management-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 20px;
+          gap: 16px;
+
+          @media (max-width: 480px) {
+            flex-direction: column;
+            align-items: stretch;
+          }
+
+          h3 {
+            margin: 0;
+            font-size: 1.4rem;
+            color: $text-white;
+            font-weight: 500;
+          }
+
+          .header-search-placeholder {
+            .search-table-input {
+              padding: 10px 16px;
+              border-radius: 6px;
+              border: var(--border-glass);
+              background: rgba(0, 0, 0, 0.6);
+              color: $text-white;
+              font-size: 0.95rem;
+              outline: none;
+              width: 220px;
+              font-family: 'Sarabun', sans-serif;
+              transition: border-color 0.2s ease;
+
+              @media (max-width: 480px) {
+                width: 100%;
+                box-sizing: border-box;
+              }
+
+              &::placeholder {
+                color: $text-gray;
+              }
+
+              &:focus {
+                border-color: var(--primary-gold);
+              }
+            }
+          }
+        }
+
+        .table-responsive {
+          overflow-x: auto;
+
+          .customer-table {
+            width: 100%;
+            border-collapse: collapse;
+
+            th, td {
+              padding: 14px 16px;
+              text-align: left;
+              white-space: nowrap;
+            }
+
+            // หัวตาราง (Header)
+            th {
+              background-color: $bg-header;
+              color: $text-white;
+              font-weight: 600;
+              font-size: 0.95rem;
+              border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            }
+
+            tbody {
+              tr {
+                // สลับสีแถว (Zebra Stripe) แบบในรูปตัวอย่าง
+                &:nth-child(odd) {
+                  background-color: $bg-row-odd;
+                }
+                &:nth-child(even) {
+                  background-color: $bg-row-even;
+                }
+
+                // Highlight เมื่อชี้เมาส์
+                &:hover {
+                  background-color: rgba(255, 255, 255, 0.05);
+                }
+
+                td {
+                  color: $text-white;
+                  font-size: 0.95rem;
+                  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+                  vertical-align: middle;
+                }
+              }
+
+              .table-number {
+                font-weight: 600;
+                color: var(--primary-gold);
+                font-size: 1.05rem;
+              }
+
+              .promo-text {
+                color: $text-gray;
+                max-width: 150px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+              }
+
+              .text-center {
+                text-align: center;
+              }
+
+              .no-data {
+                text-align: center;
+                color: $text-gray;
+                padding: 30px;
+                background-color: $bg-row-odd;
+              }
+
+              // ปุ่มชำระเงิน (สไตล์ Blue Rounded Button แบบในรูปภาพ)
+              .action-buttons {
+                display: flex;
+                justify-content: center;
+
+                .btn-pay {
+                  display: inline-flex;
+                  align-items: center;
+                  justify-content: center;
+                  gap: 6px;
+                  padding: 6px 18px;
+                  background-color: $btn-blue;
+                  color: $text-white;
+                  border: none;
+                  border-radius: 6px;
+                  font-size: 0.88rem;
+                  font-weight: 500;
+                  font-family: 'Sarabun', sans-serif;
+                  cursor: pointer;
+                  transition: background-color 0.2s ease, transform 0.1s ease;
+
+                  mat-icon {
+                    font-size: 18px;
+                    width: 18px;
+                    height: 18px;
+                  }
+
+                  &:hover {
+                    background-color: $btn-blue-hover;
+                  }
+
+                  &:active {
+                    transform: scale(0.96);
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

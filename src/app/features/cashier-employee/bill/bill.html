@@ -1,0 +1,64 @@
+<app-menu-cashier>
+<div class="createbill-container">
+  <div class="bill-container">
+    <div class="customer-management-wrapper">
+      <!-- Header & Search Bar -->
+      <div class="management-header">
+        <h3>รายการชำระเงิน (แคชเชียร์)</h3>
+        <div class="header-search-placeholder">
+          <input 
+            type="text" 
+            class="search-table-input" 
+            placeholder="ค้นหาเลขโต๊ะ..." 
+            [(ngModel)]="searchText" 
+          />
+        </div>
+      </div>
+
+      <!-- Table List -->
+      <div class="table-responsive">
+        <table class="customer-table">
+          <thead>
+            <tr>
+              <th>เลขโต๊ะ</th>
+              <th class="text-center">วันที่เวลาเปิดบิล</th>
+              <th>ผู้ใหญ่</th>
+              <th>เด็ก</th>
+              <th>โปรโมชั่น</th>
+              <th>ปรับ (Kg)</th>
+              <th class="text-center">จัดการ</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let bill of filteredActiveBills">
+              <td class="table-number">{{ bill.tableNumbers }}</td>
+              <td class="text-center bill-time">
+                {{ bill.created_at | date: 'dd/MM/yyyy HH:mm:ss' }}
+              </td>
+              <td>{{ bill.numAdults }} คน</td>
+              <td>{{ bill.numChildren }} คน</td>
+              <td class="promo-text" [title]="getdiscountName(bill.discount_id)">
+                {{ getdiscountName(bill.discount_id) || '-' }}
+              </td>
+              <td>{{ bill.fine_kg ? bill.fine_kg + ' กก.' : '-' }}</td>
+              <td class="text-center">
+                <div class="action-buttons">
+                  <button class="btn-pay" (click)="openPaymentModal(bill)" title="ชำระเงิน">
+                    <mat-icon>payments</mat-icon>
+                    <span>ชำระเงิน</span>
+                  </button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- แสดงเมื่อไม่พบข้อมูล -->
+            <tr *ngIf="filteredActiveBills.length === 0">
+              <td colspan="6" class="no-data">ไม่มีรายการบิลที่รอชำระเงิน</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+</app-menu-cashier>

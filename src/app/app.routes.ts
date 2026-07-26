@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { Cart } from './cart/cart';
 import { CustomerOrder } from './customer-order/customer-order';
+import { BillingList } from './features/cashier-employee/bill/bill';
 import { LoginEmployee } from './features/login-employee/login-employee';
 import { LoginMember } from './features/login-member/login-member';
 import { Dashboard } from './features/manager/dashboard/dashboard';
@@ -103,6 +104,12 @@ export const routes: Routes = [
     component: ConfrimCheckin,
     canActivate: [employeeGuard],
     data: { roles: ['พนักงานเสิร์ฟ'] },
+  },
+  {
+    path: 'BillingList',
+    component: BillingList,
+    canActivate: [employeeGuard],
+    data: { roles: ['พนักงานแคชเชียร์'] },
   },
 
   { path: '**', redirectTo: '' },

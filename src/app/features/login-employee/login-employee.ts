@@ -113,7 +113,6 @@ export class LoginEmployee implements OnInit {
       case 'พนักงานเสิร์ฟ':
         targetRoute = '/CreateBill';
         break;
-      case 'cashier':
       case 'พนักงานแคชเชียร์':
         targetRoute = '/BillingList';
         break;
