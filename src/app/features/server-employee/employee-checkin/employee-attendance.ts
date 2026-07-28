@@ -77,8 +77,9 @@ export class EmployeeAttendance implements OnInit {
     return String(id).padStart(3, '0');
   }
 
-  // ต่อ path รูปที่ backend ส่งมา (relative path) ให้เป็น URL เต็ม
-  // ถ้า backend ส่งมาเป็น full URL (http/https) อยู่แล้ว จะใช้ตามนั้นเลยไม่ต่อซ้ำ
+  // field รูปจริงจาก backend คือ image_Profile (เช็คจาก detail-employee.html ที่ bind ตรง
+  // และใช้งานได้ปกติ) เป็น URL ที่ใช้ได้เลย ไม่ต้องต่อ base URL เพิ่ม
+  // เผื่อกรณี backend เปลี่ยนไปส่งเป็น relative path ในอนาคต ฟังก์ชันนี้จะต่อ base ให้อัตโนมัติ
   private buildImageUrl(path?: string | null): string | undefined {
     if (!path) return undefined;
     if (/^https?:\/\//i.test(path)) return path;
@@ -116,10 +117,10 @@ export class EmployeeAttendance implements OnInit {
         this.employee = {
           empId: emp.emp_id ?? emp.Emp_id ?? Number(member.id),
           fullname: emp.fullname ?? emp.Fullname ?? member.fullname ?? '-',
-          position: emp.position ?? emp.Position ?? '-',
+          position: emp.department ?? emp.position ?? emp.Position ?? '-',
           shiftStart: emp.shift_start ?? emp.Shift_start,
           shiftEnd: emp.shift_end ?? emp.Shift_end,
-          imageUrl: this.buildImageUrl(emp.image_url ?? emp.Image_url),
+          imageUrl: this.buildImageUrl(emp.image_Profile ?? emp.image_url ?? emp.Image_url),
         };
 
         this.loadingProfile = false;
