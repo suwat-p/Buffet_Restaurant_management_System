@@ -23,6 +23,7 @@ import { employeeGuard } from './guards/employee-guard';
 import { memberGuard } from './guards/member-guard';
 import { Index } from './index';
 import { StatusCustomerOrder } from './status/status-customer-order/status-customer-order';
+import { ManageShopLocation } from './features/manager/manage-shop/manage-shop-location/manage-shop-location';
 
 export const routes: Routes = [
   { path: '', component: Index },
@@ -83,6 +84,13 @@ export const routes: Routes = [
   {
     path: 'ManageShop',
     component: ManageShop,
+    canActivate: [employeeGuard],
+    data: { roles: ['เจ้าของร้าน'] },
+  },
+
+  {
+    path: 'ManageShopLocation',
+    component: ManageShopLocation,
     canActivate: [employeeGuard],
     data: { roles: ['เจ้าของร้าน'] },
   },

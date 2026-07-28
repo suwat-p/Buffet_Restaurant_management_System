@@ -1,0 +1,76 @@
+<p-toast position="bottom-center"></p-toast>
+
+<app-menu-manager>
+  <div class="page-container">
+    <div class="content-wrapper">
+      <!-- Header -->
+      <div class="header-action">
+        <div class="header-left">
+          <button
+            pButton
+            pRipple
+            icon="pi pi-arrow-left"
+            class="p-button-text back-btn"
+            (click)="goBackToShop()"
+            title="กลับไปตั้งค่าร้าน"
+          ></button>
+          <h2 class="section-header">ตั้งค่าตำแหน่งร้าน</h2>
+        </div>
+      </div>
+
+      <!-- การ์ดแผนที่ -->
+      <div class="table-card">
+        <div class="card-header-flex">
+          <h3 class="card-title"><i class="pi pi-map-marker mr-2"></i>ปักหมุดตำแหน่งร้าน</h3>
+          <span class="size-hint" *ngIf="hasExistingLocation">
+            <i class="pi pi-check-circle mr-1"></i>มีตำแหน่งบันทึกไว้แล้ว
+          </span>
+        </div>
+
+        <p class="hint mt-2">
+          คลิกบนแผนที่เพื่อปักหมุด หรือลากหมุดที่ปักไว้แล้วเพื่อปรับตำแหน่ง —
+          พนักงานต้องอยู่ในรัศมีวงกลม (1 กม.) จึงจะเช็คอินได้
+        </p>
+
+        <button
+          pButton
+          pRipple
+          label="ใช้ตำแหน่งปัจจุบันของฉัน"
+          icon="pi pi-directions"
+          class="p-button-outlined locate-btn mt-3 mb-3"
+          (click)="useMyCurrentLocation()"
+        ></button>
+
+        <div class="map-wrapper">
+          <div #mapBox id="shop-map" class="map-box"></div>
+          <div class="map-loading-overlay" *ngIf="isMapLoading">
+            <i class="pi pi-spin pi-spinner"></i>
+            <span>กำลังค้นหาตำแหน่งที่บันทึกไว้ล่าสุด...</span>
+          </div>
+        </div>
+
+        <div class="coords-display mt-3" *ngIf="selectedLat !== null">
+          <span class="coord-pill">
+            <i class="pi pi-compass mr-1"></i>Lat: {{ selectedLat | number: '1.5-5' }}
+          </span>
+          <span class="coord-pill">
+            <i class="pi pi-compass mr-1"></i>Lng: {{ selectedLng | number: '1.5-5' }}
+          </span>
+        </div>
+
+        <div class="save-bar mt-4">
+          <button
+            pButton
+            pRipple
+            label="บันทึกตำแหน่งร้าน"
+            icon="pi pi-save"
+            class="p-button-success save-btn"
+            [loading]="isSaving"
+            [disabled]="selectedLat === null"
+            (click)="saveLocation()"
+          ></button>
+        </div>
+      </div>
+    </div>
+  </div>
+</app-menu-manager>

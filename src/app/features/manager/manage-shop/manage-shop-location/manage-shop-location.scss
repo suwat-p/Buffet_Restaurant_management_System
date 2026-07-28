@@ -1,0 +1,248 @@
+// ===== Theme Variables =====
+$primary-gold: #ffca28;
+$primary-gold-hover: #ffd54f;
+$bg-dark-card: #18181b;
+$bg-dark-body: #09090b;
+$border-color: #27272a;
+
+$text-primary: #f4f4f5;   // เด่นชัด อ่านง่าย ลอยออกจากพื้นหลัง
+$text-secondary: #a1a1aa; // ข้อความรอง อ่านชัดเจนไม่จม
+$text-muted: #71717a;     // คำอธิบายเพิ่มเติม
+
+.page-container {
+  min-height: 100vh;
+  padding: 1.5rem;
+  background-color: $bg-dark-body;
+  color: $text-primary;
+
+  @media (max-width: 768px) {
+    padding: 1rem;
+  }
+
+  @media (max-width: 600px) {
+    padding-bottom: 100px; // พื้นที่เว้นสำหรับ save-bar ลอยด้านล่าง
+  }
+}
+
+.content-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+// ===== Header Zone =====
+.header-action {
+  margin-bottom: 1.5rem;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  .back-btn {
+    color: $text-primary !important;
+    font-size: 1.25rem;
+    padding: 0.5rem;
+    border-radius: 50%;
+    transition: background-color 0.2s, color 0.2s;
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.1) !important;
+      color: $primary-gold !important;
+    }
+  }
+
+  .section-header {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #ffffff; // ขาวสว่างโดดเด่น
+    letter-spacing: -0.02em;
+    margin: 0;
+
+    @media (max-width: 576px) {
+      font-size: 1.35rem;
+    }
+  }
+}
+
+// ===== Card Container =====
+.table-card {
+  background-color: $bg-dark-card;
+  border: 1px solid $border-color;
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+
+  @media (max-width: 576px) {
+    padding: 1rem;
+  }
+}
+
+// ===== Card Header & Title =====
+.card-header-flex {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+
+  .card-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #ffffff;
+    margin: 0;
+    display: flex;
+    align-items: center;
+
+    i {
+      color: $primary-gold;
+      font-size: 1.35rem;
+    }
+  }
+}
+
+// ===== Status Badge =====
+.size-hint {
+  display: inline-flex;
+  align-items: center;
+  color: #4ade80; // สีกรีนนีออน อ่านง่ายบนพื้นหลังเข้ม
+  background: rgba(74, 222, 128, 0.1);
+  border: 1px solid rgba(74, 222, 128, 0.25);
+  font-size: 0.85rem;
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: 9999px;
+
+  i {
+    color: #4ade80;
+  }
+}
+
+// ===== Text & Hints =====
+.hint {
+  color: $text-secondary; // สว่างขึ้น ไม่กลืนไปกับพื้นหลัง
+  font-size: 0.95rem;
+  line-height: 1.6;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 10px 14px;
+  border-radius: 8px;
+  border-left: 3px solid $primary-gold;
+}
+
+// ===== Buttons =====
+.locate-btn {
+  width: 100%;
+  max-width: 320px;
+  border-color: $primary-gold !important;
+  color: $primary-gold !important;
+  font-weight: 600 !important;
+
+  &:hover {
+    background-color: rgba(255, 202, 40, 0.1) !important;
+  }
+
+  @media (max-width: 576px) {
+    max-width: 100%;
+  }
+}
+
+// ===== Map Wrapper =====
+.map-wrapper {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid $border-color;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+
+.map-box {
+  width: 100%;
+  height: clamp(320px, 50vh, 520px);
+  z-index: 1;
+
+  @media (max-width: 480px) {
+    height: 350px;
+  }
+}
+
+.map-loading-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: rgba(9, 9, 11, 0.88);
+  backdrop-filter: blur(4px);
+  color: $primary-gold;
+  font-size: 0.95rem;
+  font-weight: 500;
+  text-align: center;
+  padding: 0 16px;
+
+  i {
+    font-size: 2rem;
+  }
+}
+
+// ===== Coords Display =====
+.coords-display {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.coord-pill {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  color: #f4f4f5;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid $border-color;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+
+  i {
+    color: $primary-gold;
+  }
+
+  @media (max-width: 480px) {
+    flex: 1 1 calc(50% - 5px);
+    justify-content: center;
+  }
+}
+
+// ===== Save Bar (Fixed Bottom for Mobile) =====
+.save-bar {
+  display: flex;
+  justify-content: flex-end;
+
+  .save-btn {
+    min-width: 220px;
+    font-weight: 600 !important;
+  }
+
+  @media (max-width: 600px) {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 16px;
+    padding-bottom: calc(16px + env(safe-area-inset-bottom));
+    background: linear-gradient(to top, rgba(9, 9, 11, 0.98) 70%, rgba(9, 9, 11, 0));
+    backdrop-filter: blur(8px);
+    z-index: 20;
+
+    .save-btn {
+      width: 100%;
+      min-width: 0;
+      height: 48px; // ปรับขนาดให้กดง่ายในมือถือ
+      font-size: 1rem !important;
+    }
+  }
+}
