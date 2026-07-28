@@ -24,6 +24,7 @@ import { memberGuard } from './guards/member-guard';
 import { Index } from './index';
 import { StatusCustomerOrder } from './status/status-customer-order/status-customer-order';
 import { ManageShopLocation } from './features/manager/manage-shop/manage-shop-location/manage-shop-location';
+import { EmployeeAttendance } from './features/server-employee/employee-checkin/employee-attendance';
 
 export const routes: Routes = [
   { path: '', component: Index },
@@ -43,6 +44,7 @@ export const routes: Routes = [
   { path: 'Customer', component: CustomerOrder },
   { path: 'Cart', component: Cart },
   { path: 'StatusCustomer', component: StatusCustomerOrder },
+  { path: 'Employeecheckin', component: EmployeeAttendance },
 
   {
     path: 'ManageEmployee',

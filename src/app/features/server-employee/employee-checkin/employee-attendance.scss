@@ -1,0 +1,265 @@
+$bg: #000000;
+$card-bg: #111111;
+$card-bg-2: #0d0d0d;
+$border-color: #2a2a2a;
+$orange: #ff7a1a;
+$green: #1e7d32;
+$green-active: #2e7d32;
+$red: #c62828;
+$muted: #8a8a8a;
+
+.page-container {
+  min-height: 100vh;
+  background: $bg;
+  color: #fff;
+  padding: clamp(12px, 3vw, 28px);
+  font-family: 'Kanit', sans-serif;
+}
+
+.content-wrapper {
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.header-action {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+
+  .back-btn { color: $orange !important; border-color: $orange !important; }
+
+  .section-header {
+    font-size: clamp(1.2rem, 3vw, 1.6rem);
+    margin: 0;
+  }
+}
+
+// ===== Step 1: Login card =====
+.login-card {
+  background: $card-bg;
+  border: 1px solid $border-color;
+  border-radius: 14px;
+  padding: clamp(24px, 6vw, 48px) 24px;
+  text-align: center;
+
+  .login-icon { font-size: 2.6rem; color: $orange; margin-bottom: 12px; }
+  h3 { margin: 0 0 6px; }
+  .hint { color: $muted; font-size: 0.9rem; margin-bottom: 20px; }
+
+  .login-form {
+    display: flex;
+    gap: 10px;
+    max-width: 320px;
+    margin: 0 auto;
+
+    @media (max-width: 480px) { flex-direction: column; }
+
+    input {
+      flex: 1;
+      background: #1a1a1a;
+      border: 1px solid #333;
+      color: #fff;
+      border-radius: 8px;
+      padding: 0 14px;
+      height: 44px;
+      text-align: center;
+      font-size: 1rem;
+
+      &:focus { outline: none; border-color: $orange; }
+    }
+  }
+}
+
+// ===== Employee card =====
+.emp-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: $card-bg;
+  border: 1px solid $border-color;
+  border-radius: 14px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+
+  .emp-info {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex: 1;
+    min-width: 200px;
+  }
+
+  .emp-avatar {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid $orange;
+  }
+
+  .emp-name { font-weight: 600; font-size: 1.05rem; }
+  .emp-meta { color: $muted; font-size: 0.85rem; }
+
+  .emp-shift {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    margin-left: auto;
+
+    .shift-label { color: $muted; font-size: 0.8rem; }
+    .shift-value { color: $orange; font-weight: 600; }
+  }
+
+  .switch-btn { color: $muted !important; }
+}
+
+// ===== Main card =====
+.main-card {
+  background: $card-bg-2;
+  border: 1px solid $border-color;
+  border-radius: 14px;
+  padding: clamp(16px, 4vw, 32px);
+}
+
+.main-title {
+  text-align: center;
+  margin: 0 0 20px;
+  font-size: clamp(1.1rem, 3vw, 1.4rem);
+}
+
+// ===== Tabs =====
+.tab-switch {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 16px;
+
+  .tab-btn {
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    color: #fff;
+    padding: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: 'Kanit', sans-serif;
+    font-size: 0.95rem;
+    transition: 0.2s;
+
+    &.active { background: $green-active; border-color: $green-active; }
+    &:hover:not(.active) { border-color: #444; }
+  }
+}
+
+// ===== Clock buttons =====
+.clock-panel { display: flex; flex-direction: column; gap: 12px; }
+
+.clock-action-btn {
+  border: none;
+  border-radius: 8px;
+  padding: 16px;
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: 'Kanit', sans-serif;
+  cursor: pointer;
+  color: #fff;
+  transition: 0.2s;
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+  }
+
+  &.loading { opacity: 0.7; }
+
+  &.clock-in {
+    background: $green;
+    &:disabled { background: #1f3d24; color: #6b8f6f; }
+  }
+
+  &.clock-out {
+    background: #4a1f1f;
+    color: #a56b6b;
+    &:not(:disabled) { background: $red; color: #fff; }
+  }
+}
+
+// ===== Today summary =====
+.today-summary {
+  margin-top: 8px;
+  background: $card-bg;
+  border: 1px solid $border-color;
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.summary-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  text-align: center;
+  margin-bottom: 16px;
+
+  @media (max-width: 480px) { grid-template-columns: 1fr; text-align: left; }
+}
+
+.summary-col { display: flex; flex-direction: column; gap: 4px; }
+.summary-label { color: $muted; font-size: 0.8rem; }
+.summary-value { font-weight: 600; }
+
+.today-total {
+  border-top: 1px dashed #2a2a2a;
+  padding-top: 12px;
+
+  .badge-label {
+    display: inline-block;
+    background: #222;
+    color: $orange;
+    padding: 3px 12px;
+    border-radius: 4px;
+    font-size: 0.78rem;
+    margin-bottom: 10px;
+  }
+
+  .total-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+}
+
+// ===== History =====
+.history-card {
+  background: $card-bg;
+  border: 1px solid $border-color;
+  border-radius: 10px;
+  padding: 18px;
+
+  h4 { margin: 0 0 14px; }
+}
+
+.history-empty {
+  color: $muted;
+  text-align: center;
+  padding: 24px 0;
+  font-size: 0.9rem;
+}
+
+.history-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+  padding: 14px 0;
+  border-bottom: 1px solid #1e1e1e;
+
+  &:last-child { border-bottom: none; }
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+}
+
+.history-col { display: flex; flex-direction: column; gap: 3px; }
