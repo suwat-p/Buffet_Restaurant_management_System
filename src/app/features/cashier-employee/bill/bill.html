@@ -43,7 +43,7 @@
               <td>{{ bill.fine_kg ? bill.fine_kg + ' กก.' : '-' }}</td>
               <td class="text-center">
                 <div class="action-buttons">
-                  <button class="btn-pay" (click)="openPaymentModal(bill)" title="ชำระเงิน">
+                  <button class="btn-pay" (click)="openPayment(bill)" title="ชำระเงิน">
                     <mat-icon>payments</mat-icon>
                     <span>ชำระเงิน</span>
                   </button>
@@ -53,7 +53,7 @@
 
             <!-- แสดงเมื่อไม่พบข้อมูล -->
             <tr *ngIf="filteredActiveBills.length === 0">
-              <td colspan="6" class="no-data">ไม่มีรายการบิลที่รอชำระเงิน</td>
+              <td colspan="7" class="no-data">ไม่มีรายการบิลที่รอชำระเงิน</td>
             </tr>
           </tbody>
         </table>

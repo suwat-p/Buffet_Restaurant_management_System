@@ -26,4 +26,16 @@ export class BillService {
     const url = `${this.constants.API_ENDPOINT}/Bill/delete/${billId}`;
     return this.http.delete(url);
   }
+  public closeBill(billId: number, payload: any): Observable<any> {
+    const url = `${this.constants.API_ENDPOINT}/Bill/close/${billId}`;
+    return this.http.put(url, payload);
+  }
+  public getBillById(billId: number): Observable<any> {
+    const url = `${this.constants.API_ENDPOINT}/Bill/getBillById/${billId}`;
+    return this.http.get(url);
+  }
+  public getBillByTableId(tableId: number): Observable<any> {
+    const url = `${this.constants.API_ENDPOINT}/Bill/active-by-table/${tableId}`;
+    return this.http.get(url);
+  }
 }

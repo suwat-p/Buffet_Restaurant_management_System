@@ -10,8 +10,11 @@ import { DialogModule } from 'primeng/dialog';
 import { RippleModule } from 'primeng/ripple';
 import { ToastModule } from 'primeng/toast';
 import { CustomerNavbar } from '../components/menu-bar/customer-navbar/customer-navbar';
+import { BillService } from '../service/api/bill.service';
 import { CartService } from '../service/api/cart.service';
+import { OrderService } from '../service/api/order.service';
 import { TableService } from '../service/api/table.service';
+
 interface CartItem {
   id: number;
   menuId: number;
@@ -46,61 +49,104 @@ export class Cart implements OnInit {
   currentCartId: number = 0;
   tableNumber: string | null = null;
   tableid: number = 0;
+  billId: number = 0;
   displayConfirm: boolean = false;
   itemToDelete: CartItem | null = null;
   pendingChange: number = 0;
+
   constructor(
     private cartService: CartService,
     private messageService: MessageService,
     private tableService: TableService,
+    private orderService: OrderService,
+    private billService: BillService
   ) { }
 
   ngOnInit() {
     this.tableNumber = this.tableService.getTable();
     if (this.tableNumber) {
+      // 🔹 ดึง tableid ก่อน แล้วค่อยดึง Cart และ Bill ต่อกันเป็นลำดับ
       this.gettableid(this.tableNumber);
     } else {
       console.warn('ไม่พบข้อมูลโต๊ะ');
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'เตือน',
+        detail: 'ไม่พบหมายเลขโต๊ะ'
+      });
     }
-    
   }
+
   gettableid(tableNumber: string) {
     this.tableService.getTableid(tableNumber).subscribe({
       next: (id: number) => {
         this.tableid = id;
         console.log('ได้รหัสโต๊ะแล้ว:', this.tableid);
+
+        // 🔹 โหลดตะกร้า และ Bill หลังจากได้ tableid แน่นอนแล้ว
         this.loadCart();
+        this.getbillbytableid(this.tableid);
       },
       error: (err) => {
         console.error('หา ID โต๊ะไม่เจอ:', err);
       }
-    })
+    });
   }
+
   // 1. โหลดข้อมูลตะกร้าจาก DB
   loadCart() {
-    console.log(this.tableid)
     if (this.tableid === 0) return;
     this.cartService.getCartItems(this.tableid).subscribe({
       next: (res: any) => {
-        this.currentCartId = res.cartId;
-
-        // แปลงข้อมูลจาก API ให้เข้ากับ Interface ของหน้าบ้าน
-        if (res.items) {
-          this.cartItems = res.items.map((item: any) => ({
-            id: item.id,
-            menuId: item.menuId,
-            name: item.name,
-            price: item.price,
-            quantity: item.quantity,
-            image: item.image,
-            selected: true,
-          }));
+        if (res && res.cartId) {
+          this.currentCartId = res.cartId;
+          if (res.items) {
+            this.cartItems = res.items.map((item: any) => ({
+              id: item.id,
+              menuId: item.menuId,
+              name: item.name,
+              price: item.price,
+              quantity: item.quantity,
+              image: item.image,
+              selected: true,
+            }));
+          }
+        } else {
+          // ถ้าไม่มีตะกร้าค้างอยู่ ให้รีเซ็ตฝั่ง UI
+          this.cartItems = [];
+          this.currentCartId = 0;
         }
       },
       error: (err) => {
         console.error('Load cart error:', err);
-        // ถ้าไม่เจอ หรือ Error อาจจะแค่ console log หรือแจ้งเตือน
+        this.cartItems = [];
+        this.currentCartId = 0;
       },
+    });
+  }
+
+  getbillbytableid(tableId: number) {
+    if (tableId === 0) return;
+    this.billService.getBillByTableId(tableId).subscribe({
+      next: (response: any) => {
+        if (response && response.bill_id) {
+          this.billId = response.bill_id;
+        } else {
+          this.showBillErrorToast();
+        }
+      },
+      error: (err) => {
+        console.error('Error getting bill:', err);
+        this.showBillErrorToast();
+      }
+    });
+  }
+
+  private showBillErrorToast() {
+    this.messageService.add({
+      severity: 'error',
+      summary: 'เกิดข้อผิดพลาด',
+      detail: 'กรุณาแจ้งพนักงานเพื่อเปิดบิลสำหรับโต๊ะนี้'
     });
   }
 
@@ -125,30 +171,22 @@ export class Cart implements OnInit {
       .reduce((sum, item) => sum + item.price * item.quantity, 0);
   }
 
-  // 2. เพิ่มจำนวน
   increaseQty(item: CartItem) {
     this.updateCartQuantity(item, 1);
   }
 
-  // 3. ลดจำนวน
   decreaseQty(item: CartItem) {
     this.updateCartQuantity(item, -1);
   }
+
   updateCartQuantity(item: CartItem, change: number) {
     const newQuantity = item.quantity + change;
 
-    // กรณีที่ลดจำนวนจนเป็น 0 หรือน้อยกว่า ให้แสดง Dialog ยืนยันก่อน
     if (newQuantity <= 0) {
-      if (newQuantity <= 0) {
-        this.itemToDelete = item;
-        this.pendingChange = change;
-        this.displayConfirm = true; // เปิด p-dialog
-      } else {
-        // กรณีเพิ่มจำนวนปกติ หรือลดแต่ยังไม่ถึง 0
-        this.processUpdate(item, change);
-      }
+      this.itemToDelete = item;
+      this.pendingChange = change;
+      this.displayConfirm = true; // เปิด dialog ยืนยันการลบ
     } else {
-      // กรณีเพิ่มจำนวนปกติ หรือลดแต่ยังไม่ถึง 0
       this.processUpdate(item, change);
     }
   }
@@ -156,15 +194,15 @@ export class Cart implements OnInit {
   confirmDelete() {
     if (this.itemToDelete) {
       this.processUpdate(this.itemToDelete, this.pendingChange);
-      this.displayConfirm = false; // ปิด dialog
+      this.displayConfirm = false;
       this.itemToDelete = null;
     }
   }
+
   private processUpdate(item: CartItem, change: number) {
     const previousQuantity = item.quantity;
-    const previousItems = [...this.cartItems]; // เก็บสำรอง List ไว้เผื่อต้อง Rollback การลบ
+    const previousItems = [...this.cartItems];
 
-    // 1. Optimistic Update (เปลี่ยนค่าบน UI ทันทีเพื่อให้รู้สึกลื่นไหล)
     item.quantity += change;
 
     if (item.quantity <= 0) {
@@ -179,11 +217,8 @@ export class Cart implements OnInit {
     };
 
     this.cartService.addToCart(payload).subscribe({
-      next: () => {
-        // สำเร็จ: อาจจะแสดง Toast เบาๆ หรือไม่ต้องทำอะไร
-      },
+      next: () => { },
       error: (err) => {
-        // 2. Rollback: ถ้า Error ให้คืนค่าทั้งหมดกลับมา
         item.quantity = previousQuantity;
         this.cartItems = previousItems;
 
@@ -193,23 +228,17 @@ export class Cart implements OnInit {
           detail: 'กรุณาลองใหม่อีกครั้ง'
         });
 
-        // ดึงข้อมูลใหม่จาก Server เพื่อความชัวร์
         this.loadCart();
       },
     });
   }
 
-
-  // 4. ลบรายการ
-
   removeItem(id: number) {
     this.cartService.deleteItem(id).subscribe({
       next: () => {
-        // ลบออกจากหน้าจอทันที
         this.cartItems = this.cartItems.filter((item) => item.id !== id);
         this.messageService.add({ severity: 'success', summary: 'ลบสำเร็จ' });
 
-        // ถ้าลบจนหมด ให้เคลียร์ CartId ทิ้งด้วย
         if (this.cartItems.length === 0) this.currentCartId = 0;
       },
       error: () => {
@@ -218,24 +247,47 @@ export class Cart implements OnInit {
     });
   }
 
-  // 5. สั่งอาหาร
-  placeOrder() {
+  async placeOrder() {
     if (this.currentCartId === 0 || this.cartItems.length === 0) return;
 
-    this.cartService.placeOrder(this.currentCartId).subscribe({
-      next: () => {
+    if (!this.billId) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'ไม่พบบิล',
+        detail: 'ไม่พบข้อมูลบิล กรุณาแจ้งพนักงานเปิดบิลก่อนสั่งอาหาร'
+      });
+      return;
+    }
+
+    const payload = {
+      cartId: this.currentCartId,
+      billId: this.billId,
+      orderType: 'สั่งหน้าร้าน'
+    };
+
+    this.orderService.PlaceOrder(payload).subscribe({
+      next: (response: any) => {
         this.messageService.add({
           severity: 'success',
           summary: 'สั่งอาหารเรียบร้อย',
-          detail: 'รายการถูกส่งเข้าครัวแล้ว',
+          detail: response?.message || 'รายการถูกส่งเข้าครัวแล้ว',
         });
 
+        // เคลียร์ตะกร้าฝั่ง Frontend
         this.cartItems = [];
         this.currentCartId = 0;
       },
-      error: () => {
-        this.messageService.add({ severity: 'error', summary: 'เกิดข้อผิดพลาด' });
-      },
+      error: (error: any) => {
+        console.error('Error placing order:', error);
+
+        this.messageService.add({
+          severity: 'error',
+          summary: 'เกิดข้อผิดพลาด',
+          detail: error?.error?.message || 'ไม่สามารถส่งออเดอร์ได้ กรุณาลองใหม่อีกครั้ง'
+        });
+
+        this.loadCart();
+      }
     });
   }
 }

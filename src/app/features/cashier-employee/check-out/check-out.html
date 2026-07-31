@@ -1,0 +1,209 @@
+<p-toast></p-toast>
+
+<app-menu-cashier>
+  <div class="cashier-page-container">
+    <div class="payment-card-layout">
+      <!-- ฝั่งซ้าย: ตารางรายการอาหาร & ยอดรวมสรุป -->
+      <div class="left-panel">
+        <!-- Header แสดงโต๊ะ และ วันที่เวลา ที่ดึงมาจาก Database สไตล์เดียวกับ bill.ts -->
+        <div class="panel-header">
+          <span class="table-title">โต๊ะ {{ currentBill?.tableNumbers || '-' }}</span>
+          <span class="bill-date">
+            {{ billDateDisplay ? (billDateDisplay | date:'dd/MM/yyyy HH:mm:ss') : '-' }}
+          </span>
+        </div>
+
+        <div class="items-table-wrapper">
+          <table class="items-table">
+            <thead>
+              <tr>
+                <th class="col-num">#</th>
+                <th class="col-name">รายการ</th>
+                <th class="col-qty text-center">จำนวน</th>
+                <th class="col-price text-end">ราคา/หน่วย</th>
+                <th class="col-price text-end">รวม</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- แถวรายการ: ผู้ใหญ่ -->
+              <tr *ngIf="numAdults > 0">
+                <td class="col-num">1</td>
+                <td class="col-name">บุฟเฟต์ผู้ใหญ่</td>
+                <td class="col-qty text-center">
+                  <span class="qty-val">{{ numAdults }}</span>
+                </td>
+                <td class="col-price text-end">
+                  {{ adultPrice | number:'1.2-2' }}
+                </td>
+                <td class="col-price text-end">
+                  {{ (numAdults * adultPrice) | number:'1.2-2' }}
+                </td>
+              </tr>
+
+              <!-- แถวรายการ: เด็ก -->
+              <tr *ngIf="numChildren > 0">
+                <td class="col-num">{{ (numAdults > 0) ? 2 : 1 }}</td>
+                <td class="col-name">บุฟเฟต์เด็ก</td>
+                <td class="col-qty text-center">
+                  <span class="qty-val">{{ numChildren }}</span>
+                </td>
+                <td class="col-price text-end">
+                  {{ childPrice | number:'1.2-2' }}
+                </td>
+                <td class="col-price text-end">
+                  {{ (numChildren * childPrice) | number:'1.2-2' }}
+                </td>
+              </tr>
+
+              <!-- สถานะกำลังโหลดรายการสั่งเพิ่ม -->
+              <tr *ngIf="isLoadingItems">
+                <td colspan="5" class="text-center loading-text">กำลังโหลดรายการเพิ่มเติม...</td>
+              </tr>
+
+              <!-- แถวรายการอาหารสั่งเพิ่ม -->
+              <tr *ngFor="let item of orderItems; let i = index">
+                <td class="col-num">
+                  {{ (numAdults > 0 ? 1 : 0) + (numChildren > 0 ? 1 : 0) + i + 1 }}
+                </td>
+                <td class="col-name">{{ item.name }}</td>
+                <td class="col-qty text-center">
+                  <div class="qty-control">
+                    <button class="btn-qty minus" (click)="updateQuantity(item, -1)">-</button>
+                    <span class="qty-val">{{ item.quantity }}</span>
+                    <button class="btn-qty plus" (click)="updateQuantity(item, 1)">+</button>
+                  </div>
+                </td>
+                <td class="col-price text-end">{{ item.price | number:'1.2-2' }}</td>
+                <td class="col-price text-end">{{ (item.price * item.quantity) | number:'1.2-2' }}</td>
+              </tr>
+
+              <!-- กรณีไม่มีรายการ -->
+              <tr *ngIf="!isLoadingItems && !numAdults && !numChildren && orderItems.length === 0">
+                <td colspan="5" class="text-center no-data-text">ไม่มีรายการชำระเงิน</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- สรุปยอดฝั่งซ้าย -->
+        <div class="panel-summary">
+          <div class="summary-row">
+            <span>รวมค่าบุฟเฟต์</span>
+            <span>{{ buffetTotal | number:'1.2-2' }} ฿</span>
+          </div>
+          <div class="summary-row" *ngIf="itemsSubtotal > 0">
+            <span>รายการสั่งเพิ่ม</span>
+            <span>{{ itemsSubtotal | number:'1.2-2' }} ฿</span>
+          </div>
+          <div class="summary-row" *ngIf="fineAmount > 0">
+            <span>ค่าปรับ</span>
+            <span>{{ fineAmount | number:'1.2-2' }} ฿</span>
+          </div>
+          
+          <!-- แสดงรายละเอียดโปรโมชั่น + จำนวนเงินที่ลด -->
+          <div class="summary-row">
+            <span>โปรโมชั่น</span>
+            <span [class.text-danger]="discountAmount > 0">
+              {{ discountName }} 
+              <ng-container *ngIf="discountAmount > 0">
+                (-{{ discountAmount | number:'1.2-2' }} ฿)
+              </ng-container>
+            </span>
+          </div>
+
+          <div class="summary-row grand-total-row">
+            <span>รวมสุทธิ</span>
+            <span class="total-val">{{ grandTotal | number:'1.2-2' }} ฿</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ฝั่งขวา: คำนวณเงิน & วิธีการชำระเงิน -->
+      <div class="right-panel">
+        <!-- ยอดรวมสุทธิ -->
+        <div class="display-box-group">
+          <label>รวมสุทธิ</label>
+          <div class="display-box total-box">
+            {{ grandTotal | number:'1.2-2' }}
+          </div>
+        </div>
+
+        <!-- จำนวนเงินที่รับ -->
+        <div class="display-box-group">
+          <label>จำนวนเงินที่รับ</label>
+          <input type="number" class="display-box input-box" [(ngModel)]="receivedAmount"
+            [disabled]="paymentMethod === 'qrcode'" placeholder="0.00" />
+        </div>
+
+        <!-- เงินทอน -->
+        <div class="display-box-group">
+          <label>เงินทอน</label>
+          <div class="display-box change-box">
+            {{ changeAmount | number:'1.2-2' }}
+          </div>
+        </div>
+
+        <!-- ปุ่มแอคชั่นส่วนลด & ปริ้น (ตามตำแหน่งเดิม) -->
+        <div class="action-row">
+          <button class="btn-discount" (click)="openDiscountModal()">
+            + ส่วนลด
+          </button>
+          <button class="btn-print" (click)="printReceipt()">
+            <mat-icon>print</mat-icon>
+            <span>ปริ้นใบเสร็จ</span>
+          </button>
+        </div>
+
+        <!-- ปุ่มเลือกชำระเงินแยกแถวแนวตั้ง -->
+        <div class="payment-method-section">
+          <label class="section-title">เลือกวิธีชำระเงิน</label>
+          <div class="payment-btn-group vertical">
+            <button type="button" 
+                    class="btn-payment btn-cash" 
+                    (click)="processPayment('cash')">
+              <mat-icon>payments</mat-icon>
+              <span>เงินสด</span>
+            </button>
+
+            <button type="button" 
+                    class="btn-payment btn-qrcode" 
+                    (click)="processPayment('qrcode')">
+              <mat-icon>qr_code_2</mat-icon>
+              <span>QR Code</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</app-menu-cashier>
+
+<!-- Modal ป๊อปอัพเลือกส่วนลด -->
+<p-dialog header="เลือกส่วนลด / โปรโมชั่น" [(visible)]="showDiscountModal" [modal]="true" [style]="{width: '450px'}">
+  <div class="discount-dialog-list">
+    <!-- ปุ่มยกเลิก/ไม่ใช้ส่วนลด -->
+    <div class="discount-item reset-item" (click)="removeDiscount()">
+      <span>🚫 ไม่ใช้งานส่วนลด</span>
+    </div>
+    <hr />
+
+    <!-- รายการส่วนลดจาก API -->
+    <div *ngFor="let d of discounts" 
+         class="discount-item" 
+         [class.active]="selectedDiscount?.discount_id === d.discount_id"
+         (click)="selectDiscount(d)">
+      <div class="discount-info">
+        <span class="discount-title">{{ d.discount_Name }}</span>
+        <span class="discount-value text-primary">
+          ลด {{ d.discount_Type === 'percent' ? d.discount_amount + '%' : d.discount_amount + ' บาท' }}
+        </span>
+      </div>
+    </div>
+
+    <div *ngIf="discounts.length === 0" class="text-center p-3 text-muted">
+      ไม่พบโปรโมชั่นในระบบ
+    </div>
+  </div>
+</p-dialog>

@@ -1,10 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MessageService } from 'primeng/api';
 import { DialogModule } from 'primeng/dialog';
 import { Toast } from 'primeng/toast';
+import { Subscription } from 'rxjs';
 import { MenuServer } from "../../../components/menu-bar/menu-server/menu-server";
 import { Bill } from '../../../models/bill.model';
 import { Discount } from '../../../models/discount.model';
@@ -13,13 +14,14 @@ import { BillService } from '../../../service/api/bill.service';
 import { DiscountService } from '../../../service/api/discount.service';
 import { SignalrService } from '../../../service/api/signalr.service';
 import { TableService } from '../../../service/api/table.service';
+
 @Component({
   selector: 'app-create-bill',
   imports: [MenuServer, CommonModule, MatIconModule, FormsModule, Toast, DialogModule],
   templateUrl: './create-bill.html',
   styleUrl: './create-bill.scss',
 })
-export class CreateBill {
+export class CreateBill implements OnInit, OnDestroy {
   activeBills: Bill[] = [];
   discounts: Discount[] = [];
   tables: Table[] = [];
@@ -38,6 +40,10 @@ export class CreateBill {
   searchText: string = '';
   selectedBillForEdit: any = null;
   currentEditTableGroupString: string = '';
+
+  // 🟢 เก็บ Subscriptions ทั้งหมดไว้สำหรับเคลียร์ใน ngOnDestroy
+  private subscriptions: Subscription[] = [];
+
   constructor(
     private signalrService: SignalrService,
     private tableService: TableService,
@@ -45,17 +51,50 @@ export class CreateBill {
     private discountService: DiscountService,
     private messageService: MessageService
   ) { }
+
   ngOnInit() {
     this.loadTables();
     this.loadDiscounts();
     this.loadActiveBills();
-    this.signalrService.tableStatus$.subscribe((updatedTable) => {
-      const index = this.tables.findIndex((t) => t.table_id === updatedTable.tableId);
-      if (index !== -1) {
-        this.tables[index].table_Status = updatedTable.status as 'ว่าง' | 'ติดจอง' | 'ไม่ว่าง';
-      }
-    });
+
+    // 🟢 1. Real-time สถานะโต๊ะรายตัว
+    if (this.signalrService.tableStatus$) {
+      const subTable = this.signalrService.tableStatus$.subscribe((updatedTable) => {
+        if (updatedTable) {
+          const index = this.tables.findIndex((t) => t.table_id === updatedTable.tableId);
+          if (index !== -1) {
+            this.tables[index].table_Status = updatedTable.status as 'ว่าง' | 'ติดจอง' | 'ไม่ว่าง';
+          }
+        }
+      });
+      this.subscriptions.push(subTable);
+    }
+
+    // 🟢 2. Real-time ข้อมูลบิล (เมื่อมีการเปิดบิล / ย้ายโต๊ะ / ปิดบิล / แก้ไขบิล จากเครื่องอื่น)
+    if (this.signalrService.billUpdated$) {
+      const subBill = this.signalrService.billUpdated$.subscribe(() => {
+        console.log('SignalR: มีการเปลี่ยนแปลงบิล/เปิดบิลสด โหลดข้อมูลใหม่...');
+        this.loadActiveBills();
+        this.loadTables();
+      });
+      this.subscriptions.push(subBill);
+    }
+
+    // 🟢 3. Real-time ข้อมูลลูกค้า (เมื่อมีการจัดการ/อัปเดตจำนวนลูกค้าหรือข้อมูลลูกค้าจากเครื่องอื่น)
+    if (this.signalrService.customerUpdated$) {
+      const subCustomer = this.signalrService.customerUpdated$.subscribe(() => {
+        console.log('SignalR: ข้อมูลลูกค้ามีการอัปเดต โหลดบิลใหม่...');
+        this.loadActiveBills();
+      });
+      this.subscriptions.push(subCustomer);
+    }
   }
+
+  ngOnDestroy() {
+    // 🟢 เคลียร์ Subscriptions เมื่อเปลี่ยนหน้า ป้องกัน Memory Leak
+    this.subscriptions.forEach(sub => sub.unsubscribe());
+  }
+
   loadTables() {
     this.tableService.getAlltables().subscribe({
       next: (response: Table[]) => {
@@ -67,6 +106,7 @@ export class CreateBill {
       },
     });
   }
+
   loadDiscounts() {
     this.discountService.getDiscount().subscribe({
       next: (response: Discount[]) => {
@@ -77,17 +117,17 @@ export class CreateBill {
       }
     });
   }
+
   loadActiveBills() {
     this.billService.getBill().subscribe({
-      next: (response: any[]) => { // หรือ Bill[]
+      next: (response: any[]) => {
         console.log('โหลดข้อมูลบิลสำเร็จ:', response);
         this.activeBills = response;
 
         this.activeBills.forEach(bill => {
           bill.tableNumbers = 'กำลังโหลด...';
-          bill.allTables = []; // 🎯 สร้างกล่องว่างๆ รองรับเก็บข้อมูลเต็มสำหรับหน้าหลักไว้ก่อน
+          bill.allTables = [];
 
-          // 🎯 ดึง Bill ID หลักมาใช้ในการถาม API
           if (bill.bill_id) {
             this.tableService.getTableByBillId(bill.bill_id).subscribe({
               next: (tables: any[]) => {
@@ -99,7 +139,6 @@ export class CreateBill {
                   } else {
                     bill.tableNumbers = tableNames.join(', ');
                   }
-
                 } else {
                   bill.tableNumbers = 'ไม่พบโต๊ะ';
                   bill.allTables = [];
@@ -121,11 +160,13 @@ export class CreateBill {
       }
     });
   }
+
   getdiscountName(discountId: number | null): string {
     if (discountId === null) return 'ไม่มีส่วนลด';
     const discount = this.discounts.find(d => d.discount_id === discountId);
     return discount ? discount.discount_Name : 'ไม่มีส่วนลด';
   }
+
   gettablebyGroupTableId(bill: any): void {
     this.tableService.getTableByBillId(bill.bill_id).subscribe({
       next: (response: TableWithGroup[]) => {
@@ -133,20 +174,20 @@ export class CreateBill {
       },
       error: (err) => {
         console.error('โหลดข้อมูลโต๊ะตามกลุ่มไม่สำเร็จ:', err);
-        return [];
       }
     });
   }
+
   saveEditedBill() {
     const billId = this.selectedBillForEdit.bill_id;
     const payload = {
-      config_id: 30001, // สามารถระบุค่าเริ่มต้นของสิทธิ์หรือดึงจาก ConfigService หลักของระบบคุณได้ครับ
-      table_ids: this.selectedTables.map(t => t.table_id), // แปลงอาร์เรย์วัตถุโต๊ะให้เหลือเฉพาะกลุ่ม ID เลข int
+      config_id: 30001,
+      table_ids: this.selectedTables.map(t => t.table_id),
       emp_id: 1,
       numAdults: this.adultCount,
       numChildren: this.childCount,
-      discount_id: Number(this.selectedDiscount) === 0 ? null : Number(this.selectedDiscount), // ล็อกค่าแบบแปลงเป็น Null เมื่อระบุไม่มีส่วนลด
-      fine_kg: this.fine_kg // เพิ่มค่าปรับใน payload
+      discount_id: Number(this.selectedDiscount) === 0 ? null : Number(this.selectedDiscount),
+      fine_kg: this.fine_kg
     };
 
     this.billService.updateBill(billId, payload).subscribe({
@@ -154,11 +195,11 @@ export class CreateBill {
         this.messageService.add({
           severity: 'success',
           summary: 'สำเร็จ',
-          detail: res.message || 'แก้ไขบิลสำเร็จ!'
+          detail: res.message || 'แก้ไขข้อมูลบิล/ลูกค้าสำเร็จ!'
         });
         this.showeditModal = false;
         this.clearForm();
-        this.loadActiveBills(); // โหลดข้อมูลบิลใหม่หลังจากแก้ไข
+        this.loadActiveBills();
       },
       error: (err) => {
         console.error('เกิดข้อผิดพลาดในการแก้ไขบิล:', err);
@@ -170,6 +211,7 @@ export class CreateBill {
       }
     });
   }
+
   confirm() {
     if (!this.selectedBillToDelete || !this.selectedBillToDelete.bill_id) return;
 
@@ -185,7 +227,8 @@ export class CreateBill {
         });
         this.displayconfirm = false;
         this.selectedBillToDelete = null;
-        this.loadActiveBills(); // โหลดข้อมูลบิลใหม่หลังจากลบ
+        this.loadActiveBills();
+        this.loadTables();
       },
       error: (err) => {
         const errorMessage = err?.error?.message || 'เกิดข้อผิดพลาดในการลบบิล';
@@ -202,8 +245,8 @@ export class CreateBill {
     this.displayconfirm = true;
     this.selectedBillToDelete = bill;
     this.billNumbersToDelete = bill.tableNumbers || '';
-
   }
+
   toggleTableSelection(table: Table) {
     if (!this.isTableSelectable(table)) return;
 
@@ -234,6 +277,7 @@ export class CreateBill {
   togglerecordModal(show: boolean) {
     this.showrecordModal = show;
   }
+
   openEditModal(bill: any) {
     this.currentEditTableGroupString = 'กำลังโหลดข้อมูลโต๊ะ...';
     this.selectedBillForEdit = bill;
@@ -248,15 +292,12 @@ export class CreateBill {
     if (bill.bill_id) {
       this.tableService.getTableByBillId(bill.bill_id).subscribe({
         next: (tables: any[]) => {
-          console.log('ข้อมูลโต๊ะที่ได้จาก API (สำหรับ Modal):', tables);
-
           if (tables && tables.length > 0) {
             this.selectedBillForEdit.allTables = tables;
             this.currentEditTableGroupString = tables
               .map(t => t.table_Number)
               .filter(name => name)
-              .join(', '); // ผลลัพธ์: "A2, A3, A4" (โชว์ครบหมดไม่โดนตัด ... เหมือนหน้าแรก)
-
+              .join(', ');
           } else {
             this.currentEditTableGroupString = 'ไม่พบข้อมูลโต๊ะในบิลนี้';
             this.selectedBillForEdit.allTables = [];
@@ -272,6 +313,7 @@ export class CreateBill {
       this.currentEditTableGroupString = 'บิลนี้ไม่มีรหัสบิล';
     }
   }
+
   confirmRecord() {
     if (this.selectedTables.length === 0) {
       this.messageService.add({
@@ -297,7 +339,7 @@ export class CreateBill {
       emp_id: 1,
       numAdults: this.adultCount,
       numChildren: this.childCount,
-      discount_id: Number(this.selectedDiscount) === 0 ? null : Number(this.selectedDiscount) // ล็อกค่าแบบแปลงเป็น Null เมื่อระบุไม่มีส่วนลด
+      discount_id: Number(this.selectedDiscount) === 0 ? null : Number(this.selectedDiscount)
     };
 
     this.billService.createWalkInBill(payload).subscribe({
@@ -305,7 +347,7 @@ export class CreateBill {
         this.messageService.add({
           severity: 'success',
           summary: 'Success',
-          detail: 'สร้างบิลสำเร็จ',
+          detail: 'สร้างบิลและบันทึกข้อมูลลูกค้าสำเร็จ',
         });
         this.togglerecordModal(false);
         this.clearForm();
@@ -322,12 +364,14 @@ export class CreateBill {
       }
     });
   }
+
   clearForm() {
     this.selectedTables = [];
     this.adultCount = 0;
     this.childCount = 0;
     this.selectedDiscount = 0;
   }
+
   get filteredActiveBills(): Bill[] {
     if (!this.searchText.trim()) {
       return this.activeBills;
@@ -340,7 +384,6 @@ export class CreateBill {
       const matchInAllTables = bill.allTables && bill.allTables.some(t =>
         t.table_Number && t.table_Number.toLowerCase().includes(search)
       );
-
 
       return matchText || matchInAllTables;
     });
@@ -375,7 +418,7 @@ export class CreateBill {
     const billId = this.selectedBillForEdit.bill_id;
     const payload = {
       table_ids: this.selectedTables.map(t => t.table_id)
-    }
+    };
 
     this.tableService.ChangeTable(billId, payload).subscribe({
       next: (res) => {
@@ -388,8 +431,7 @@ export class CreateBill {
         this.selectedTables = [];
         this.loadActiveBills();
         this.loadTables();
-      }
-      ,
+      },
       error: (err) => {
         console.error('เกิดข้อผิดพลาดในการเปลี่ยนโต๊ะ:', err);
         this.messageService.add({
@@ -399,8 +441,8 @@ export class CreateBill {
         });
       }
     });
-
   }
+
   isTableSelectable(table: any): boolean {
     if (this.changeTablemode) {
       const isBelongsToCurrentBill = this.selectedBillForEdit?.allTables?.some((t: any) => t.table_id === table.table_id);
