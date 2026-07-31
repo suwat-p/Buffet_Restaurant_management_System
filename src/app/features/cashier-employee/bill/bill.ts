@@ -4,20 +4,15 @@ import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
-<<<<<<< HEAD
 import { Toast } from 'primeng/toast';
 import { Subscription } from 'rxjs';
 import { MenuCashier } from "../../../components/menu-bar/menu-cashier/menu-cashier";
-=======
-import { MenuCashier } from '../../../components/menu-bar/menu-cashier/menu-cashier';
->>>>>>> cced3c00f319774f1c7c67addf556a774bab337a
 import { Bill } from '../../../models/bill.model';
 import { Discount } from '../../../models/discount.model';
 import { BillService } from '../../../service/api/bill.service';
 import { DiscountService } from '../../../service/api/discount.service';
 import { SignalrService } from '../../../service/api/signalr.service';
 import { TableService } from '../../../service/api/table.service';
-import { Toast } from 'primeng/toast';
 
 @Component({
   selector: 'app-bill',
@@ -28,7 +23,6 @@ import { Toast } from 'primeng/toast';
     FormsModule,
     Toast
   ],
-  imports: [MenuCashier, CommonModule, MatIconModule, FormsModule, Toast],
   templateUrl: './bill.html',
   styleUrl: './bill.scss',
 })
@@ -52,7 +46,6 @@ export class BillingList implements OnInit, OnDestroy {
     private signalrService: SignalrService,
     private router: Router
   ) { }
-  ) {}
 
   ngOnInit() {
     this.loadDiscounts();
@@ -90,7 +83,7 @@ export class BillingList implements OnInit, OnDestroy {
       },
       error: (err) => {
         console.error('โหลดข้อมูลส่วนลดไม่สำเร็จ:', err);
-      },
+      }
     });
   }
 
@@ -100,7 +93,7 @@ export class BillingList implements OnInit, OnDestroy {
       next: (response: any[]) => {
         this.activeBills = response;
 
-        this.activeBills.forEach((bill) => {
+        this.activeBills.forEach(bill => {
           bill.tableNumbers = 'กำลังโหลด...';
           bill.allTables = [];
 
@@ -110,7 +103,6 @@ export class BillingList implements OnInit, OnDestroy {
                 if (tables && tables.length > 0) {
                   bill.allTables = tables;
                   const tableNames = tables.map(t => t.table_Number).filter(name => name);
-                  const tableNames = tables.map((t) => t.table_Number).filter((name) => name);
 
                   if (tableNames.length > 2) {
                     bill.tableNumbers = tableNames.slice(0, 2).join(', ') + '...';
@@ -126,7 +118,7 @@ export class BillingList implements OnInit, OnDestroy {
                 console.error(`โหลดโต๊ะของบิล ${bill.bill_id} ไม่สำเร็จ:`, err);
                 bill.tableNumbers = 'ข้อผิดพลาด';
                 bill.allTables = [];
-              },
+              }
             });
           } else {
             bill.tableNumbers = 'ไม่มีรหัสบิล';
@@ -135,14 +127,14 @@ export class BillingList implements OnInit, OnDestroy {
       },
       error: (err) => {
         console.error('โหลดข้อมูลบิลไม่สำเร็จ:', err);
-      },
+      }
     });
   }
 
   // แปลง discount_id เป็นชื่อส่วนลด
   getdiscountName(discountId: number | null): string {
     if (discountId === null) return 'ไม่มีส่วนลด';
-    const discount = this.discounts.find((d) => d.discount_id === discountId);
+    const discount = this.discounts.find(d => d.discount_id === discountId);
     return discount ? discount.discount_Name : 'ไม่มีส่วนลด';
   }
 
@@ -154,11 +146,11 @@ export class BillingList implements OnInit, OnDestroy {
 
     const search = this.searchText.toLowerCase().trim();
 
-    return this.activeBills.filter((bill) => {
+    return this.activeBills.filter(bill => {
       const matchText = bill.tableNumbers && bill.tableNumbers.toLowerCase().includes(search);
-      const matchInAllTables =
-        bill.allTables &&
-        bill.allTables.some((t) => t.table_Number && t.table_Number.toLowerCase().includes(search));
+      const matchInAllTables = bill.allTables && bill.allTables.some(t =>
+        t.table_Number && t.table_Number.toLowerCase().includes(search)
+      );
 
       return matchText || matchInAllTables;
     });
@@ -173,12 +165,5 @@ export class BillingList implements OnInit, OnDestroy {
     } else {
       console.error('ไม่พบ billId ในข้อมูลที่ส่งมา:', bill);
     }
-  }
-}
-  // ฟังก์ชันเปิด Modal ชำระเงิน (รอผูกกับ Modal ชำระเงินต่อ)
-  openPaymentModal(bill: any) {
-    this.selectedBillForPayment = bill;
-    this.showPaymentModal = true;
-    console.log('เปิดหน้าชำระเงินสำหรับบิล:', bill);
   }
 }
