@@ -1,0 +1,132 @@
+<p-toast position="bottom-center"></p-toast>
+
+<app-menu-server>
+  <div class="page-container">
+    <div class="content-wrapper">
+      <!-- Header -->
+      <div class="header-action">
+        <button
+          pButton
+          pRipple
+          icon="pi pi-arrow-left"
+          label="Back"
+          class="p-button-outlined back-btn"
+          (click)="goBack()"
+        ></button>
+        <h2 class="section-header">ลงเวลาเข้างาน</h2>
+      </div>
+
+      <!-- Loading ตอนดึงข้อมูลพนักงานจาก token -->
+      <div class="state-loading" *ngIf="loadingProfile">
+        <i class="pi pi-spin pi-spinner"></i>
+        <p>กำลังโหลดข้อมูลพนักงาน...</p>
+      </div>
+
+      <ng-container *ngIf="!loadingProfile && employee">
+        <!-- การ์ดข้อมูลพนักงาน -->
+        <div class="emp-card">
+          <div class="emp-info">
+            <img [src]="employee.imageUrl || 'assets/images/no-avatar.png'" class="emp-avatar" />
+            <div>
+              <div class="emp-name">{{ employee.fullname }}</div>
+              <div class="emp-meta">EMP{{ padId(employee.empId) }} | {{ employee.position }}</div>
+            </div>
+          </div>
+          <div class="emp-shift" *ngIf="employee.shiftStart">
+            <span class="shift-label">เวลาทำงาน</span>
+            <span class="shift-value">{{ employee.shiftStart }}-{{ employee.shiftEnd }}</span>
+          </div>
+        </div>
+
+        <!-- การ์ดหลัก -->
+        <div class="main-card">
+          <h3 class="main-title">ลงเวลาทำงาน</h3>
+
+          <!-- Tab -->
+          <div class="tab-switch">
+            <button
+              class="tab-btn"
+              [class.active]="activeTab === 'clock'"
+              (click)="activeTab = 'clock'"
+            >
+              เข้างาน
+            </button>
+            <button
+              class="tab-btn"
+              [class.active]="activeTab === 'history'"
+              (click)="activeTab = 'history'"
+            >
+              ประวัติ
+            </button>
+          </div>
+
+          <!-- ===== Tab: เข้างาน/ออกงาน ===== -->
+          <div *ngIf="activeTab === 'clock'" class="clock-panel">
+            <button
+              class="clock-action-btn clock-in"
+              [disabled]="todayStatus !== 'idle' || isProcessing"
+              [class.loading]="isProcessing && pendingAction === 'in'"
+              (click)="doClockIn()"
+            >
+              เข้างาน
+            </button>
+            <button
+              class="clock-action-btn clock-out"
+              [disabled]="todayStatus !== 'working' || isProcessing"
+              [class.loading]="isProcessing && pendingAction === 'out'"
+              (click)="doClockOut()"
+            >
+              ออกงาน
+            </button>
+
+            <div class="today-summary" *ngIf="todayRecord">
+              <div class="today-total">
+                <span class="badge-label">สรุปวันนี้</span>
+                <div class="total-row">
+                  <div>
+                    <span class="summary-label">เข้างาน:</span>
+                    <span class="summary-value">{{ formatTime(todayRecord.clockInTime) }}</span>
+                  </div>
+                  <div>
+                    <span class="summary-label">ออกงาน:</span>
+                    <span class="summary-value">
+                      {{ todayRecord.clockOutTime ? formatTime(todayRecord.clockOutTime) : '-' }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ===== Tab: ประวัติ ===== -->
+          <div *ngIf="activeTab === 'history'" class="history-panel">
+            <div class="history-card">
+              <h4>ประวัติการลงเวลา</h4>
+
+              <div class="history-empty" *ngIf="myHistory.length === 0">
+                ยังไม่มีประวัติการลงเวลา
+              </div>
+
+              <div class="history-row" *ngFor="let log of myHistory">
+                <div class="history-col">
+                  <span class="summary-label">วันที่</span>
+                  <span class="summary-value">{{ formatThaiDate(log.clockInTime) }}</span>
+                </div>
+                <div class="history-col">
+                  <span class="summary-label">เข้างาน:</span>
+                  <span class="summary-value">{{ formatTime(log.clockInTime) }}</span>
+                </div>
+                <div class="history-col">
+                  <span class="summary-label">ออกงาน:</span>
+                  <span class="summary-value">
+                    {{ log.clockOutTime ? formatTime(log.clockOutTime) : '-' }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+</app-menu-server>

@@ -90,6 +90,10 @@ export class ManageShop implements OnInit {
     this.router.navigate(['/ManageDiscount']);
   }
 
+  goToLocationSettings(): void {
+    this.router.navigate(['/ManageShopLocation']);
+  }
+
   loadConfig(): void {
     this.configService.getConfig().subscribe({
       next: (data: any[]) => {
