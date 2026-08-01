@@ -3,53 +3,107 @@
   <div class="register-card">
     <h1>Register/สมัครสมาชิก (สำหรับ พนักงาน)</h1>
 
-    <form>
+    <form (ngSubmit)="onSubmit()" #registerForm="ngForm" novalidate>
+      
+      <!-- ชื่อ-นามสกุล -->
       <div class="form-group">
-        <div class="input-wrapper">
-          <input type="text" name="fullname" placeholder="ชื่อ-นามสกุล" [(ngModel)]="fullname" />
+        <label for="fullname">ชื่อ-นามสกุล <span class="required-star">*</span></label>
+        <div class="input-wrapper" [class.input-error]="fullnameError">
+          <input 
+            type="text" 
+            id="fullname"
+            name="fullname" 
+            placeholder="กรอกชื่อ-นามสกุล" 
+            [(ngModel)]="fullname" 
+            (input)="validateFullname()"
+          />
           <mat-icon>person</mat-icon>
         </div>
+        <small class="error-text" *ngIf="fullnameError">{{ fullnameError }}</small>
       </div>
 
+      <!-- อีเมล -->
       <div class="form-group">
-        <div class="input-wrapper">
-          <input type="email" name="email" placeholder="อีเมล" [(ngModel)]="email" />
+        <label for="email">อีเมล <span class="required-star">*</span></label>
+        <div class="input-wrapper" [class.input-error]="emailError">
+          <input 
+            type="email" 
+            id="email"
+            name="email" 
+            placeholder="example@email.com" 
+            [(ngModel)]="email" 
+            (blur)="validateEmailWithAPI()"
+            (input)="clearEmailError()"
+          />
           <mat-icon>mail</mat-icon>
         </div>
+        <small class="info-text" *ngIf="isCheckingEmail">กำลังตรวจสอบอีเมล...</small>
+        <small class="error-text" *ngIf="emailError && !isCheckingEmail">{{ emailError }}</small>
       </div>
 
+      <!-- เบอร์โทรศัพท์ -->
       <div class="form-group">
-        <div class="input-wrapper">
-          <input type="tel" name="phone" placeholder="เบอร์โทรศัพท์" [(ngModel)]="phone" />
+        <label for="phone">เบอร์โทรศัพท์ <span class="required-star">*</span></label>
+        <div class="input-wrapper" [class.input-error]="phoneError">
+          <input 
+            type="tel" 
+            id="phone"
+            name="phone" 
+            placeholder="0812345678" 
+            [(ngModel)]="phone" 
+            (input)="validatePhone()"
+            maxLength="10"
+          />
           <mat-icon>phone</mat-icon>
         </div>
+        <small class="error-text" *ngIf="phoneError">{{ phoneError }}</small>
       </div>
 
+      <!-- รหัสผ่าน -->
       <div class="form-group">
-        <div class="input-wrapper">
-          <input type="password" name="password" placeholder="รหัสผ่าน" [(ngModel)]="password" />
-          <mat-icon>lock</mat-icon>
+        <label for="password">รหัสผ่าน <span class="required-star">*</span></label>
+        <div class="input-wrapper" [class.input-error]="passwordError">
+          <input 
+            [type]="showPassword ? 'text' : 'password'" 
+            id="password"
+            name="password" 
+            placeholder="รหัสผ่านอย่างน้อย 8 ตัวอักษร" 
+            [(ngModel)]="password" 
+            (input)="validatePassword()"
+          />
+          <mat-icon class="icon-main">lock</mat-icon>
+          <mat-icon class="icon-toggle-eye" (click)="togglePasswordVisibility()">
+            {{ showPassword ? 'visibility_off' : 'visibility' }}
+          </mat-icon>
+        </div>
+        <small class="error-text" *ngIf="passwordError">{{ passwordError }}</small>
+        <div class="password-hint">
+          * รหัสผ่านต้องมีความยาวอย่างน้อย 8 ตัว ประกอบด้วย ตัวอักษรพิมพ์ใหญ่ (A-Z), พิมพ์เล็ก (a-z), ตัวเลข (0-9) และอักขระพิเศษ
         </div>
       </div>
 
+      <!-- รหัสบัตรประชาชน -->
       <div class="form-group">
-        <div class="input-wrapper">
+        <label for="idCard">รหัสบัตรประชาชน <span class="required-star">*</span></label>
+        <div class="input-wrapper" [class.input-error]="idCardError">
           <input
             type="text"
+            id="idCard"
             name="idCard"
-            placeholder="รหัสบัตรประชาชน"
+            placeholder="รหัสบัตรประชาชน 13 หลัก"
             [(ngModel)]="idCard"
             maxlength="13"
-            minlength="13"
-            pattern="^[0-9]*$"
+            (input)="validateIdCard()"
           />
           <mat-icon>badge</mat-icon>
         </div>
+        <small class="error-text" *ngIf="idCardError">{{ idCardError }}</small>
       </div>
 
+      <!-- เลือกรูปพนักงาน -->
       <div class="form-group">
-        <label>เลือกรูปพนักงาน</label>
-        <div class="file-upload">
+        <label>เลือกรูปพนักงาน <span class="required-star">*</span></label>
+        <div class="file-upload" [class.input-error]="fileError">
           <input
             type="file"
             #fileInput
@@ -62,47 +116,60 @@
             {{ selectedFile ? selectedFileName : 'ไม่ได้เลือกไฟล์ใด' }}
           </span>
         </div>
+        <small class="error-text" *ngIf="fileError">{{ fileError }}</small>
       </div>
 
+      <!-- เพศ -->
       <div class="form-group">
-        <div class="input-wrapper">
-          <select name="gender" [(ngModel)]="gender">
+        <label for="gender">เพศ <span class="required-star">*</span></label>
+        <div class="input-wrapper" [class.input-error]="genderError">
+          <select id="gender" name="gender" [(ngModel)]="gender" (change)="validateGender()">
             <option value="" disabled selected>เลือกเพศ</option>
             <option value="ชาย">ชาย</option>
             <option value="หญิง">หญิง</option>
           </select>
         </div>
+        <small class="error-text" *ngIf="genderError">{{ genderError }}</small>
       </div>
 
+      <!-- ที่อยู่ -->
       <div class="form-group">
-        <label>ที่อยู่</label>
-        <div class="input-wrapper">
-          <textarea name="address" rows="3" [(ngModel)]="address"></textarea>
+        <label for="address">ที่อยู่ <span class="required-star">*</span></label>
+        <div class="input-wrapper" [class.input-error]="addressError">
+          <textarea id="address" name="address" rows="3" [(ngModel)]="address" (input)="validateAddress()"></textarea>
         </div>
+        <small class="error-text" *ngIf="addressError">{{ addressError }}</small>
       </div>
 
+      <!-- แผนก -->
       <div class="form-group">
-        <div class="input-wrapper">
-          <select name="department" [(ngModel)]="department">
+        <label for="department">แผนก <span class="required-star">*</span></label>
+        <div class="input-wrapper" [class.input-error]="departmentError">
+          <select id="department" name="department" [(ngModel)]="department" (change)="validateDepartment()">
             <option value="" disabled selected>เลือกแผนก</option>
             <option value="พนักงานเสิร์ฟ">พนักงานเสิร์ฟ</option>
             <option value="พนักงานครัว">พนักงานครัว</option>
             <option value="พนักงานแคชเชียร์">พนักงานแคชเชียร์</option>
           </select>
         </div>
+        <small class="error-text" *ngIf="departmentError">{{ departmentError }}</small>
       </div>
 
+      <!-- ประเภทพนักงาน -->
       <div class="form-group">
-        <div class="input-wrapper">
-          <select name="employeeType" [(ngModel)]="employeeType">
+        <label for="employeeType">ประเภทพนักงาน <span class="required-star">*</span></label>
+        <div class="input-wrapper" [class.input-error]="employeeTypeError">
+          <select id="employeeType" name="employeeType" [(ngModel)]="employeeType" (change)="validateEmployeeType()">
             <option value="" disabled selected>เลือกประเภทพนักงาน</option>
             <option value="ประจำ">ประจำ</option>
             <option value="พาร์ทไทม์">พาร์ทไทม์</option>
           </select>
         </div>
+        <small class="error-text" *ngIf="employeeTypeError">{{ employeeTypeError }}</small>
       </div>
 
-      <button type="button" class="btn-submit" (click)="onSubmit()">
+      <!-- ปุ่ม Submit -->
+      <button type="submit" class="btn-submit" [disabled]="isCheckingEmail">
         Register/สมัครสมาชิก (สำหรับ พนักงาน)
       </button>
 

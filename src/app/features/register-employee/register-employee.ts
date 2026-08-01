@@ -1,16 +1,17 @@
-import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AuthService } from '../../service/api/auth.service';
 import { HttpClient } from '@angular/common/http';
-import { Toast } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
-import { MatIconModule } from '@angular/material/icon';
+import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { lastValueFrom } from 'rxjs';
+import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
+import { MessageService } from 'primeng/api';
+import { Toast } from 'primeng/toast';
+import { lastValueFrom } from 'rxjs';
+import { AuthService } from '../../service/api/auth.service';
 
 @Component({
   selector: 'app-register-employee',
+  standalone: true,
   imports: [Toast, CommonModule, MatIconModule, FormsModule],
   providers: [MessageService],
   templateUrl: './register-employee.html',
@@ -23,6 +24,8 @@ export class RegisterEmployee {
     private messageService: MessageService,
     private router: Router,
   ) {}
+
+  // Form Models
   fullname: string = '';
   email: string = '';
   phone: string = '';
@@ -35,76 +38,246 @@ export class RegisterEmployee {
   selectedFile: File | null = null;
   selectedFileName: string = '';
 
+  // UI Control States
+  showPassword: boolean = false;
+  isCheckingEmail: boolean = false;
+
+  // Inline Error Messages
+  fullnameError: string = '';
+  emailError: string = '';
+  phoneError: string = '';
+  passwordError: string = '';
+  idCardError: string = '';
+  fileError: string = '';
+  genderError: string = '';
+  addressError: string = '';
+  departmentError: string = '';
+  employeeTypeError: string = '';
+
+  togglePasswordVisibility(): void {
+    this.showPassword = !this.showPassword;
+  }
+
   onFileSelected(event: any) {
     const file: File = event.target.files[0];
     if (file) {
       this.selectedFile = file;
       this.selectedFileName = file.name;
+      this.fileError = '';
+    } else {
+      this.fileError = 'กรุณาเลือกรูปภาพพนักงาน';
     }
   }
-  async onSubmit() {
-    if (
-      !this.fullname ||
-      !this.email ||
-      !this.phone ||
-      !this.password ||
-      !this.gender ||
-      !this.idCard ||
-      !this.address ||
-      !this.department
-    ) {
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'คำเตือน',
-        detail: 'กรุณากรอกข้อมูลให้ครบถ้วน',
-      });
-      return;
+
+  // --- Inline Validations ---
+  validateFullname(): boolean {
+    if (!this.fullname.trim()) {
+      this.fullnameError = 'กรุณากรอกชื่อ-นามสกุล';
+      return false;
     }
-    if (this.email.indexOf('@') === -1) {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Error',
-        detail: 'กรุณากรอกอีเมลให้ถูกต้อง',
-      });
-      return;
+    this.fullnameError = '';
+    return true;
+  }
+
+  clearEmailError(): void {
+    this.emailError = '';
+  }
+
+  async validateEmailWithAPI(): Promise<boolean> {
+    if (!this.email.trim()) {
+      this.emailError = 'กรุณากรอกอีเมล';
+      return false;
     }
-    if (this.phone.length < 10 || this.phone.length > 10) {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Error',
-        detail: 'กรุณากรอกเบอร์โทรให้ถูกต้อง (10 หลัก)',
-      });
-      return;
+
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(this.email)) {
+      this.emailError = 'รูปแบบอีเมลไม่ถูกต้อง';
+      return false;
     }
-    if (this.phone.charAt(0) !== '0') {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Error',
-        detail: 'เบอร์โทรต้องขึ้นต้นด้วย "0"',
-      });
-      return;
+
+    this.isCheckingEmail = true;
+    this.emailError = '';
+
+    try {
+      const abstractApiUrl = `https://emailreputation.abstractapi.com/v1/?api_key=95447c2830c24726a08c83228443e563&email=${encodeURIComponent(this.email)}`;
+      const apiRes: any = await lastValueFrom(this.http.get(abstractApiUrl));
+
+      const status = apiRes?.email_deliverability?.status;
+      const isSmtpValid = apiRes?.email_deliverability?.is_smtp_valid;
+      const isDisposable = apiRes?.email_quality?.is_disposable;
+
+      if (status !== 'deliverable' || !isSmtpValid) {
+        this.emailError = 'อีเมลนี้ไม่มีอยู่จริง ';
+        this.isCheckingEmail = false;
+        return false;
+      }
+
+      if (isDisposable) {
+        this.emailError = 'ไม่อนุญาตให้ใช้อีเมลชั่วคราว (Disposable Email)';
+        this.isCheckingEmail = false;
+        return false;
+      }
+
+      this.emailError = '';
+      this.isCheckingEmail = false;
+      return true;
+
+    } catch (error) {
+      console.error('Error verifying email:', error);
+      this.isCheckingEmail = false;
+      return true; // ปล่อยผ่านกรณี API มีปัญหา
+    }
+  }
+
+  validatePhone(): boolean {
+    if (!this.phone) {
+      this.phoneError = 'กรุณากรอกเบอร์โทรศัพท์';
+      return false;
     }
     if (isNaN(Number(this.phone))) {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Error',
-        detail: 'กรุณากรอกเบอร์โทรให้เป็นตัวเลขเท่านั้น',
-      });
-      return;
+      this.phoneError = 'เบอร์โทรศัพท์ต้องเป็นตัวเลขเท่านั้น';
+      return false;
     }
-    if (!this.idCard || this.idCard.length !== 13) {
+    if (this.phone.charAt(0) !== '0') {
+      this.phoneError = 'เบอร์โทรศัพท์ต้องขึ้นต้นด้วย "0"';
+      return false;
+    }
+    if (this.phone.length !== 10) {
+      this.phoneError = 'เบอร์โทรศัพท์ต้องมี 10 หลัก';
+      return false;
+    }
+    this.phoneError = '';
+    return true;
+  }
+
+  validatePassword(): boolean {
+    if (!this.password) {
+      this.passwordError = 'กรุณากรอกรหัสผ่าน';
+      return false;
+    }
+
+    const hasMinLength = this.password.length >= 8;
+    const hasUpperCase = /[A-Z]/.test(this.password);
+    const hasLowerCase = /[a-z]/.test(this.password);
+    const hasNumeric = /[0-9]/.test(this.password);
+    const hasSpecialChar = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(this.password);
+
+    if (!hasMinLength) {
+      this.passwordError = 'รหัสผ่านต้องมีความยาวอย่างน้อย 8 ตัวอักษร';
+      return false;
+    }
+    if (!hasUpperCase) {
+      this.passwordError = 'รหัสผ่านต้องมีตัวอักษรพิมพ์ใหญ่ (A-Z) อย่างน้อย 1 ตัว';
+      return false;
+    }
+    if (!hasLowerCase) {
+      this.passwordError = 'รหัสผ่านต้องมีตัวอักษรพิมพ์เล็ก (a-z) อย่างน้อย 1 ตัว';
+      return false;
+    }
+    if (!hasNumeric) {
+      this.passwordError = 'รหัสผ่านต้องมีตัวเลข (0-9) อย่างน้อย 1 ตัว';
+      return false;
+    }
+    if (!hasSpecialChar) {
+      this.passwordError = 'รหัสผ่านต้องมีอักขระพิเศษอย่างน้อย 1 ตัว';
+      return false;
+    }
+
+    this.passwordError = '';
+    return true;
+  }
+
+  validateIdCard(): boolean {
+    if (!this.idCard) {
+      this.idCardError = 'กรุณากรอกรหัสบัตรประชาชน';
+      return false;
+    }
+    if (!/^\d+$/.test(this.idCard)) {
+      this.idCardError = 'รหัสบัตรประชาชนต้องเป็นตัวเลขเท่านั้น';
+      return false;
+    }
+    if (this.idCard.length !== 13) {
+      this.idCardError = 'กรุณากรอกรหัสบัตรประชาชนให้ครบ 13 หลัก';
+      return false;
+    }
+    this.idCardError = '';
+    return true;
+  }
+
+  validateFile(): boolean {
+    if (!this.selectedFile) {
+      this.fileError = 'กรุณาเลือกรูปภาพพนักงาน';
+      return false;
+    }
+    this.fileError = '';
+    return true;
+  }
+
+  validateGender(): boolean {
+    if (!this.gender) {
+      this.genderError = 'กรุณาเลือกเพศ';
+      return false;
+    }
+    this.genderError = '';
+    return true;
+  }
+
+  validateAddress(): boolean {
+    if (!this.address.trim()) {
+      this.addressError = 'กรุณากรอกที่อยู่';
+      return false;
+    }
+    this.addressError = '';
+    return true;
+  }
+
+  validateDepartment(): boolean {
+    if (!this.department) {
+      this.departmentError = 'กรุณาเลือกแผนก';
+      return false;
+    }
+    this.departmentError = '';
+    return true;
+  }
+
+  validateEmployeeType(): boolean {
+    if (!this.employeeType) {
+      this.employeeTypeError = 'กรุณาเลือกประเภทพนักงาน';
+      return false;
+    }
+    this.employeeTypeError = '';
+    return true;
+  }
+
+  async onSubmit() {
+    // รัน Validation ทุกช่องเพื่อโชว์ Error
+    const isNameValid = this.validateFullname();
+    const isEmailValid = await this.validateEmailWithAPI();
+    const isPhoneValid = this.validatePhone();
+    const isPasswordValid = this.validatePassword();
+    const isIdCardValid = this.validateIdCard();
+    const isFileValid = this.validateFile();
+    const isGenderValid = this.validateGender();
+    const isAddressValid = this.validateAddress();
+    const isDeptValid = this.validateDepartment();
+    const isEmpTypeValid = this.validateEmployeeType();
+
+    if (
+      !isNameValid ||
+      !isEmailValid ||
+      !isPhoneValid ||
+      !isPasswordValid ||
+      !isIdCardValid ||
+      !isFileValid ||
+      !isGenderValid ||
+      !isAddressValid ||
+      !isDeptValid ||
+      !isEmpTypeValid
+    ) {
       this.messageService.add({
         severity: 'error',
         summary: 'ข้อมูลไม่ถูกต้อง',
-        detail: 'กรุณากรอกรหัสบัตรประชาชนให้ครบ 13 หลัก',
-      });
-      return;
-    }
-    if (!/^\d+$/.test(this.idCard)) {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'ข้อผิดพลาด',
-        detail: 'รหัสบัตรประชาชนต้องเป็นตัวเลขเท่านั้น',
+        detail: 'กรุณาตรวจสอบและกรอกข้อมูลในช่องที่มีข้อผิดพลาดให้ครบถ้วน',
       });
       return;
     }
@@ -118,7 +291,7 @@ export class RegisterEmployee {
     formData.append('Identification_Number', this.idCard);
     formData.append('Address', this.address);
     formData.append('Department', this.department);
-    formData.append('Employee_Type', this.employeeType || 'ประจำ');
+    formData.append('Employee_Type', this.employeeType);
 
     if (this.selectedFile) {
       formData.append('Image_Profile', this.selectedFile, this.selectedFile.name);
@@ -133,7 +306,6 @@ export class RegisterEmployee {
           summary: 'สำเร็จ',
           detail: 'สมัครสมาชิกพนักงานเรียบร้อยแล้ว',
         });
-        console.log('API Response:', response);
       }
       setTimeout(() => {
         this.router.navigate(['/Loginemployee']);
@@ -148,9 +320,11 @@ export class RegisterEmployee {
       console.error('Registration Error:', error);
     }
   }
+
   goBack() {
     window.history.back();
   }
+
   goLogin() {
     this.router.navigate(['/Loginemployee']);
   }

@@ -3,43 +3,103 @@
   <div class="register-card">
     <h1>Register/สมัครสมาชิก (สำหรับ ลูกค้า)</h1>
 
-    <form>
+    <form (ngSubmit)="onSubmit()" #registerForm="ngForm" novalidate>
+      
+      <!-- ชื่อ-นามสกุล -->
       <div class="form-group">
-        <div class="input-wrapper">
-          <input type="text" name="fullname" placeholder="ชื่อ-นามสกุล" [(ngModel)]="fullname" />
+        <label for="fullname">ชื่อ-นามสกุล <span class="required-star">*</span></label>
+        <div class="input-wrapper" [class.input-error]="fullnameError">
+          <input 
+            type="text" 
+            id="fullname"
+            name="fullname" 
+            placeholder="กรอกชื่อ-นามสกุล" 
+            [(ngModel)]="fullname" 
+            (input)="validateFullname()"
+          />
           <mat-icon>person</mat-icon>
         </div>
+        <small class="error-text" *ngIf="fullnameError">{{ fullnameError }}</small>
       </div>
 
       <div class="form-group">
-        <div class="input-wrapper">
-          <input type="email" name="email" placeholder="อีเมล" [(ngModel)]="email" />
+        <label for="email">อีเมล <span class="required-star">*</span></label>
+        <div class="input-wrapper" [class.input-error]="emailError">
+          <input 
+            type="email" 
+            id="email"
+            name="email" 
+            placeholder="example@email.com" 
+            [(ngModel)]="email" 
+            (blur)="validateEmailWithAPI()"
+            (input)="clearEmailError()"
+          />
           <mat-icon>mail</mat-icon>
         </div>
+        <!-- แสดงข้อความกำลังตรวจสอบ หรือ แสดงข้อความ Error -->
+        <small class="info-text" *ngIf="isCheckingEmail">กำลังตรวจสอบอีเมล...</small>
+        <small class="error-text" *ngIf="emailError && !isCheckingEmail">{{ emailError }}</small>
       </div>
 
+      <!-- เบอร์โทรศัพท์ -->
       <div class="form-group">
-        <div class="input-wrapper">
-          <input type="tel" name="phone" placeholder="เบอร์โทรศัพท์" [(ngModel)]="phone" />
+        <label for="phone">เบอร์โทรศัพท์ <span class="required-star">*</span></label>
+        <div class="input-wrapper" [class.input-error]="phoneError">
+          <input 
+            type="tel" 
+            id="phone"
+            name="phone" 
+            placeholder="0812345678" 
+            [(ngModel)]="phone" 
+            (input)="validatePhone()"
+            maxLength="10"
+          />
           <mat-icon>phone</mat-icon>
         </div>
+        <small class="error-text" *ngIf="phoneError">{{ phoneError }}</small>
       </div>
 
+      <!-- รหัสผ่าน -->
       <div class="form-group">
-        <div class="input-wrapper">
-          <input type="password" name="password" placeholder="รหัสผ่าน" [(ngModel)]="password" />
-          <mat-icon>lock</mat-icon>
+        <label for="password">รหัสผ่าน <span class="required-star">*</span></label>
+        <div class="input-wrapper" [class.input-error]="passwordError">
+          <input 
+            [type]="showPassword ? 'text' : 'password'" 
+            id="password"
+            name="password" 
+            placeholder="รหัสผ่านอย่างน้อย 8 ตัวอักษร" 
+            [(ngModel)]="password" 
+            (input)="validatePassword()"
+          />
+          <!-- <mat-icon class="icon-main">lock</mat-icon> -->
+          <mat-icon class="icon-toggle-eye" (click)="togglePasswordVisibility()">
+            {{ showPassword ? 'visibility_off' : 'visibility' }}
+          </mat-icon>
+        </div>
+        <small class="error-text" *ngIf="passwordError">{{ passwordError }}</small>
+        <div class="password-hint">
+          * รหัสผ่านต้องมีความยาวอย่างน้อย 8 ตัว ประกอบด้วย ตัวอักษรพิมพ์ใหญ่ (A-Z), พิมพ์เล็ก (a-z), ตัวเลข (0-9) และอักขระพิเศษ (!@#$%^&* เป็นต้น)
         </div>
       </div>
 
+      <!-- วันเกิด -->
       <div class="form-group">
-        <div class="input-wrapper">
-          <input type="date" name="Birthday" placeholder="วันเกิด" [(ngModel)]="birthday" />
+        <label for="birthday">วันเกิด <span class="required-star">*</span></label>
+        <div class="input-wrapper" [class.input-error]="birthdayError">
+          <input 
+            type="date" 
+            id="birthday"
+            name="Birthday" 
+            [(ngModel)]="birthday" 
+            (change)="validateBirthday()"
+          />
           <mat-icon>cake</mat-icon>
         </div>
+        <small class="error-text" *ngIf="birthdayError">{{ birthdayError }}</small>
       </div>
 
-      <button type="button" class="btn-submit" (click)="onSubmit()">
+      <!-- ปุ่ม Submit -->
+      <button type="submit" class="btn-submit" [disabled]="isCheckingEmail">
         Register/สมัครสมาชิก (สำหรับ ลูกค้า)
       </button>
 
