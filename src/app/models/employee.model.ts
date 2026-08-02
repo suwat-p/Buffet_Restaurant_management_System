@@ -16,3 +16,20 @@ export interface Employee {
   start_Time: string;
   end_Time: string;
 }
+export interface IncomeSummary {
+  dailyIncome: number;
+  monthlyIncome: number;
+  totalIncome: number;
+}
+
+export interface IncomeLog {
+  date: string;
+  timeRange: string;
+  dailyIncome: number;
+}
+
+export interface IncomeResponse {
+  status: string;
+  summary: IncomeSummary;
+  logs: IncomeLog[];
+}

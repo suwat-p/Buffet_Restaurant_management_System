@@ -4,7 +4,8 @@ import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
 import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { MessageService, ConfirmationService } from 'primeng/api';
 import { AttendanceService, AttendanceRecord } from '../../../service/api/attendance.service';
 import { AuthService } from '../../../service/api/auth.service';
 import { MenuServer } from '../../../components/menu-bar/menu-server/menu-server';
@@ -24,7 +25,8 @@ interface EmployeeProfile {
 @Component({
   selector: 'app-employee-attendance',
   standalone: true,
-  imports: [CommonModule, ButtonModule, RippleModule, ToastModule, MenuServer],
+  imports: [CommonModule, ButtonModule, RippleModule, ToastModule, ConfirmDialogModule, MenuServer],
+  providers: [ConfirmationService],
   templateUrl: './employee-attendance.html',
   styleUrl: './employee-attendance.scss',
 })
@@ -61,6 +63,7 @@ export class EmployeeAttendance implements OnInit {
     private attendanceService: AttendanceService,
     private authService: AuthService,
     private messageService: MessageService,
+    private confirmationService: ConfirmationService,
     private router: Router,
     private constants: Constants,
   ) {}
@@ -77,9 +80,6 @@ export class EmployeeAttendance implements OnInit {
     return String(id).padStart(3, '0');
   }
 
-  // field รูปจริงจาก backend คือ image_Profile (เช็คจาก detail-employee.html ที่ bind ตรง
-  // และใช้งานได้ปกติ) เป็น URL ที่ใช้ได้เลย ไม่ต้องต่อ base URL เพิ่ม
-  // เผื่อกรณี backend เปลี่ยนไปส่งเป็น relative path ในอนาคต ฟังก์ชันนี้จะต่อ base ให้อัตโนมัติ
   private buildImageUrl(path?: string | null): string | undefined {
     if (!path) return undefined;
     if (/^https?:\/\//i.test(path)) return path;
@@ -88,7 +88,6 @@ export class EmployeeAttendance implements OnInit {
     return `${base}${cleanPath}`;
   }
 
-  // ดึงข้อมูลพนักงานจาก token ที่ login ไว้แล้ว (ไม่ต้องกรอกรหัสเอง)
   private loadCurrentEmployee(): void {
     const member = this.authService.getMember();
 
@@ -101,7 +100,6 @@ export class EmployeeAttendance implements OnInit {
 
     this.authService.getEmployeebyId(Number(member.id)).subscribe({
       next: (res: any) => {
-        // ปรับ mapping ตรงนี้ให้ตรงกับ field จริงที่ backend คืนมา (ดูจาก Network tab ถ้าไม่ตรง)
         const emp = Array.isArray(res) ? res[0] : res;
 
         if (!emp) {
@@ -114,12 +112,19 @@ export class EmployeeAttendance implements OnInit {
           return;
         }
 
+        // 🎯 ดึงเวลาทำงาน start_Time, end_Time และตัดเอาเฉพาะ HH:mm
+        let start = emp.start_Time ?? emp.start_time ?? emp.shift_start ?? emp.Shift_start;
+        let end = emp.end_Time ?? emp.end_time ?? emp.shift_end ?? emp.Shift_end;
+
+        if (start && start.length >= 5) start = start.substring(0, 5);
+        if (end && end.length >= 5) end = end.substring(0, 5);
+
         this.employee = {
           empId: emp.emp_id ?? emp.Emp_id ?? Number(member.id),
           fullname: emp.fullname ?? emp.Fullname ?? member.fullname ?? '-',
           position: emp.department ?? emp.position ?? emp.Position ?? '-',
-          shiftStart: emp.shift_start ?? emp.Shift_start,
-          shiftEnd: emp.shift_end ?? emp.Shift_end,
+          shiftStart: start,
+          shiftEnd: end,
           imageUrl: this.buildImageUrl(emp.image_Profile ?? emp.image_url ?? emp.Image_url),
         };
 
@@ -141,12 +146,21 @@ export class EmployeeAttendance implements OnInit {
     if (!this.employee) return;
     this.attendanceService.getLogs().subscribe({
       next: (res) => {
-        this.allLogs = res.data.filter(
-          (l: AttendanceRecord) => l.employeeId === this.employee!.empId,
-        );
+        this.allLogs = res.data
+          .filter((l: any) => {
+            const logEmpId = l.emp_id ?? l.Emp_id ?? l.employeeId;
+            return Number(logEmpId) === Number(this.employee!.empId);
+          })
+          .map((l: any) => ({
+            employeeId: l.emp_id ?? l.Emp_id ?? l.employeeId,
+            clockInTime: l.clockInTime ?? l.ClockInTime ?? l.time_in ?? l.Time_in,
+            clockOutTime: l.clockOutTime ?? l.ClockOutTime ?? l.time_out ?? l.Time_out,
+          }));
+
         this.myHistory = [...this.allLogs].sort(
           (a, b) => new Date(b.clockInTime).getTime() - new Date(a.clockInTime).getTime(),
         );
+
         this.resolveTodayStatus();
       },
       error: () => {
@@ -159,23 +173,62 @@ export class EmployeeAttendance implements OnInit {
     });
   }
 
+  // =========================================================================
+  // 🧪 [แบบที่ 1: สำหรับ TEST] เข้า-ออกงานกี่ครั้งก็ได้ตลอดเวลา
+  // =========================================================================
+  // private resolveTodayStatus(): void {
+  //   const todayStr = new Date().toDateString();
+
+  //   const todayLogs = this.myHistory.filter(
+  //     (l) => new Date(l.clockInTime).toDateString() === todayStr,
+  //   );
+
+  //   if (todayLogs.length === 0) {
+  //     this.todayRecord = null;
+  //     this.todayStatus = 'idle';
+  //   } else {
+  //     const latestRecord = todayLogs[0];
+
+  //     if (!latestRecord.clockOutTime) {
+  //       // กำลังทำงานอยู่ -> รอออกงาน
+  //       this.todayRecord = latestRecord;
+  //       this.todayStatus = 'working';
+  //     } else {
+  //       // ออกงานแล้ว -> รีเซ็ตเป็น idle เพื่อให้กด "เข้างาน" ใหม่เพื่อเทสต่อได้เรื่อยๆ
+  //       this.todayRecord = null;
+  //       this.todayStatus = 'idle';
+  //     }
+  //   }
+  // }
+
+  // =========================================================================
+  // 🔒 [แบบที่ 2: ใช้งานจริง] เข้า-ออกงานได้ 1 ครั้ง ต่อ 1 วัน เท่านั้น
+  // =========================================================================
   private resolveTodayStatus(): void {
     const todayStr = new Date().toDateString();
-    const record = this.myHistory.find((l) => new Date(l.clockInTime).toDateString() === todayStr);
 
-    if (!record) {
+    const todayLogs = this.myHistory.filter(
+      (l) => new Date(l.clockInTime).toDateString() === todayStr,
+    );
+
+    if (todayLogs.length === 0) {
       this.todayRecord = null;
       this.todayStatus = 'idle';
-    } else if (!record.clockOutTime) {
-      this.todayRecord = record;
-      this.todayStatus = 'working';
     } else {
-      this.todayRecord = record;
-      this.todayStatus = 'done';
+      const latestRecord = todayLogs[0];
+
+      if (!latestRecord.clockOutTime) {
+        // กำลังทำงานอยู่ -> รอออกงาน
+        this.todayRecord = latestRecord;
+        this.todayStatus = 'working';
+      } else {
+        // ออกงานเรียบร้อยแล้ว -> เปลี่ยนเป็น done เพื่อบล็อกไม่ให้กดลงเวลาซ้ำในวันเดิม
+        this.todayRecord = latestRecord;
+        this.todayStatus = 'done';
+      }
     }
   }
 
-  // ขอพิกัด GPS จริงจากเครื่องพนักงาน ณ ขณะกดปุ่ม
   private getPosition(): Promise<GeolocationPosition> {
     return new Promise((resolve, reject) => {
       if (!navigator.geolocation) {
@@ -235,6 +288,56 @@ export class EmployeeAttendance implements OnInit {
 
   async doClockOut(): Promise<void> {
     if (!this.employee) return;
+
+    if (this.todayRecord && this.todayRecord.clockInTime) {
+      const clockInTime = new Date(this.todayRecord.clockInTime).getTime();
+      const nowTime = new Date().getTime();
+      const hoursWorked = (nowTime - clockInTime) / (1000 * 60 * 60);
+
+      // 🎯 คำนวณชั่วโมงกะทำงานจริงจาก shiftStart และ shiftEnd ( default ไว้ 8 ชม. ถ้าดึงค่าไม่ได้)
+      let standardHours = 8;
+
+      if (this.employee.shiftStart && this.employee.shiftEnd) {
+        const [startH, startM] = this.employee.shiftStart.split(':').map(Number);
+        const [endH, endM] = this.employee.shiftEnd.split(':').map(Number);
+
+        let startInMinutes = startH * 60 + (startM || 0);
+        let endInMinutes = endH * 60 + (endM || 0);
+
+        // กรณีเข้างานข้ามคืน (เช่น 22:00 ถึง 06:00)
+        if (endInMinutes <= startInMinutes) {
+          endInMinutes += 24 * 60;
+        }
+
+        standardHours = (endInMinutes - startInMinutes) / 60;
+      }
+
+      // เช็คว่าทำงานครบชั่วโมงกะหรือไม่
+      if (hoursWorked < standardHours) {
+        const minutesWorked = Math.round((nowTime - clockInTime) / (1000 * 60));
+
+        this.confirmationService.confirm({
+          message: `คุณเพิ่งทำงานไปเพียง ${minutesWorked} นาที (ไม่ครบกะ ${standardHours} ชม.) รายได้จะถูกคิดตามชั่วโมงจริง คุณต้องการยืนยันออกงานใช่หรือไม่?`,
+          header: 'คำเตือน: ออกงานก่อนเวลา',
+          icon: 'pi pi-exclamation-triangle',
+          acceptLabel: 'ตกลง',
+          rejectLabel: 'ยกเลิก',
+          acceptButtonStyleClass: 'p-button-danger',
+          rejectButtonStyleClass: 'p-button-secondary',
+          accept: () => {
+            this.executeClockOut();
+          },
+          reject: () => {},
+        });
+        return;
+      }
+    }
+
+    this.executeClockOut();
+  }
+
+  private async executeClockOut(): Promise<void> {
+    if (!this.employee) return;
     this.isProcessing = true;
     this.pendingAction = 'out';
     try {
@@ -247,11 +350,15 @@ export class EmployeeAttendance implements OnInit {
         })
         .subscribe({
           next: (res) => {
+            const isWarning = res.message && res.message.includes('เตือน');
+
             this.messageService.add({
-              severity: 'success',
-              summary: 'สำเร็จ',
+              severity: isWarning ? 'warn' : 'success',
+              summary: isWarning ? 'แจ้งเตือนการออกงาน' : 'สำเร็จ',
               detail: res.message,
+              life: 8000,
             });
+
             this.loadHistory();
             this.finishAction();
           },

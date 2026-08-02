@@ -9,21 +9,26 @@ import { Ripple } from 'primeng/ripple';
 import { AuthService } from '../../../service/api/auth.service';
 @Component({
   selector: 'app-menu-cashier',
-    imports: [    CommonModule,
+  imports: [
+    CommonModule,
     DrawerModule,
     ButtonModule,
     Ripple,
     AvatarModule,
     MatIconModule,
-    RouterModule,],
+    RouterModule,
+  ],
   templateUrl: './menu-cashier.html',
   styleUrl: './menu-cashier.scss',
 })
 export class MenuCashier {
-  constructor(private router: Router,  private authService: AuthService) {}
+  constructor(
+    private router: Router,
+    private authService: AuthService,
+  ) {}
   isExpanded: boolean = false;
-  userName: string = ''; 
-    ngOnInit() {
+  userName: string = '';
+  ngOnInit() {
     const member = this.authService.getMember();
     console.log('Member info:', member);
     if (member) {
@@ -32,10 +37,20 @@ export class MenuCashier {
   }
   menuItems = [
     { label: 'รายการบิลชำระเงิน', icon: 'groups', route: '/BillingList', active: true },
-    { label: 'เช็คอินโต๊ะที่ลูกค้าจอง', icon: 'fact_check', route: '/ConfirmCheckin', active: false },
+    {
+      label: 'เช็คอินโต๊ะที่ลูกค้าจอง',
+      icon: 'fact_check',
+      route: '/ConfirmCheckin',
+      active: false,
+    },
     { label: 'นำเสิร์ฟอาหาร', icon: 'room_service', route: '/ManageTable', active: false }, // หรือ grid_view
     { label: 'ลงเวลาเข้างาน', icon: 'history', route: '/CheckIn', active: false },
-    { label: 'เช็คเงินที่ทำงาน', icon: 'account_balance_wallet', route: '/ManageShop', active: false },
+    {
+      label: 'เช็คเงินที่ทำงาน',
+      icon: 'account_balance_wallet',
+      route: '/EmployeeIncome',
+      active: false,
+    },
   ];
 
   toggleSidebar() {

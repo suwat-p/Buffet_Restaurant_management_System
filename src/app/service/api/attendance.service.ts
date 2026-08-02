@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Constants } from '../../config/contants';
+import { Constants } from '../../config/contants'; // ปรับ path ตามโปรเจกต์ของคุณ
+import { IncomeResponse } from '../../models/employee.model'; // Import มาจาก Model
 
 export interface ClockInOutRequest {
   employeeId: number;
@@ -38,5 +39,10 @@ export class AttendanceService {
   public getLogs(): Observable<any> {
     const url = this.constants.API_ENDPOINT + '/Attendance/logs';
     return this.http.get(url);
+  }
+
+  public getEmployeeIncome(empId: number): Observable<IncomeResponse> {
+    const url = `${this.constants.API_ENDPOINT}/Attendance/income/${empId}`;
+    return this.http.get<IncomeResponse>(url);
   }
 }

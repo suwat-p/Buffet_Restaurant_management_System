@@ -267,4 +267,78 @@ export class DetailEmployee implements OnInit {
       },
     });
   }
+  // ฟังก์ชันคำนวณรายได้ประจำวันแบบ Pro-rate
+  calculateDailySalary(employee: any, timeInStr: string, timeOutStr: string): number {
+    if (!timeInStr || !timeOutStr) return 0;
+
+    // 1. แปลงเวลาสแกนเข้า-ออกงานจริง
+    const [inHour, inMin] = timeInStr.split(':').map(Number);
+    const [outHour, outMin] = timeOutStr.split(':').map(Number);
+
+    const timeInMinutes = inHour * 60 + inMin;
+    let timeOutMinutes = outHour * 60 + outMin;
+
+    // กรณีสแกนออกข้ามคืน (เช่น เข้า 22:00 ออก 02:00)
+    if (timeOutMinutes < timeInMinutes) {
+      timeOutMinutes += 24 * 60;
+    }
+
+    // ชั่วโมงที่ทำงานจริง
+    const actualHoursWorked = (timeOutMinutes - timeInMinutes) / 60;
+
+    // --- พนักงานพาร์ทไทม์ ---
+    if (employee.employee_Type === 'พาร์ทไทม์') {
+      return actualHoursWorked * (employee.wage || 0);
+    }
+
+    // --- พนักงานประจำ ---
+    if (employee.employee_Type === 'ประจำ') {
+      if (!employee.start_Time || !employee.end_Time) {
+        return employee.wage || 0; // ถ้าไม่ได้กำหนดกะไว้ ให้จ่ายเต็มวัน
+      }
+
+      // คำนวณชั่วโมงกะปกติ (Scheduled Hours)
+      const [startH, startM] = employee.start_Time.split(':').map(Number);
+      const [endH, endM] = employee.end_Time.split(':').map(Number);
+
+      const startMinutes = startH * 60 + startM;
+      let endMinutes = endH * 60 + endM;
+      if (endMinutes < startMinutes) endMinutes += 24 * 60;
+
+      const scheduledHours = (endMinutes - startMinutes) / 60; // เช่น 10:00 - 23:00 = 13 ชม.
+
+      // ถ้าทำครบกะหรือเกิน -> ได้เหมาจ่ายเต็มวัน
+      if (actualHoursWorked >= scheduledHours) {
+        return employee.wage; // เช่น 400
+      }
+
+      // กรณีออกก่อน/มาสาย -> คิด Pro-rate ตามชั่วโมงจริง
+      const hourlyRate = scheduledHours > 0 ? employee.wage / scheduledHours : 0;
+      return actualHoursWorked * hourlyRate; // ทำไปจริง x อัตราต่อ ชม.
+    }
+
+    return 0;
+  }
+  get calculatedWorkHours(): number {
+    const start = this.editFormRevenue.start_time;
+    const end = this.editFormRevenue.end_time;
+
+    if (!start || !end) return 0;
+
+    const [startH, startM] = start.split(':').map(Number);
+    const [endH, endM] = end.split(':').map(Number);
+
+    if (isNaN(startH) || isNaN(endH)) return 0;
+
+    const startMinutes = startH * 60 + (startM || 0);
+    let endMinutes = endH * 60 + (endM || 0);
+
+    // กรณีทำงานข้ามเที่ยงคืน (เช่น 22:00 - 02:00)
+    if (endMinutes < startMinutes) {
+      endMinutes += 24 * 60;
+    }
+
+    const hours = (endMinutes - startMinutes) / 60;
+    return Number(hours.toFixed(2)); // คืนค่าเป็นตัวเลขทศนิยมไม่เกิน 2 ตำแหน่ง
+  }
 }

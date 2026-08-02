@@ -1,4 +1,8 @@
 <p-toast position="bottom-center"></p-toast>
+<p-confirmDialog
+  header="ยืนยันการออกงานก่อนเวลา"
+  icon="pi pi-exclamation-triangle"
+></p-confirmDialog>
 
 <app-menu-server>
   <div class="page-container">
@@ -32,9 +36,15 @@
               <div class="emp-meta">EMP{{ padId(employee.empId) }} | {{ employee.position }}</div>
             </div>
           </div>
-          <div class="emp-shift" *ngIf="employee.shiftStart">
+          <div class="emp-shift">
             <span class="shift-label">เวลาทำงาน</span>
-            <span class="shift-value">{{ employee.shiftStart }}-{{ employee.shiftEnd }}</span>
+            <span class="shift-value">
+              {{
+                employee.shiftStart && employee.shiftEnd
+                  ? employee.shiftStart + ' - ' + employee.shiftEnd
+                  : 'ไม่ได้ระบุกะ'
+              }}
+            </span>
           </div>
         </div>
 

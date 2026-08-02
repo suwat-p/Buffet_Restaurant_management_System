@@ -261,5 +261,33 @@ $muted: #8a8a8a;
     gap: 4px;
   }
 }
+::ng-deep .p-dialog {
+  background: #1a1a1a !important;
+  color: #fff !important;
+  border: 1px solid #333 !important;
+  border-radius: 12px !important;
 
+  .p-dialog-header {
+    background: #1a1a1a !important;
+    color: #ff7a1a !important;
+    border-bottom: 1px solid #2a2a2a !important;
+  }
+
+  .p-dialog-content {
+    background: #1a1a1a !important;
+    color: #ddd !important;
+    padding: 20px !important;
+  }
+
+  .p-dialog-footer {
+    background: #1a1a1a !important;
+    border-top: 1px solid #2a2a2a !important;
+    padding: 12px 20px !important;
+
+    button {
+      font-family: 'Kanit', sans-serif !important;
+      border-radius: 6px !important;
+    }
+  }
+}
 .history-col { display: flex; flex-direction: column; gap: 3px; }

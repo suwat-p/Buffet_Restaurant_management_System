@@ -1,0 +1,68 @@
+<app-menu-server>
+  <div class="page-container">
+    <!-- Header / Top Bar -->
+    <header class="top-bar">
+      <button class="back-btn" (click)="goBack()"><i class="pi pi-angle-left"></i> Back</button>
+      <h1 class="page-title">เช็ครายได้พนักงาน</h1>
+    </header>
+
+    <!-- Card รายได้ของคุณ -->
+    <div class="income-card">
+      <h2 class="income-title">รายได้ของคุณ</h2>
+
+      <div class="daily-badge">
+        <span>รายได้ต่อวัน</span>
+        <span class="daily-amount">{{ summary.dailyIncome | number }} ฿</span>
+      </div>
+
+      <!-- แสดงเวลาทำงานตามกะ -->
+      <div class="shift-info-box mb-4" *ngIf="employee">
+        <span class="label">เวลาทำงานตามกะ:</span>
+        <span class="time-range">{{ employee.start_Time }} - {{ employee.end_Time }} น.</span>
+      </div>
+
+      <!-- Donut Chart -->
+      <div class="chart-container" *ngIf="!isLoading">
+        <p-chart
+          type="doughnut"
+          [data]="chartData"
+          [options]="chartOptions"
+          height="240px"
+        ></p-chart>
+      </div>
+
+      <!-- ตารางประวัติรายได้ -->
+      <div class="table-container mt-4">
+        <p-table
+          [value]="logs"
+          [paginator]="true"
+          [rows]="10"
+          responsiveLayout="scroll"
+          styleClass="custom-dark-table"
+        >
+          <ng-template pTemplate="header">
+            <tr>
+              <th>วันที่</th>
+              <th>เข้างาน / ออกงาน</th>
+              <th>รายได้ต่อวัน (บาท)</th>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="body" let-log>
+            <tr>
+              <td>{{ log.date }}</td>
+              <td>{{ log.timeRange }}</td>
+              <td class="text-green font-bold">{{ log.dailyIncome | number }} ฿</td>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td colspan="3" class="text-center py-4 text-gray">ไม่พบข้อมูลรายได้</td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+    </div>
+  </div>
+</app-menu-server>

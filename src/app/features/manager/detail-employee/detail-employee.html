@@ -178,6 +178,10 @@
         <mat-icon>history</mat-icon>
       </div>
     </div>
+    <div class="work-hours-info" *ngIf="calculatedWorkHours > 0">
+      <span>รวมเวลาทำงาน: </span>
+      <strong>{{ calculatedWorkHours }} ชั่วโมง</strong>
+    </div>
 
     <div class="dialog-footer">
       <button class="btn-cancel" (click)="displayEditRevenue = false">ยกเลิก</button>
