@@ -38,4 +38,8 @@ export class BillService {
     const url = `${this.constants.API_ENDPOINT}/Bill/active-by-table/${tableId}`;
     return this.http.get(url);
   }
+  public createBillfromBooking(bookingid: number, payload: any): Observable<any> {
+    const url = `${this.constants.API_ENDPOINT}/Bill/CreateBillFromBooking/${bookingid}`;
+    return this.http.post(url, payload);
+  }
 }

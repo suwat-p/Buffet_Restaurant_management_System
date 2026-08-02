@@ -41,10 +41,7 @@ export class BookingService {
       },
     });
   }
-  confirmCheckin(bookingId: number, tableId: number): Observable<any> {
-    return this.http.post(`${this.constants.API_ENDPOINT}/Booking/checkin`, {
-      bookingId,
-      tableId,
-    });
-  }
+confirmCheckin(payload: any): Observable<any> {
+  return this.http.post(`${this.constants.API_ENDPOINT}/Booking/checkin`, payload);
+}
 }
