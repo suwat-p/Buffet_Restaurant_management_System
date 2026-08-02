@@ -17,7 +17,9 @@
           class="p-button-outlined back-btn"
           (click)="goBack()"
         ></button>
-        <h2 class="section-header">ลงเวลาเข้างาน</h2>
+        <h2 class="section-header">
+          {{ isViewOnly ? 'ประวัติการลงเวลาพนักงาน' : 'ลงเวลาเข้างาน' }}
+        </h2>
       </div>
 
       <!-- Loading ตอนดึงข้อมูลพนักงานจาก token -->
@@ -50,10 +52,12 @@
 
         <!-- การ์ดหลัก -->
         <div class="main-card">
-          <h3 class="main-title">ลงเวลาทำงาน</h3>
+          <h3 class="main-title">
+            {{ isViewOnly ? 'ประวัติการเข้า-ออกงาน' : 'ลงเวลาทำงาน' }}
+          </h3>
 
-          <!-- Tab -->
-          <div class="tab-switch">
+          <!-- Tab: แสดงเฉพาะกรณีพนักงานเข้ามาตอกบัตรเอง (!isViewOnly) -->
+          <div class="tab-switch" *ngIf="!isViewOnly">
             <button
               class="tab-btn"
               [class.active]="activeTab === 'clock'"
@@ -70,8 +74,8 @@
             </button>
           </div>
 
-          <!-- ===== Tab: เข้างาน/ออกงาน ===== -->
-          <div *ngIf="activeTab === 'clock'" class="clock-panel">
+          <!-- ===== Tab: เข้างาน/ออกงาน (แสดงเฉพาะพนักงานเข้ามาใช้งานเองเท่านั้น) ===== -->
+          <div *ngIf="activeTab === 'clock' && !isViewOnly" class="clock-panel">
             <button
               class="clock-action-btn clock-in"
               [disabled]="todayStatus !== 'idle' || isProcessing"
@@ -108,8 +112,8 @@
             </div>
           </div>
 
-          <!-- ===== Tab: ประวัติ ===== -->
-          <div *ngIf="activeTab === 'history'" class="history-panel">
+          <!-- ===== Tab: ประวัติ (แสดงเมื่อกดแท็บประวัติ หรือเมื่อเป็นโหมด isViewOnly) ===== -->
+          <div *ngIf="activeTab === 'history' || isViewOnly" class="history-panel">
             <div class="history-card">
               <h4>ประวัติการลงเวลา</h4>
 

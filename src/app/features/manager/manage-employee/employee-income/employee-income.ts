@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router'; // 👈 1. เพิ่ม ActivatedRoute
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
 import { ChartModule } from 'primeng/chart';
@@ -30,30 +30,37 @@ export class EmployeeIncome implements OnInit {
     private attendanceService: AttendanceService,
     private authService: AuthService,
     private router: Router,
+    private route: ActivatedRoute,
   ) {}
 
   ngOnInit(): void {
     this.initCurrentEmployee();
   }
 
-  // ฟังก์ชันดึง ID จาก session/token ของพนักงานที่ล็อกอินอยู่
+  // ฟังก์ชันดึง ID จาก Query Param หรือ Token
   private initCurrentEmployee(): void {
-    const member = this.authService.getMember();
+    // 👈 3. อ่าน emp_id จาก URL ก่อน
+    this.route.queryParams.subscribe((params) => {
+      const paramEmpId = params['emp_id'];
 
-    if (!member || !member.id) {
-      // ถ้าไม่ได้ล็อกอิน ให้ดีดกลับไปหน้า Login
-      this.router.navigate(['/Loginemployee'], {
-        queryParams: { returnUrl: this.router.url },
-      });
-      return;
-    }
+      if (paramEmpId) {
+        this.currentEmpId = Number(paramEmpId);
+      } else {
+        // ถ้าไม่มีใน URL ค่อยดึงจากบัญชีที่ล็อกอินอยู่
+        const member = this.authService.getMember();
+        if (!member || !member.id) {
+          this.router.navigate(['/Loginemployee'], {
+            queryParams: { returnUrl: this.router.url },
+          });
+          return;
+        }
+        this.currentEmpId = Number(member.id);
+      }
 
-    this.currentEmpId = Number(member.id);
-
-    // เมื่อได้ ID ของคนที่ล็อกอินแล้ว ค่อยเรียกโหลดข้อมูล
-    this.loadEmployeeData();
-    this.loadIncomeData();
-    this.initChartOptions();
+      this.loadEmployeeData();
+      this.loadIncomeData();
+      this.initChartOptions();
+    });
   }
 
   loadEmployeeData(): void {
@@ -63,8 +70,16 @@ export class EmployeeIncome implements OnInit {
       next: (res: any) => {
         const emp = Array.isArray(res) ? res[0] : res;
         if (emp) {
-          if (emp.start_Time) emp.start_Time = emp.start_Time.substring(0, 5);
-          if (emp.end_Time) emp.end_Time = emp.end_Time.substring(0, 5);
+          // 👈 4. เช็กฟิลด์เวลาให้รองรับทั้งตัวพิมพ์เล็ก/ใหญ่
+          let start = emp.start_Time ?? emp.start_time ?? emp.shift_start ?? emp.Shift_start ?? '-';
+          let end = emp.end_Time ?? emp.end_time ?? emp.shift_end ?? emp.Shift_end ?? '-';
+
+          if (start && start.length >= 5) start = start.substring(0, 5);
+          if (end && end.length >= 5) end = end.substring(0, 5);
+
+          emp.start_Time = start;
+          emp.end_Time = end;
+
           this.employee = emp;
         }
       },

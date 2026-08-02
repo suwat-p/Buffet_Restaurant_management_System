@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
 import { ToastModule } from 'primeng/toast';
@@ -50,6 +50,7 @@ export class EmployeeAttendance implements OnInit {
   employee: EmployeeProfile | null = null;
 
   activeTab: 'clock' | 'history' = 'clock';
+  isViewOnly = false; // 👈 เช็กโหมดผู้จัดการดูประวัติ
 
   allLogs: AttendanceRecord[] = [];
   myHistory: AttendanceRecord[] = [];
@@ -65,11 +66,21 @@ export class EmployeeAttendance implements OnInit {
     private messageService: MessageService,
     private confirmationService: ConfirmationService,
     private router: Router,
+    private route: ActivatedRoute,
     private constants: Constants,
   ) {}
 
   ngOnInit(): void {
-    this.loadCurrentEmployee();
+    this.route.queryParams.subscribe((params) => {
+      const paramEmpId = params['emp_id'];
+
+      if (paramEmpId) {
+        this.isViewOnly = true;
+        this.activeTab = 'history';
+      }
+
+      this.loadCurrentEmployee(paramEmpId ? Number(paramEmpId) : null);
+    });
   }
 
   goBack(): void {
@@ -88,17 +99,21 @@ export class EmployeeAttendance implements OnInit {
     return `${base}${cleanPath}`;
   }
 
-  private loadCurrentEmployee(): void {
-    const member = this.authService.getMember();
+  private loadCurrentEmployee(targetEmpId: number | null): void {
+    let empIdToLoad = targetEmpId;
 
-    if (!member || !member.id) {
-      this.router.navigate(['/Loginemployee'], {
-        queryParams: { returnUrl: this.router.url },
-      });
-      return;
+    if (!empIdToLoad) {
+      const member = this.authService.getMember();
+      if (!member || !member.id) {
+        this.router.navigate(['/Loginemployee'], {
+          queryParams: { returnUrl: this.router.url },
+        });
+        return;
+      }
+      empIdToLoad = Number(member.id);
     }
 
-    this.authService.getEmployeebyId(Number(member.id)).subscribe({
+    this.authService.getEmployeebyId(empIdToLoad).subscribe({
       next: (res: any) => {
         const emp = Array.isArray(res) ? res[0] : res;
 
@@ -112,7 +127,6 @@ export class EmployeeAttendance implements OnInit {
           return;
         }
 
-        // 🎯 ดึงเวลาทำงาน start_Time, end_Time และตัดเอาเฉพาะ HH:mm
         let start = emp.start_Time ?? emp.start_time ?? emp.shift_start ?? emp.Shift_start;
         let end = emp.end_Time ?? emp.end_time ?? emp.shift_end ?? emp.Shift_end;
 
@@ -120,8 +134,8 @@ export class EmployeeAttendance implements OnInit {
         if (end && end.length >= 5) end = end.substring(0, 5);
 
         this.employee = {
-          empId: emp.emp_id ?? emp.Emp_id ?? Number(member.id),
-          fullname: emp.fullname ?? emp.Fullname ?? member.fullname ?? '-',
+          empId: emp.emp_id ?? emp.Emp_id ?? empIdToLoad,
+          fullname: emp.fullname ?? emp.Fullname ?? '-',
           position: emp.department ?? emp.position ?? emp.Position ?? '-',
           shiftStart: start,
           shiftEnd: end,
@@ -173,37 +187,6 @@ export class EmployeeAttendance implements OnInit {
     });
   }
 
-  // =========================================================================
-  // 🧪 [แบบที่ 1: สำหรับ TEST] เข้า-ออกงานกี่ครั้งก็ได้ตลอดเวลา
-  // =========================================================================
-  // private resolveTodayStatus(): void {
-  //   const todayStr = new Date().toDateString();
-
-  //   const todayLogs = this.myHistory.filter(
-  //     (l) => new Date(l.clockInTime).toDateString() === todayStr,
-  //   );
-
-  //   if (todayLogs.length === 0) {
-  //     this.todayRecord = null;
-  //     this.todayStatus = 'idle';
-  //   } else {
-  //     const latestRecord = todayLogs[0];
-
-  //     if (!latestRecord.clockOutTime) {
-  //       // กำลังทำงานอยู่ -> รอออกงาน
-  //       this.todayRecord = latestRecord;
-  //       this.todayStatus = 'working';
-  //     } else {
-  //       // ออกงานแล้ว -> รีเซ็ตเป็น idle เพื่อให้กด "เข้างาน" ใหม่เพื่อเทสต่อได้เรื่อยๆ
-  //       this.todayRecord = null;
-  //       this.todayStatus = 'idle';
-  //     }
-  //   }
-  // }
-
-  // =========================================================================
-  // 🔒 [แบบที่ 2: ใช้งานจริง] เข้า-ออกงานได้ 1 ครั้ง ต่อ 1 วัน เท่านั้น
-  // =========================================================================
   private resolveTodayStatus(): void {
     const todayStr = new Date().toDateString();
 
@@ -218,11 +201,9 @@ export class EmployeeAttendance implements OnInit {
       const latestRecord = todayLogs[0];
 
       if (!latestRecord.clockOutTime) {
-        // กำลังทำงานอยู่ -> รอออกงาน
         this.todayRecord = latestRecord;
         this.todayStatus = 'working';
       } else {
-        // ออกงานเรียบร้อยแล้ว -> เปลี่ยนเป็น done เพื่อบล็อกไม่ให้กดลงเวลาซ้ำในวันเดิม
         this.todayRecord = latestRecord;
         this.todayStatus = 'done';
       }
@@ -294,7 +275,6 @@ export class EmployeeAttendance implements OnInit {
       const nowTime = new Date().getTime();
       const hoursWorked = (nowTime - clockInTime) / (1000 * 60 * 60);
 
-      // 🎯 คำนวณชั่วโมงกะทำงานจริงจาก shiftStart และ shiftEnd ( default ไว้ 8 ชม. ถ้าดึงค่าไม่ได้)
       let standardHours = 8;
 
       if (this.employee.shiftStart && this.employee.shiftEnd) {
@@ -304,7 +284,6 @@ export class EmployeeAttendance implements OnInit {
         let startInMinutes = startH * 60 + (startM || 0);
         let endInMinutes = endH * 60 + (endM || 0);
 
-        // กรณีเข้างานข้ามคืน (เช่น 22:00 ถึง 06:00)
         if (endInMinutes <= startInMinutes) {
           endInMinutes += 24 * 60;
         }
@@ -312,7 +291,6 @@ export class EmployeeAttendance implements OnInit {
         standardHours = (endInMinutes - startInMinutes) / 60;
       }
 
-      // เช็คว่าทำงานครบชั่วโมงกะหรือไม่
       if (hoursWorked < standardHours) {
         const minutesWorked = Math.round((nowTime - clockInTime) / (1000 * 60));
 

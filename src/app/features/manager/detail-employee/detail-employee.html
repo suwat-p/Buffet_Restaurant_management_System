@@ -112,6 +112,29 @@
       </div>
 
       <button class="btn-full-orange" (click)="editRevenue()">แก้ไขรายได้</button>
+
+      <!-- 🟢 ย้ายปุ่มกลุ่มนี้เข้ามาใน section จัดการรายได้ แล้วครับ 🟢 -->
+      <div class="action-buttons-group" style="display: flex; gap: 10px; margin-top: 12px">
+        <button
+          pButton
+          type="button"
+          label="ดูประวัติการเข้างาน"
+          icon="pi pi-clock"
+          class="p-button-warning"
+          style="flex: 1"
+          (click)="viewAttendance(employee.emp_id)"
+        ></button>
+
+        <button
+          pButton
+          type="button"
+          label="ดูประวัติรายได้"
+          icon="pi pi-chart-line"
+          class="p-button-success"
+          style="flex: 1"
+          (click)="viewIncome(employee.emp_id)"
+        ></button>
+      </div>
     </section>
   </div>
 
