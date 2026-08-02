@@ -26,6 +26,7 @@ import { Index } from './index';
 import { StatusCustomerOrder } from './status/status-customer-order/status-customer-order';
 import { ManageShopLocation } from './features/manager/manage-shop/manage-shop-location/manage-shop-location';
 import { EmployeeAttendance } from './features/server-employee/employee-checkin/employee-attendance';
+import { EmployeeIncome } from './features/manager/manage-employee/employee-income/employee-income';
 
 export const routes: Routes = [
   { path: '', component: Index },
@@ -46,6 +47,7 @@ export const routes: Routes = [
   { path: 'Cart', component: Cart },
   { path: 'StatusCustomer', component: StatusCustomerOrder },
   { path: 'Employeecheckin', component: EmployeeAttendance },
+  { path: 'EmployeeIncome', component: EmployeeIncome },
 
   {
     path: 'ManageEmployee',

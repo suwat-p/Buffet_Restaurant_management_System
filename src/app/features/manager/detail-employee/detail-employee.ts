@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { MenuManager } from '../../../components/menu-bar/menu-manager/menu-manager';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule, Location } from '@angular/common';
 import { Employee } from '../../../models/employee.model';
 import { AuthService } from '../../../service/api/auth.service';
@@ -12,6 +12,8 @@ import { ManagerService } from '../../../service/api/manager.service';
 import { MessageService } from 'primeng/api';
 import { Toast } from 'primeng/toast';
 import { SelectModule } from 'primeng/select';
+import { ButtonModule } from 'primeng/button';
+
 @Component({
   selector: 'app-detail-employee',
   imports: [
@@ -23,6 +25,7 @@ import { SelectModule } from 'primeng/select';
     DatePickerModule,
     Toast,
     SelectModule,
+    ButtonModule,
   ],
   templateUrl: './detail-employee.html',
   styleUrl: './detail-employee.scss',
@@ -61,8 +64,10 @@ export class DetailEmployee implements OnInit {
     start_time: '',
     end_time: '',
   };
+
   constructor(
     private route: ActivatedRoute,
+    private router: Router, // 👈 เพิ่ม router เพื่อใช้งาน
     private location: Location,
     private auth: AuthService,
     private managerService: ManagerService,
@@ -134,6 +139,7 @@ export class DetailEmployee implements OnInit {
     }
     this.displayEditDepartment = true;
   }
+
   saveDepartment() {
     const payload = {
       emp_id: this.emp_id,
@@ -168,6 +174,7 @@ export class DetailEmployee implements OnInit {
     }
     this.displayEditStatus = true;
   }
+
   saveStatus() {
     const payload = {
       emp_id: this.emp_id,
@@ -201,6 +208,7 @@ export class DetailEmployee implements OnInit {
     }
     this.displayEditType = true;
   }
+
   saveType() {
     const payload = {
       emp_id: this.emp_id,
@@ -228,6 +236,7 @@ export class DetailEmployee implements OnInit {
       },
     });
   }
+
   editRevenue() {
     if (this.employee) {
       this.editFormRevenue = {
@@ -238,6 +247,7 @@ export class DetailEmployee implements OnInit {
       this.displayEditRevenue = true;
     }
   }
+
   saveRevenue() {
     const payload = {
       emp_id: this.emp_id,
@@ -265,6 +275,90 @@ export class DetailEmployee implements OnInit {
           detail: errorMessage,
         });
       },
+    });
+  }
+
+  // ฟังก์ชันคำนวณรายได้ประจำวันแบบ Pro-rate
+  calculateDailySalary(employee: any, timeInStr: string, timeOutStr: string): number {
+    if (!timeInStr || !timeOutStr) return 0;
+
+    const [inHour, inMin] = timeInStr.split(':').map(Number);
+    const [outHour, outMin] = timeOutStr.split(':').map(Number);
+
+    const timeInMinutes = inHour * 60 + inMin;
+    let timeOutMinutes = outHour * 60 + outMin;
+
+    if (timeOutMinutes < timeInMinutes) {
+      timeOutMinutes += 24 * 60;
+    }
+
+    const actualHoursWorked = (timeOutMinutes - timeInMinutes) / 60;
+
+    if (employee.employee_Type === 'พาร์ทไทม์') {
+      return actualHoursWorked * (employee.wage || 0);
+    }
+
+    if (employee.employee_Type === 'ประจำ') {
+      if (!employee.start_Time || !employee.end_Time) {
+        return employee.wage || 0;
+      }
+
+      const [startH, startM] = employee.start_Time.split(':').map(Number);
+      const [endH, endM] = employee.end_Time.split(':').map(Number);
+
+      const startMinutes = startH * 60 + startM;
+      let endMinutes = endH * 60 + endM;
+      if (endMinutes < startMinutes) endMinutes += 24 * 60;
+
+      const scheduledHours = (endMinutes - startMinutes) / 60;
+
+      if (actualHoursWorked >= scheduledHours) {
+        return employee.wage;
+      }
+
+      const hourlyRate = scheduledHours > 0 ? employee.wage / scheduledHours : 0;
+      return actualHoursWorked * hourlyRate;
+    }
+
+    return 0;
+  }
+
+  get calculatedWorkHours(): number {
+    const start = this.editFormRevenue.start_time;
+    const end = this.editFormRevenue.end_time;
+
+    if (!start || !end) return 0;
+
+    const [startH, startM] = start.split(':').map(Number);
+    const [endH, endM] = end.split(':').map(Number);
+
+    if (isNaN(startH) || isNaN(endH)) return 0;
+
+    const startMinutes = startH * 60 + (startM || 0);
+    let endMinutes = endH * 60 + (endM || 0);
+
+    if (endMinutes < startMinutes) {
+      endMinutes += 24 * 60;
+    }
+
+    const hours = (endMinutes - startMinutes) / 60;
+    return Number(hours.toFixed(2));
+  }
+
+  // ดูประวัติการเข้างาน
+  viewAttendance(empId: number): void {
+    if (!empId) return;
+    this.router.navigate(['/Employeecheckin'], {
+      queryParams: { emp_id: empId, tab: 'history' }, // 👈 เพิ่ม tab: 'history'
+    });
+  }
+
+  // ดูประวัติรายได้
+  viewIncome(empId: number): void {
+    if (!empId) return;
+    this.router.navigate(['/EmployeeIncome'], {
+      // 👈 แก้ให้ตรงตาม routes
+      queryParams: { emp_id: empId },
     });
   }
 }

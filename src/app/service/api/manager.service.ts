@@ -85,4 +85,13 @@ export class ManagerService {
     const response = this.http.put(url, payload);
     return response;
   }
+  public getEmployeeSalaryReport(
+    empId: number,
+    startDate: string,
+    endDate: string,
+  ): Observable<any> {
+    const url = `${this.constants.API_ENDPOINT}/Manager/getEmployeeSalaryReport?empId=${empId}&startDate=${startDate}&endDate=${endDate}`;
+    const response = this.http.get(url);
+    return response;
+  }
 }

@@ -48,7 +48,7 @@ export class MenuServer {
     {
       label: 'เช็คเงินที่ทำงาน',
       icon: 'account_balance_wallet',
-      route: '/ManageShop',
+      route: '/EmployeeIncome',
       active: false,
     },
   ];

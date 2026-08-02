@@ -1,0 +1,202 @@
+// Variables
+$bg-dark: #121212;
+$card-bg: #000000;
+$text-white: #ffffff;
+$text-gray: #b0b0b0;
+$primary-orange: #d97706;
+$primary-green: #22c55e;
+$border-color: #27272a;
+
+.page-container {
+  background-color: $bg-dark;
+  color: $text-white;
+  min-height: 100vh;
+  padding: 1rem;
+  font-family: 'Sarabun', sans-serif;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+// 1. Top Bar / Header
+.top-bar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+
+  .back-btn {
+    background: transparent;
+    border: 1px solid $primary-orange;
+    color: $primary-orange;
+    padding: 0.4rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    transition: background 0.2s;
+
+    &:hover {
+      background: rgba($primary-orange, 0.1);
+    }
+  }
+
+  .page-title {
+    font-size: 1.2rem;
+    font-weight: 400;
+    margin: 0;
+  }
+}
+
+// 2. Main Income Card
+.income-card {
+  background-color: $card-bg;
+  border-radius: 12px;
+  padding: 1.8rem;
+  border: 1px solid $border-color;
+  text-align: center;
+
+  .income-title {
+    font-size: 1.6rem;
+    color: $text-white;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+  }
+}
+
+// 3. Daily Badge
+.daily-badge {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #18181b;
+  border-radius: 10px;
+  padding: 0.8rem 1.5rem;
+  max-width: 380px;
+  margin: 0 auto 1.5rem auto;
+  border: 1px solid $border-color;
+
+  span {
+    font-size: 1rem;
+    color: $text-white;
+  }
+
+  .daily-amount {
+    color: $primary-green;
+    font-size: 1.4rem;
+    font-weight: bold;
+  }
+}
+
+// Chart
+.chart-container {
+  max-width: 300px;
+  margin: 0 auto 1.5rem auto;
+}
+
+// Utility Classes
+.text-green { color: $primary-green !important; }
+.font-bold { font-weight: bold; }
+.text-gray { color: $text-gray !important; }
+.text-center { text-align: center !important; }
+
+// 4. Override PrimeNG Table Style (Dark Theme)
+::ng-deep {
+  .custom-dark-table {
+    .p-datatable-table {
+      border-collapse: collapse;
+      width: 100%;
+    }
+
+    .p-datatable-thead > tr > th {
+      background-color: #18181b !important;
+      color: $text-white !important;
+      border-bottom: 1px solid $border-color !important;
+      padding: 1rem !important;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .p-datatable-tbody > tr {
+      background-color: $card-bg !important;
+      color: $text-white !important;
+
+      > td {
+        border-bottom: 1px solid $border-color !important;
+        padding: 0.8rem !important;
+        text-align: center;
+      }
+
+      &:hover {
+        background-color: #18181b !important;
+      }
+    }
+
+    // Paginator Style
+    .p-paginator {
+      background-color: $card-bg !important;
+      border: none !important;
+      padding-top: 1rem !important;
+
+      .p-paginator-element {
+        color: $text-gray !important;
+
+        &:hover {
+          background-color: #27272a !important;
+        }
+
+        &.p-highlight {
+          background-color: $primary-orange !important;
+          color: $text-white !important;
+        }
+      }
+    }
+    .shift-info-box {
+  background-color: #18181b;
+  border: 1px solid #27272a;
+  border-radius: 8px;
+  padding: 0.6rem 1rem;
+  max-width: 380px;
+  margin: 0 auto 1.5rem auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .label {
+    color: #b0b0b0;
+    font-size: 0.9rem;
+  }
+
+  .time-range {
+    color: #d97706; // สีส้ม
+    font-weight: 600;
+    font-size: 1rem;
+  }
+}
+  }.employee-card {
+  display: flex;
+  justify-content: space-between; // ดัน Profile ไปซ้าย ดัน เวลาทำงาน ไปขวา
+  align-items: center;
+  background-color: #000000;
+  padding: 1.2rem;
+  border-radius: 8px;
+
+  .work-time-badge {
+    text-align: right;
+
+    .label {
+      display: block;
+      font-size: 0.8rem;
+      color: #b0b0b0;
+      margin-bottom: 2px;
+    }
+
+    .time {
+      color: #d97706; // สีส้มตาม Detail
+      font-size: 1.1rem;
+      font-weight: bold;
+    }
+  }
+}
+}
