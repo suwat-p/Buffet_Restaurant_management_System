@@ -1,5 +1,5 @@
-import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Constants } from '../../config/contants';
 
@@ -22,4 +22,17 @@ export class PaymentService {
       headers: { 'Content-Type': 'application/json' },
     });
   }
+  CreateCheckoutQr(billId: number, amount: number): Observable<any> {
+    const url = `${this.constants.API_ENDPOINT}/Payment/generate-checkout-qr`;
+    return this.http.post(url, { BillId: billId, TotalAmount: amount });
+  }
+ verifyPayment(billId: number, transactionId: string): Observable<any> {
+  const url = `${this.constants.API_ENDPOINT}/Payment/verify-payment`;
+  const payload = {
+    billId: billId,            
+    transactionId: transactionId 
+  };
+
+  return this.http.post(url, payload);
+}
 }

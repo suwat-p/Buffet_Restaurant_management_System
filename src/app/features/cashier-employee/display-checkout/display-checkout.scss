@@ -1,0 +1,512 @@
+/* --- Settings & Variables --- */
+:root {
+    --primary-gold: #ffca28;
+    --bg-dark-overlay: rgba(0, 0, 0, 0.75);
+    --glass-bg: rgba(20, 20, 20, 0.85);
+    --border-glass: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+:host {
+    display: block;
+    width: 100vw;
+    height: 100vh;
+    overflow-x: hidden;
+    background-color: #000;
+    font-family: 'Kanit', sans-serif;
+}
+
+.display-wrapper {
+    width: 100%;
+    height: 100%;
+}
+
+
+.idle-index-screen {
+    width: 100%;
+    height: 100vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    background: #000;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
+
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+
+    .page-container {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        min-height: 100vh;
+        background: #000;
+    }
+
+    .hero-banner-wrapper {
+        width: 100%;
+        background: #000;
+
+        .banner-item {
+            position: relative;
+            width: 100%;
+            height: auto;
+            overflow: hidden;
+
+            .banner-img {
+                width: 100%;
+                height: 100%;
+                object-fit: contain;
+                object-position: center top;
+                display: block;
+            }
+
+            .banner-overlay {
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                width: 100%;
+                height: 100px;
+                background: linear-gradient(to top, #000, transparent);
+            }
+        }
+
+        ::ng-deep .p-carousel-indicators {
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.5);
+
+            .p-carousel-indicator button {
+                width: 30px;
+                height: 4px;
+                background-color: rgba(255, 255, 255, 0.3);
+                border-radius: 2px;
+
+                &:hover {
+                    background-color: var(--primary-gold);
+                }
+            }
+
+            .p-highlight button {
+                background-color: var(--primary-gold);
+            }
+        }
+    }
+
+    .banner-thumbnails {
+        display: flex;
+        justify-content: left;
+        gap: 12px;
+        padding: 15px;
+        background: #000;
+        margin-top: -10px;
+        position: relative;
+        z-index: 2;
+
+        .banner-thumb-box {
+            width: 80px;
+            height: 45px;
+            border-radius: 6px;
+            overflow: hidden;
+            cursor: pointer;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            opacity: 0.6;
+
+            img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+            &.active,
+            &:hover {
+                border-color: var(--primary-gold);
+                opacity: 1;
+                transform: scale(1.1);
+                box-shadow: 0 0 10px rgba(255, 202, 40, 0.5);
+            }
+        }
+    }
+
+    /* --- Main Content Background --- */
+    .main-content-bg {
+        flex: 1;
+        background: #000;
+        padding: 20px;
+        display: flex;
+        justify-content: center;
+    }
+
+    .content-wrapper {
+        max-width: 1200px;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+    }
+
+    /* --- Info Card --- */
+    .info-card {
+        background: transparent;
+        padding: 20px 0;
+        display: flex;
+        align-items: center;
+        gap: 40px;
+
+        .poster-col {
+            flex: 0 0 350px;
+
+            .poster-frame {
+                border-radius: 12px;
+                overflow: hidden;
+                box-shadow: 0 10px 30px rgba(255, 0, 0, 0.3);
+
+                img {
+                    width: 100%;
+                    height: auto;
+                    display: block;
+                }
+            }
+        }
+
+        .details-col {
+            flex: 1;
+            color: white;
+
+            .shop-title {
+                font-size: 2rem;
+                font-weight: 700;
+                margin-bottom: 30px;
+                color: white;
+                text-align: center;
+            }
+
+            .price-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 20px;
+
+                .price-box {
+                    background: rgba(80, 0, 0, 0.8);
+                    padding: 30px 20px;
+                    border-radius: 12px;
+                    text-align: center;
+                    border: 1px solid rgba(139, 0, 0, 0.5);
+
+                    .price-label {
+                        font-size: 1.1rem;
+                        color: white;
+                        margin-bottom: 10px;
+                    }
+
+                    .price-amount {
+                        font-size: 1.8rem;
+                        font-weight: bold;
+                        color: white;
+                    }
+                }
+            }
+        }
+    }
+
+    /* --- Table Card --- */
+    .table-card {
+        background: transparent;
+        border-radius: 16px;
+        overflow: hidden;
+
+        .table-header {
+            background: rgba(0, 80, 0, 0.8);
+            padding: 15px 25px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+
+            h2 {
+                margin: 0;
+                color: white;
+                font-size: 1.4rem;
+                font-weight: 600;
+            }
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+            background: rgba(0, 0, 0, 0.6);
+        }
+
+        .custom-table {
+            width: 100%;
+            border-collapse: collapse;
+            color: #ddd;
+
+            th {
+                padding: 16px 25px;
+                color: #ccc;
+                font-weight: 500;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+                background: rgba(0, 0, 0, 0.4);
+            }
+
+            td {
+                padding: 20px 25px;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                background: rgba(0, 0, 0, 0.3);
+            }
+
+            .promo-name {
+                font-size: 1.1rem;
+                color: white;
+            }
+
+            .highlight-text {
+                color: #ef5350;
+                font-size: 1.5rem;
+                font-weight: bold;
+            }
+        }
+    }
+}
+
+/* ==========================================================================
+   🟢 2. CHECKOUT SCREEN (หน้าคิดเงิน Real-time สลับเข้ามาอัตโนมัติ)
+   ========================================================================== */
+.checkout-container {
+    display: flex;
+    height: 100vh;
+    padding: 24px;
+    gap: 24px;
+    box-sizing: border-box;
+    background-color: #050505;
+
+    .left-box {
+        flex: 1.6;
+        background-color: #121212;
+        border-radius: 16px;
+        display: flex;
+        flex-direction: column;
+        padding: 24px;
+        border: 1px solid #262626;
+
+        .table-header-title {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: var(--primary-gold);
+        }
+
+        .table-scroll-area {
+            flex: 1;
+            overflow-y: auto;
+
+            .display-table {
+                width: 100%;
+                border-collapse: collapse;
+
+                th {
+                    border-bottom: 1px solid #333;
+                    padding: 14px 10px;
+                    color: #888;
+                    font-size: 1.1rem;
+                    text-align: left;
+                }
+
+                td {
+                    padding: 18px 10px;
+                    font-size: 1.25rem;
+                    color: #fff;
+                    border-bottom: 1px solid #1a1a1a;
+                }
+
+                .col-id {
+                    width: 10%;
+                }
+
+                .col-name {
+                    width: 50%;
+                }
+
+                .col-qty {
+                    width: 20%;
+                    text-align: center;
+                }
+
+                .col-price {
+                    width: 20%;
+                    text-align: right;
+                }
+            }
+        }
+
+        .summary-section {
+            border-top: 1px solid #333;
+            padding-top: 16px;
+
+            .summary-line {
+                display: flex;
+                justify-content: space-between;
+                font-size: 1.2rem;
+                color: #aaa;
+                margin-bottom: 8px;
+            }
+
+            .grand-total-line {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-top: 16px;
+                padding: 16px 20px;
+                background-color: #000;
+                border-radius: 12px;
+                border: 1px solid #333;
+
+                .total-label {
+                    font-size: 2rem;
+                    font-weight: bold;
+                    color: #fff;
+                }
+
+                .total-amount {
+                    font-size: 2.6rem;
+                    font-weight: bold;
+                    color: #00e676;
+                }
+            }
+        }
+    }
+
+    .right-box {
+        flex: 1;
+        background-color: #121212;
+        border-radius: 16px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border: 1px solid #262626;
+
+        .qr-card {
+            background: #ffffff;
+            border-radius: 20px;
+            width: 360px;
+            overflow: hidden;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+
+            /* 🟢 Header สีน้ำเงินมาตรฐาน Thai QR */
+            .qr-header {
+                background-color: #003B7A;
+                padding: 14px 20px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+
+                .qr-header-logo {
+                    height: 38px;
+                    width: auto;
+                }
+            }
+
+            /* 🟢 ส่วนเนื้อหาการแสดง QR Code */
+            .qr-body {
+                padding: 24px 20px 28px 20px;
+                background: #ffffff;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+
+                /* 🟢 โลโก้ PromptPay มีกรอบแบบในรูป */
+                .promptpay-logo-wrapper {
+                    margin-bottom: 20px;
+
+                    .promptpay-badge {
+                        border: 1.5px solid #003B7A;
+                        border-radius: 4px;
+                        padding: 2px 14px 4px 14px;
+                        display: inline-flex;
+                        flex-direction: column;
+                        align-items: center;
+                        background: #ffffff;
+
+                        .pp-sub {
+                            font-size: 0.65rem;
+                            color: #003B7A;
+                            line-height: 1;
+                            margin-bottom: 1px;
+                        }
+
+                        .pp-main {
+                            font-size: 1.1rem;
+                            font-weight: 800;
+                            color: #003B7A;
+                            letter-spacing: -0.5px;
+                            font-family: Arial, sans-serif;
+                            line-height: 1;
+                        }
+                    }
+                }
+
+                /* 🟢 ส่วนแสดงภาพ QR Code */
+                .qr-image-wrapper {
+                    width: 100%;
+                    display: flex;
+                    justify-content: center;
+
+                    .qr-image {
+                        width: 270px;
+                        height: 270px;
+                        object-fit: contain;
+                        display: block;
+                    }
+                }
+            }
+        }
+
+        /* 🟢 กล่องกรณีรอชำระเงินสด */
+        .cash-wait-box {
+            text-align: center;
+            color: #666;
+
+            .cash-icon {
+                font-size: 90px;
+                width: 90px;
+                height: 90px;
+                margin-bottom: 12px;
+            }
+
+            p {
+                font-size: 1.5rem;
+                color: #aaa;
+                margin: 0;
+            }
+        }
+    }
+}
+
+/* ==========================================================================
+   🟢 3. SUCCESS SCREEN
+   ========================================================================== */
+.success-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #032b12;
+
+    .success-icon {
+        font-size: 140px;
+        width: 140px;
+        height: 140px;
+        color: #00e676;
+    }
+
+    h2 {
+        font-size: 3.5rem;
+        margin-top: 24px;
+        margin-bottom: 8px;
+        color: #fff;
+    }
+
+    p {
+        font-size: 1.8rem;
+        color: #a3e635;
+    }
+}

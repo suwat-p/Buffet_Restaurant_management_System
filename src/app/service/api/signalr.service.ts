@@ -7,12 +7,12 @@ import { Constants } from '../../config/contants';
   providedIn: 'root',
 })
 export class SignalrService {
-  private hubConnection!: signalR.HubConnection;
+  public hubConnection!: signalR.HubConnection;
 
   public tableStatus$ = new Subject<any>();
   public resConfig$ = new Subject<any>();
   public resImageUpdate$ = new Subject<void>();
-  
+
   public billUpdated$ = new Subject<any>();
   public orderUpdated$ = new Subject<any>();
   // 🟢 เพิ่ม Subject สำหรับรองรับการอัปเดตข้อมูลลูกค้าเรียลไทม์
@@ -76,7 +76,19 @@ export class SignalrService {
       this.hubConnection.on(eventName, callback);
     }
   }
+  public sendToCustomerDisplay(data: any): Promise<void> {
+    if (this.hubConnection) {
+      return this.hubConnection.invoke('SendToCustomerDisplay', data);
+    }
+    return Promise.reject('SignalR connection is not established.');
+  }
 
+  public clearCustomerDisplay(): Promise<void> {
+    if (this.hubConnection) {
+      return this.hubConnection.invoke('ClearCustomerDisplay');
+    }
+    return Promise.reject('SignalR connection is not established.');
+  }
   private async start() {
     try {
       await this.hubConnection.start();
