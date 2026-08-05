@@ -31,14 +31,14 @@ export class LoginEmployee implements OnInit {
 
   ngOnInit() {
     const token = localStorage.getItem('token') || sessionStorage.getItem('token');
-    
+
     if (token) {
       try {
         // ใช้ jwtDecode ถอดรหัส Token
         const decoded: any = jwtDecode(token);
         const role = decoded.role;
         console.log('Role จาก Token (ngOnInit):', role);
-        
+
         if (role) {
           this.navigateByRole(role);
         }
@@ -109,6 +109,9 @@ export class LoginEmployee implements OnInit {
     switch (role?.trim()) {
       case 'เจ้าของร้าน':
         targetRoute = '/Dashboard';
+        break;
+      case 'พนักงานครัว':
+        targetRoute = '/KitchenDashboard';
         break;
       case 'พนักงานเสิร์ฟ':
         targetRoute = '/CreateBill';

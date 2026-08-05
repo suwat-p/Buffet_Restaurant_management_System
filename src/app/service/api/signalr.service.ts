@@ -18,6 +18,11 @@ export class SignalrService {
   // 🟢 เพิ่ม Subject สำหรับรองรับการอัปเดตข้อมูลลูกค้าเรียลไทม์
   public customerUpdated$ = new Subject<any>();
 
+  // 🍳 ออเดอร์ใหม่เข้ามา (ยิงจาก OrderController ตอน checkout สำเร็จ) — payload คือ Order_id
+  public newKitchenOrder$ = new Subject<number>();
+  // 🍽️ สถานะออเดอร์เปลี่ยน (เช่น เสิร์ฟสแกน QR แล้วเปลี่ยนเป็น "กำลังนำเสิร์ฟ")
+  public orderStatusUpdated$ = new Subject<any>();
+
   constructor(private constants: Constants) {
     this.initConnection();
   }
@@ -67,6 +72,19 @@ export class SignalrService {
     this.hubConnection.on('UpdateCustomer', (data) => {
       console.log('SignalR [UpdateCustomer]:', data);
       this.customerUpdated$.next(data);
+    });
+
+    // 🍳 7. ออเดอร์ใหม่ — backend ส่งมาแค่ Order_id เฉยๆ ฝั่งที่ subscribe ต้องยิง
+    // OrderService.GetKitchenTicket(orderId) ต่อเองเพื่อได้รายละเอียดเต็ม
+    this.hubConnection.on('NewKitchenOrder', (orderId) => {
+      console.log('SignalR [NewKitchenOrder]:', orderId);
+      this.newKitchenOrder$.next(orderId);
+    });
+
+    // 🍽️ 8. สถานะออเดอร์เปลี่ยน (เช่น เสิร์ฟกดยืนยันจากหน้า /serve-action)
+    this.hubConnection.on('OrderStatusUpdated', (data) => {
+      console.log('SignalR [OrderStatusUpdated]:', data);
+      this.orderStatusUpdated$.next(data);
     });
   }
 

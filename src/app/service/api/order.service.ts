@@ -7,17 +7,17 @@ import { Constants } from '../../config/contants';
   providedIn: 'root',
 })
 export class OrderService {
-  constructor(private constants: Constants,
-    private http: HttpClient
-  ) { }
+  constructor(
+    private constants: Constants,
+    private http: HttpClient,
+  ) {}
 
   public PlaceOrder(payload: any): Observable<any> {
     try {
       const url = this.constants.API_ENDPOINT + '/Order/checkout';
       const response = this.http.post(url, payload);
       return response;
-    }
-    catch (error) {
+    } catch (error) {
       console.error('Error occurred while placing order:', error);
       throw error;
     }
@@ -27,9 +27,32 @@ export class OrderService {
       const url = this.constants.API_ENDPOINT + `/Order/getBillPricedItems/${billId}`;
       const response = this.http.get(url);
       return response;
-    }
-    catch (error) {
+    } catch (error) {
       console.error('Error occurred while getting order price:', error);
+      throw error;
+    }
+  }
+
+  // 🍳 ดึงรายละเอียดตั๋วครัว (โต๊ะ / รายการอาหาร / จำนวน / QR สำหรับเสิร์ฟ) จาก Order_id
+  public GetKitchenTicket(orderId: number): Observable<any> {
+    try {
+      const url = this.constants.API_ENDPOINT + `/Order/getKitchenTicket/${orderId}`;
+      const response = this.http.get(url);
+      return response;
+    } catch (error) {
+      console.error('Error occurred while getting kitchen ticket:', error);
+      throw error;
+    }
+  }
+
+  // 📲 เสิร์ฟกดยืนยันจากหน้า /serve-action หลังสแกน QR
+  public ServeOrder(orderId: number): Observable<any> {
+    try {
+      const url = this.constants.API_ENDPOINT + `/Order/${orderId}/serve`;
+      const response = this.http.post(url, {});
+      return response;
+    } catch (error) {
+      console.error('Error occurred while marking order as serving:', error);
       throw error;
     }
   }
