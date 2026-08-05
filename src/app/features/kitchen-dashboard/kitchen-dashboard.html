@@ -6,7 +6,6 @@
     </div>
 
     <div class="container">
-      <!-- Header -->
       <div class="page-header">
         <div class="header-title">
           <h1>แดชบอร์ดห้องครัว (Kitchen Dashboard)</h1>
@@ -18,21 +17,12 @@
       </div>
 
       <div class="content-box">
-        <!-- Summary Stat Cards -->
         <div class="stats-grid">
           <div class="stat-card pending">
             <div class="stat-icon"><mat-icon>hourglass_top</mat-icon></div>
             <div class="stat-info">
-              <span class="stat-label">รอทำ</span>
+              <span class="stat-label">รอทำ / กำลังปรุง</span>
               <span class="stat-value">{{ pendingCount }}</span>
-            </div>
-          </div>
-
-          <div class="stat-card cooking">
-            <div class="stat-icon"><mat-icon>skillet</mat-icon></div>
-            <div class="stat-info">
-              <span class="stat-label">กำลังปรุง</span>
-              <span class="stat-value">{{ cookingCount }}</span>
             </div>
           </div>
 
@@ -45,9 +35,8 @@
           </div>
         </div>
 
-        <!-- Order Dashboard Table -->
         <div class="dashboard-table-wrapper">
-          <h2>รายการออเดอร์ในระบบ</h2>
+          <h2>รายการออเดอร์ที่ต้องทำตอนนี้</h2>
 
           <div class="empty-orders-container" *ngIf="activeOrders.length === 0">
             <mat-icon>soup_kitchen</mat-icon>
@@ -55,45 +44,32 @@
             <span class="sub-text">เมื่อลูกค้าสั่งอาหาร รายการจะแสดงในแดชบอร์ดอัตโนมัติ</span>
           </div>
 
-          <table class="dashboard-table" *ngIf="activeOrders.length > 0">
-            <thead>
-              <tr>
-                <th>โต๊ะ</th>
-                <th>หมายเลขออเดอร์</th>
-                <th>รายการอาหาร</th>
-                <th>เวลา</th>
-                <th>QR Code นำเสิร์ฟ</th>
-                <th>จัดการ</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let order of activeOrders">
-                <td>
-                  <span class="table-badge">โต๊ะ {{ order.tableNumber || 'N/A' }}</span>
-                </td>
-                <td>#{{ order.orderId }}</td>
-                <td>
-                  <div class="item-list" *ngFor="let item of order.items">
-                    <span class="qty">{{ item.quantity }}x</span> {{ item.menuName }}
-                  </div>
-                </td>
-                <td>{{ order.orderTime | date: 'HH:mm' }}</td>
-                <td>
-                  <div class="qr-cell" *ngIf="order.serveQrCode; else noQr">
-                    <img [src]="order.serveQrCode" alt="QR Code" class="table-qr-img" />
-                  </div>
-                  <ng-template #noQr>
-                    <span class="no-qr">-</span>
-                  </ng-template>
-                </td>
-                <td>
-                  <button class="btn-done" (click)="markAsDone(order.orderId)">
-                    <mat-icon>check_circle</mat-icon> เสร็จแล้ว
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+          <!-- 🍳 การ์ดตั๋วครัว: อ่านง่ายจากระยะไกล ไม่ต้องแตะจอ -->
+          <div class="ticket-grid" *ngIf="activeOrders.length > 0">
+            <div
+              class="ticket-card"
+              *ngFor="let order of activeOrders"
+              [ngClass]="getUrgencyClass(order.orderTime)"
+            >
+              <div class="ticket-header">
+                <span class="table-badge">โต๊ะ {{ order.tableNumber || 'N/A' }}</span>
+                <span class="order-no">#{{ order.orderId }}</span>
+              </div>
+
+              <div class="ticket-timer">
+                <mat-icon>schedule</mat-icon>
+                {{ order.orderTime | date: 'HH:mm' }} · ค้าง
+                {{ getElapsedMinutes(order.orderTime) }} นาที
+              </div>
+
+              <div class="ticket-items">
+                <div class="item-row" *ngFor="let item of order.items">
+                  <span class="qty">{{ item.quantity }}x</span>
+                  <span class="name">{{ item.menuName }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
