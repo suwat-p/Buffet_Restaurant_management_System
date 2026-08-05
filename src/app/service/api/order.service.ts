@@ -45,6 +45,18 @@ export class OrderService {
     }
   }
 
+  // 📲 ดึงโต๊ะ + รายการอาหาร สำหรับหน้า /serve-action (อ่านอย่างเดียว ไม่มี side-effect)
+  public GetServeInfo(orderId: number): Observable<any> {
+    try {
+      const url = this.constants.API_ENDPOINT + `/Order/getServeInfo/${orderId}`;
+      const response = this.http.get(url);
+      return response;
+    } catch (error) {
+      console.error('Error occurred while getting serve info:', error);
+      throw error;
+    }
+  }
+
   // 📲 เสิร์ฟกดยืนยันจากหน้า /serve-action หลังสแกน QR
   public ServeOrder(orderId: number): Observable<any> {
     try {

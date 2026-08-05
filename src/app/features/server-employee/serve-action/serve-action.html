@@ -1,0 +1,23 @@
+<div class="serve-page">
+  <div class="serve-card" *ngIf="loading">
+    <p>กำลังโหลด...</p>
+  </div>
+
+  <div class="serve-card success" *ngIf="!loading && !error">
+    <mat-icon class="check-icon">check_circle</mat-icon>
+    <h1>นำเสิร์ฟเรียบร้อย</h1>
+    <div class="table-badge">โต๊ะ {{ orderInfo.tableNumber }}</div>
+
+    <div class="items-list">
+      <div class="item-row" *ngFor="let item of orderInfo.items">
+        <span class="qty">{{ item.quantity }}x</span>
+        <span class="name">{{ item.menuName }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="serve-card error" *ngIf="error">
+    <mat-icon>error</mat-icon>
+    <p>{{ error }}</p>
+  </div>
+</div>

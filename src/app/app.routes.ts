@@ -30,6 +30,7 @@ import { memberGuard } from './guards/member-guard';
 import { Index } from './index';
 import { StatusCustomerOrder } from './status/status-customer-order/status-customer-order';
 import { KitchenDashboard } from './features/kitchen-dashboard/kitchen-dashboard';
+import { ServeAction } from './features/server-employee/serve-action/serve-action';
 
 export const routes: Routes = [
   { path: '', component: Index },
@@ -52,6 +53,7 @@ export const routes: Routes = [
   { path: 'Employeecheckin', component: EmployeeAttendance },
   { path: 'EmployeeIncome', component: EmployeeIncome },
   { path: 'KitchenDashboard', component: KitchenDashboard },
+  { path: 'serve-action', component: ServeAction },
 
   {
     path: 'ManageEmployee',
