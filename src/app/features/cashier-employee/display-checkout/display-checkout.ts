@@ -142,10 +142,14 @@ export class DisplayCheckout implements OnInit, OnDestroy {
   triggerSuccess() {
     if (this.isPaidSuccess) return;
     
+    setTimeout(() => {
     this.isPaidSuccess = true;
+
     setTimeout(() => {
       this.isPaidSuccess = false;
       this.displayData = null;
-    }, 20000);
+    }, 6000); 
+
+  }, 2000);
   }
 }

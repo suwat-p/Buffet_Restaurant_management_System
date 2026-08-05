@@ -10,7 +10,7 @@ export class PaymentService {
   constructor(
     private http: HttpClient,
     private constants: Constants,
-  ) {}
+  ) { }
 
   CreateQr(bookingId: number): Observable<any> {
     const url = `${this.constants.API_ENDPOINT}/Payment/generate-qr`;
@@ -26,13 +26,17 @@ export class PaymentService {
     const url = `${this.constants.API_ENDPOINT}/Payment/generate-checkout-qr`;
     return this.http.post(url, { BillId: billId, TotalAmount: amount });
   }
- verifyPayment(billId: number, transactionId: string): Observable<any> {
-  const url = `${this.constants.API_ENDPOINT}/Payment/verify-payment`;
-  const payload = {
-    billId: billId,            
-    transactionId: transactionId 
-  };
+  verifyPayment(billId: number, transactionId: string): Observable<any> {
+    const url = `${this.constants.API_ENDPOINT}/Payment/verify-payment`;
+    const payload = {
+      billId: billId,
+      transactionId: transactionId
+    };
 
-  return this.http.post(url, payload);
-}
+    return this.http.post(url, payload);
+  }
+  updatePaymentMethod(billId: number, payload: any): Observable<any> {
+    const url = `${this.constants.API_ENDPOINT}/Payment/update-payment-method/${billId}`;
+    return this.http.put(url, payload);
+  }
 }

@@ -13,6 +13,7 @@ import { ConfigService } from '../../../service/api/config.service';
 import { DiscountService } from '../../../service/api/discount.service';
 import { OrderService } from '../../../service/api/order.service';
 import { PaymentService } from '../../../service/api/payment.service';
+import { PrintService } from '../../../service/api/print.service';
 import { SignalrService } from '../../../service/api/signalr.service';
 import { TableService } from '../../../service/api/table.service';
 
@@ -62,7 +63,8 @@ export class CheckOut implements OnInit, OnDestroy {
     private messageService: MessageService,
     private route: ActivatedRoute,
     private router: Router,
-    private paymentService: PaymentService
+    private paymentService: PaymentService,
+    private printService: PrintService
   ) { }
 
   // Lifecycle Hooks
@@ -269,6 +271,28 @@ export class CheckOut implements OnInit, OnDestroy {
       item.quantity += change;
       this.sendToCustomerDisplay();
     }
+  }
+
+  updateBuffetQty(type: 'adult' | 'child', change: number) {
+    if (!this.currentBill) return;
+
+    if (type === 'adult') {
+      const currentAdults = this.currentBill.numAdults ?? this.currentBill.num_adults ?? 0;
+      if (currentAdults + change >= 0) {
+        this.currentBill.numAdults = currentAdults + change;
+        this.currentBill.num_adults = currentAdults + change;
+      }
+    }
+    else if (type === 'child') {
+      const currentChildren = this.currentBill.numChildren ?? this.currentBill.num_children ?? 0;
+      if (currentChildren + change >= 0) {
+        this.currentBill.numChildren = currentChildren + change;
+        this.currentBill.num_children = currentChildren + change;
+      }
+    }
+
+    // อัปเดตหน้าจอลูกค้าแบบ Real-time
+    this.sendToCustomerDisplay();
   }
 
   // Getters for Calculations
@@ -496,8 +520,15 @@ export class CheckOut implements OnInit, OnDestroy {
       });
     }
   }
+  goBack() {
+    this.signalRService.clearCustomerDisplay();
+    this.router.navigate(['/BillingList']);
+  }
 
   printReceipt() {
-    console.log('สั่งปริ้นใบเสร็จ...');
+    this.printService.printReceipt(this.currentBill.id);
   }
 }
+
+
+

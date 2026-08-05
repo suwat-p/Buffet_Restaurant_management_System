@@ -1,0 +1,338 @@
+/* Main Container */
+.billing-container {
+  display: flex;
+  gap: 20px;
+  padding: 20px;
+  background-color: #121212;
+  height: calc(100vh - 80px);
+  max-height: calc(100vh - 80px);
+  color: #ffffff;
+  font-family: 'Sarabun', sans-serif;
+  overflow: hidden;
+
+  /* Left Panel */
+  .left-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    height: 100%;
+    overflow: hidden;
+
+    .filter-toolbar {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-shrink: 0;
+
+      .filter-select, .search-box input, .date-box input {
+        background-color: #000000;
+        border: 1px solid #333333;
+        color: #ffffff;
+        padding: 10px 14px;
+        border-radius: 8px;
+        font-size: 15px;
+        outline: none;
+
+        &:focus {
+          border-color: #00a8ff;
+        }
+      }
+
+      .limit-select {
+        width: 75px;
+      }
+
+      .search-box {
+        flex: 1;
+        input {
+          width: 100%;
+        }
+      }
+
+      .date-box input {
+        width: 160px;
+        color-scheme: dark;
+      }
+
+      .payment-select {
+        width: 120px;
+      }
+    }
+
+    .table-wrapper {
+      background-color: #0d0d0d;
+      border-radius: 10px;
+      overflow-y: auto;
+      flex: 1;
+      border: 1px solid #2a2a2a;
+
+      .bill-table {
+        width: 100%;
+        border-collapse: collapse;
+
+        thead {
+          position: sticky;
+          top: 0;
+          z-index: 10;
+          background-color: #000000;
+
+          th {
+            padding: 16px 18px;
+            font-size: 16px;
+            color: #ffffff;
+            font-weight: 600;
+            border-bottom: 2px solid #2a2a2a;
+          }
+        }
+
+        tbody {
+          tr {
+            cursor: pointer;
+            transition: background-color 0.15s ease-in-out;
+
+            /* สลับสีแถวเข้ม-อ่อนตามตัวอย่างภาพ */
+            &:nth-child(odd) {
+              background-color: #121212;
+            }
+
+            &:nth-child(even) {
+              background-color: #222222;
+            }
+
+            td {
+              padding: 18px 18px;
+              font-size: 16px;
+              color: #f0f0f0;
+              border-top: 1px solid transparent;
+              border-bottom: 1px solid transparent;
+
+              &:first-child {
+                border-left: 1px solid transparent;
+              }
+
+              &:last-child {
+                border-right: 1px solid transparent;
+              }
+            }
+
+            &:hover {
+              background-color: #333333 !important;
+            }
+
+            /* แถวที่เลือก: กรอบสีฟ้าชัดเจน */
+            &.selected {
+              background-color: #172b3c !important;
+
+              td {
+                color: #ffffff;
+                font-weight: bold;
+                border-top: 1px solid #00a8ff;
+                border-bottom: 1px solid #00a8ff;
+
+                &:first-child {
+                  border-left: 1px solid #00a8ff;
+                }
+
+                &:last-child {
+                  border-right: 1px solid #00a8ff;
+                }
+              }
+            }
+          }
+
+          .no-data {
+            text-align: center;
+            padding: 40px;
+            font-size: 16px;
+            color: #888888;
+          }
+        }
+      }
+    }
+  }
+
+  /* Right Panel */
+  .right-panel {
+    width: 380px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    background-color: #1a1a1a;
+    padding: 20px;
+    border-radius: 14px;
+    flex-shrink: 0;
+    overflow: hidden;
+
+    .receipt-paper {
+      background-color: #ffffff;
+      color: #000000;
+      padding: 20px 18px;
+      font-family: 'Courier New', Courier, monospace;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+      border-radius: 2px;
+      flex: 1;
+      overflow-y: auto;
+
+      &.empty {
+        background-color: #2b2b2b;
+        color: #888888;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: 'Sarabun', sans-serif;
+        font-size: 16px;
+      }
+
+      .receipt-header {
+        text-align: center;
+        margin-bottom: 12px;
+
+        h2 {
+          font-size: 20px;
+          font-weight: bold;
+          margin: 0;
+        }
+      }
+
+      .receipt-info, .receipt-extra, .receipt-summary {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        font-size: 14px;
+      }
+
+      .info-row, .item-row {
+        display: flex;
+        justify-content: space-between;
+      }
+
+      .receipt-divider {
+        border-top: 1px dashed #666666;
+        margin: 12px 0;
+      }
+
+      .receipt-summary {
+        .grand-total-row {
+          display: flex;
+          justify-content: space-between;
+          font-size: 20px;
+          font-weight: bold;
+          margin-bottom: 6px;
+        }
+      }
+
+      .receipt-footer {
+        text-align: center;
+        margin-top: 50px;
+        font-size: 12px;
+
+        p {
+          margin: 2px 0;
+        }
+      }
+    }
+
+    .action-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      flex-shrink: 0;
+
+      .btn-action {
+        width: 100%;
+        padding: 14px;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: bold;
+        color: #ffffff;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: opacity 0.2s;
+
+        &:hover {
+          opacity: 0.9;
+        }
+
+        &.btn-print {
+          background-color: #1219ad;
+        }
+
+        &.btn-change-payment {
+          background-color: #8000ff;
+        }
+      }
+    }
+  }
+}
+
+/* Utilities */
+.text-center { text-align: center; }
+.text-end { text-align: right; }
+.fw-bold { font-weight: bold; }
+
+/* Dialog Modals */
+.payment-modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  .payment-type-selector {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    .type-option {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      border: 1px solid #444;
+      border-radius: 8px;
+      cursor: pointer;
+      background-color: #222;
+      color: #fff;
+      font-size: 16px;
+
+      &.active {
+        border-color: #8000ff;
+        background-color: #311b4e;
+      }
+    }
+  }
+
+  .btn-confirm {
+    width: 100%;
+    padding: 12px;
+    background-color: #8000ff;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+}
+
+.qr-image-wrapper {
+  padding: 10px;
+  background-color: #ffffff;
+  display: inline-block;
+  border-radius: 8px;
+
+  .qr-img {
+    width: 220px;
+    height: 220px;
+  }
+}
+
+.customer-display-note {
+  font-size: 13px;
+  color: #28a745;
+  margin-top: 10px;
+}
