@@ -1,0 +1,218 @@
+<p-toast></p-toast>
+<app-menu-cashier>
+  <div class="billing-container">
+    
+    <!-- Left Panel -->
+    <div class="left-panel">
+      
+      <!-- Filter Toolbar -->
+      <div class="filter-toolbar">
+        <select class="filter-select limit-select" [(ngModel)]="limitSize" (change)="applyFilters()">
+          <option [value]="50">50</option>
+          <option [value]="100">100</option>
+          <option [value]="0">ทั้งหมด</option>
+        </select>
+
+        <div class="search-box">
+          <input 
+            type="text" 
+            placeholder="ค้นหารหัสบิล" 
+            [(ngModel)]="searchTerm" 
+            (input)="applyFilters()" 
+          />
+        </div>
+
+        <div class="date-box">
+          <input 
+            type="date" 
+            [(ngModel)]="searchDate" 
+            (change)="applyFilters()" 
+          />
+        </div>
+
+        <select class="filter-select payment-select" [(ngModel)]="searchPaymentMethod" (change)="applyFilters()">
+          <option value="ทั้งหมด">ทั้งหมด</option>
+          <option value="เงินสด">เงินสด</option>
+          <option value="โอน">โอน</option>
+        </select>
+      </div>
+
+      <!-- Bill Table -->
+      <div class="table-wrapper">
+        <table class="bill-table">
+          <thead>
+            <tr>
+              <th>วันที่เวลา</th>
+              <th class="text-center">ผู้ใหญ่</th>
+              <th class="text-center">เด็ก</th>
+              <th class="text-end">รวมทั้งสิ้น</th>
+              <th class="text-center">ประเภทการชำระ</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr 
+              *ngFor="let b of filteredBills" 
+              [class.selected]="isSelected(b)"
+              (click)="selectBill(b)"
+            >
+              <td>{{ (b.created_at || b.createdAt) | date:'dd/MM/yyyy HH:mm:ss' }}</td>
+              <td class="text-center">{{ b.num_adults || b.numAdults || 0 }}</td>
+              <td class="text-center">{{ b.num_children || b.numChildren || 0 }}</td>
+              <td class="text-end fw-bold">{{ (b.total_amount || b.grandTotal || 0) | number:'1.0-0' }}</td>
+              <td class="text-center">{{ b.paymentMethod || 'เงินสด' }}</td>
+            </tr>
+
+            <tr *ngIf="filteredBills.length === 0">
+              <td colspan="5" class="no-data">ไม่พบข้อมูลใบเสร็จ</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Right Panel -->
+    <div class="right-panel">
+      
+      <!-- Thermal Receipt -->
+      <div class="receipt-paper" *ngIf="selectedBill; else noBillSelected">
+        <div class="receipt-header">
+          <h2>{{ resinfo[0]?.res_name || 'ร้าน BUFFET' }}</h2>
+        </div>
+
+        <div class="receipt-info">
+          <div class="info-row">
+            <span>เลขที่ใบเสร็จ:</span>
+            <span>{{ selectedBill.billNo || ( (selectedBill.bill_id)) }}</span>
+          </div>
+          <div class="info-row">
+            <span>วันที่:</span>
+            <span>{{ (selectedBill.created_at || selectedBill.createdAt) | date:'dd/MM/yyyy HH:mm:ss' }}</span>
+          </div>
+          <div class="info-row">
+            <span>โต๊ะ:</span>
+            <span>{{ selectedBill.tableNumbers || 'A2' }}</span>
+          </div>
+        </div>
+
+        <div class="receipt-divider"></div>
+
+        <div class="receipt-items">
+          <div class="item-row" *ngIf="selectedBill.num_adults || selectedBill.numAdults">
+            <span>ผู้ใหญ่ {{ selectedBill.num_adults || selectedBill.numAdults }} คน:</span>
+            <span>{{ (selectedBill.adultPriceTotal || 378) | number:'1.0-0' }}</span>
+          </div>
+          <div class="item-row" *ngIf="selectedBill.num_children || selectedBill.numChildren">
+            <span>เด็ก {{ selectedBill.num_children || selectedBill.numChildren }} คน:</span>
+            <span>{{ (selectedBill.childPriceTotal || 129) | number:'1.0-0' }}</span>
+          </div>
+
+          <div class="item-row" *ngFor="let item of billOrderItems">
+            <span>{{ item.name }} x{{ item.quantity }}:</span>
+            <span>{{ (item.price * item.quantity) | number:'1.0-0' }}</span>
+          </div>
+        </div>
+
+        <div class="receipt-divider"></div>
+
+        <div class="receipt-extra">
+          <div class="info-row">
+            <span>ค่าปรับ:</span>
+            <span>{{ selectedBill.fineAmount || 0 }}</span>
+          </div>
+          <div class="info-row">
+            <span>โปรโมชั่น:</span>
+            <span>{{ selectedBill.discountName || 'ไม่มี' }}</span>
+          </div>
+        </div>
+
+        <div class="receipt-divider"></div>
+
+        <div class="receipt-summary">
+          <div class="grand-total-row">
+            <span class="total-label">รวมทั้งสิ้น:</span>
+            <span class="total-amount">{{ (selectedBill.total_amount || selectedBill.grandTotal || 0) | number:'1.0-0' }}</span>
+          </div>
+          <div class="info-row">
+            <span>ชำระโดย:</span>
+            <span>{{ selectedBill.paymentMethod || 'เงินสด' }}</span>
+          </div>
+          <div class="info-row">
+            <span>ชื่อพนักงาน:</span>
+            <span>{{ selectedBill.staffName || '...' }}</span>
+          </div>
+        </div>
+
+        <div class="receipt-footer">
+          <p>ขอบคุณที่ใช้บริการ</p>
+          <p>โปรดเก็บใบเสร็จไว้เป็นหลักฐาน</p>
+        </div>
+      </div>
+
+      <ng-template #noBillSelected>
+        <div class="receipt-paper empty">
+          <p>กรุณาเลือกบิลเพื่อดูรายละเอียด</p>
+        </div>
+      </ng-template>
+
+      <!-- Action Buttons -->
+      <div class="action-buttons">
+        <button class="btn-action btn-print" (click)="printReceipt()">
+          <mat-icon>print</mat-icon>
+          <span>ปริ้นใบเสร็จ</span>
+        </button>
+
+        <button class="btn-action btn-change-payment" (click)="openChangePaymentModal()">
+          <span>เปลี่ยนประเภทชำระเงิน</span>
+        </button>
+      </div>
+
+    </div>
+
+  </div>
+</app-menu-cashier>
+
+<!-- Change Payment Modal -->
+<p-dialog 
+  header="เปลี่ยนประเภทการชำระเงิน" 
+  [(visible)]="showChangePaymentModal" 
+  [modal]="true" 
+  [style]="{width: '400px'}"
+>
+  <div class="payment-modal-body">
+    <p class="modal-subtext">เลือกรอบรูปแบบการชำระเงินใหม่สำหรับบิลนี้:</p>
+    
+    <div class="payment-type-selector">
+      <label class="type-option" [class.active]="selectedNewMethod === 'เงินสด'">
+        <input type="radio" name="payType" value="เงินสด" [(ngModel)]="selectedNewMethod">
+        <mat-icon>payments</mat-icon>
+        <span>เงินสด</span>
+      </label>
+
+      <label class="type-option" [class.active]="selectedNewMethod === 'โอน'">
+        <input type="radio" name="payType" value="โอน" [(ngModel)]="selectedNewMethod">
+        <mat-icon>qr_code_2</mat-icon>
+        <span>โอนเงิน (QR Code)</span>
+      </label>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-confirm" (click)="confirmChangePayment()">บันทึกการเปลี่ยน</button>
+    </div>
+  </div>
+</p-dialog>
+
+<!-- QR Code Modal -->
+<p-dialog 
+  header="สแกน QR Code ชำระเงิน" 
+  [(visible)]="showQrModal" 
+  [modal]="true" 
+  [style]="{width: '380px'}"
+>
+  <div class="qr-modal-body text-center" *ngIf="qrCodeData">
+    <p class="mb-2">ยอดชำระ: <strong>{{ selectedBill?.total_amount | number:'1.2-2' }} บาท</strong></p>
+    <div class="qr-image-wrapper">
+      <img [src]="qrCodeData" alt="PromptPay QR Code" class="qr-img" />
+    </div>
+    <p class="customer-display-note">🟢 ส่งข้อมูลและ QR Code ขึ้นหน้าจอลูกค้าเรียบร้อยแล้ว</p>
+  </div>
+</p-dialog>

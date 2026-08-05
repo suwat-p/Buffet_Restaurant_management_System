@@ -18,6 +18,10 @@ export class BillService {
     const url = `${this.constants.API_ENDPOINT}/Bill/getBill`;
     return this.http.get<Bill[]>(url)
   }
+  public getReceipt(){
+    const url = `${this.constants.API_ENDPOINT}/Bill/getReceipt`;
+    return this.http.get<Bill[]>(url)
+  }
   public updateBill(billId: number, payload: any): Observable<any> {
     const url = `${this.constants.API_ENDPOINT}/Bill/update/${billId}`;
     return this.http.put(url, payload);

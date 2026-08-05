@@ -2,10 +2,20 @@
 
 <app-menu-cashier>
   <div class="cashier-page-container">
+    
+    <!-- 🟢 เพิ่มแถบด้านบน: ปุ่ม Back & หัวข้อ "ชำระเงิน" -->
+    <div class="page-header-bar">
+      <button type="button" class="btn-back" (click)="goBack()">
+        <mat-icon>chevron_left</mat-icon>
+        <span>Back</span>
+      </button>
+      <h1 class="page-title">ชำระเงิน</h1>
+    </div>
+
     <div class="payment-card-layout">
       <!-- ฝั่งซ้าย: ตารางรายการอาหาร & ยอดรวมสรุป -->
       <div class="left-panel">
-        <!-- Header แสดงโต๊ะ และ วันที่เวลา ที่ดึงมาจาก Database สไตล์เดียวกับ bill.ts -->
+        <!-- Header แสดงโต๊ะ และ วันที่เวลา -->
         <div class="panel-header">
           <span class="table-title">โต๊ะ {{ currentBill?.tableNumbers || '-' }}</span>
           <span class="bill-date">
@@ -25,12 +35,15 @@
               </tr>
             </thead>
             <tbody>
-              <!-- แถวรายการ: ผู้ใหญ่ -->
               <tr *ngIf="numAdults > 0">
                 <td class="col-num">1</td>
                 <td class="col-name">บุฟเฟต์ผู้ใหญ่</td>
                 <td class="col-qty text-center">
-                  <span class="qty-val">{{ numAdults }}</span>
+                  <div class="qty-control">
+                    <button class="btn-qty minus" (click)="updateBuffetQty('adult', -1)">-</button>
+                    <span class="qty-val">{{ numAdults }}</span>
+                    <button class="btn-qty plus" (click)="updateBuffetQty('adult', 1)">+</button>
+                  </div>
                 </td>
                 <td class="col-price text-end">
                   {{ adultPrice | number:'1.2-2' }}
@@ -45,7 +58,11 @@
                 <td class="col-num">{{ (numAdults > 0) ? 2 : 1 }}</td>
                 <td class="col-name">บุฟเฟต์เด็ก</td>
                 <td class="col-qty text-center">
-                  <span class="qty-val">{{ numChildren }}</span>
+                  <div class="qty-control">
+                    <button class="btn-qty minus" (click)="updateBuffetQty('child', -1)">-</button>
+                    <span class="qty-val">{{ numChildren }}</span>
+                    <button class="btn-qty plus" (click)="updateBuffetQty('child', 1)">+</button>
+                  </div>
                 </td>
                 <td class="col-price text-end">
                   {{ childPrice | number:'1.2-2' }}
@@ -143,7 +160,7 @@
           </div>
         </div>
 
-        <!-- ปุ่มแอคชั่นส่วนลด & ปริ้น (ตามตำแหน่งเดิม) -->
+        <!-- ปุ่มแอคชั่นส่วนลด & ปริ้น -->
         <div class="action-row">
           <button class="btn-discount" (click)="openDiscountModal()">
             + ส่วนลด
@@ -183,13 +200,11 @@
 <!-- Modal ป๊อปอัพเลือกส่วนลด -->
 <p-dialog header="เลือกส่วนลด / โปรโมชั่น" [(visible)]="showDiscountModal" [modal]="true" [style]="{width: '450px'}">
   <div class="discount-dialog-list">
-    <!-- ปุ่มยกเลิก/ไม่ใช้ส่วนลด -->
     <div class="discount-item reset-item" (click)="removeDiscount()">
       <span>🚫 ไม่ใช้งานส่วนลด</span>
     </div>
     <hr />
 
-    <!-- รายการส่วนลดจาก API -->
     <div *ngFor="let d of discounts" 
          class="discount-item" 
          [class.active]="selectedDiscount?.discount_id === d.discount_id"

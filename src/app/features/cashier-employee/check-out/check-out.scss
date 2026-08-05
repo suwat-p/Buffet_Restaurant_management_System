@@ -8,10 +8,11 @@ $text-white: #ffffff;
 $text-muted: #888888;
 
 $color-red: #ff3b30;
-$color-green: #2e7d32;
+$color-green: #16a34a;
 $color-blue: #1565c0;
-$color-purple: #8e24aa;
+$color-purple: #8b5cf6;
 
+/* Main Layout Container */
 .cashier-page-container {
   width: 100%;
   min-height: calc(100vh - 60px);
@@ -20,16 +21,62 @@ $color-purple: #8e24aa;
   box-sizing: border-box;
   font-family: 'Sarabun', sans-serif;
   display: flex;
-  justify-content: center;
-  align-items: flex-start;
+  flex-direction: column;
+  align-items: center;
 
+  /* Header Bar Section */
+  .page-header-bar {
+    width: 100%;
+    max-width: 1100px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 18px;
+
+    .btn-back {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      background-color: transparent;
+      border: 1px solid #d97706;
+      color: #f59e0b;
+      padding: 6px 14px 6px 8px;
+      border-radius: 6px;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+
+      mat-icon {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+      }
+
+      &:hover {
+        background-color: rgba(245, 158, 11, 0.1);
+        border-color: #fbbf24;
+        color: #fbbf24;
+      }
+    }
+
+    .page-title {
+      font-size: 22px;
+      font-weight: 600;
+      color: $text-white;
+      margin: 0;
+    }
+  }
+
+  /* Main Card Layout */
   .payment-card-layout {
     display: flex;
     background-color: $bg-card;
     border-radius: 12px;
     width: 100%;
     max-width: 1100px;
-    min-height: 620px;
+    min-height: 600px;
     border: 1px solid $border-color;
     overflow: hidden;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
@@ -38,9 +85,9 @@ $color-purple: #8e24aa;
       flex-direction: column;
     }
 
-    // --- ฝั่งซ้าย ---
+    /* Left Panel */
     .left-panel {
-      flex: 1.2;
+      flex: 1.3;
       background-color: $bg-panel;
       padding: 24px;
       display: flex;
@@ -55,12 +102,12 @@ $color-purple: #8e24aa;
 
         .table-title {
           color: $text-white;
-          font-size: 1.2rem;
+          font-size: 1.3rem;
           font-weight: 600;
         }
 
         .bill-date {
-          color: $text-white;
+          color: $text-muted;
           font-size: 0.95rem;
         }
       }
@@ -94,8 +141,8 @@ $color-purple: #8e24aa;
             gap: 10px;
 
             .btn-qty {
-              width: 24px;
-              height: 24px;
+              width: 26px;
+              height: 26px;
               border-radius: 50%;
               border: none;
               color: $text-white;
@@ -126,7 +173,6 @@ $color-purple: #8e24aa;
         }
       }
 
-      // 🟢 ปรับแก้ตามรูปแบบรูปภาพที่ 2
       .panel-summary {
         border-top: 1px solid $border-color;
         margin-top: 12px;
@@ -146,6 +192,7 @@ $color-purple: #8e24aa;
             padding: 14px 16px;
             margin-top: 4px;
             font-weight: bold;
+            border-radius: 6px;
 
             .total-val {
               font-size: 1.25rem;
@@ -156,18 +203,18 @@ $color-purple: #8e24aa;
       }
     }
 
-    // --- ฝั่งขวา ---
+    /* Right Panel */
     .right-panel {
-      flex: 0.8;
-      padding: 28px;
+      flex: 0.85;
+      padding: 24px;
       display: flex;
       flex-direction: column;
-      gap: 18px;
+      gap: 16px;
 
       .display-box-group {
         display: flex;
         flex-direction: column;
-        gap: 8px;
+        gap: 6px;
 
         label {
           color: $text-white;
@@ -178,12 +225,12 @@ $color-purple: #8e24aa;
           background-color: $bg-box;
           border: 1px solid $border-color;
           border-radius: 6px;
-          height: 65px;
+          height: 60px;
           display: flex;
           align-items: center;
           justify-content: center;
           color: $text-white;
-          font-size: 2.2rem;
+          font-size: 2rem;
           font-weight: bold;
           text-align: center;
           width: 100%;
@@ -211,11 +258,17 @@ $color-purple: #8e24aa;
           color: $text-white;
           font-family: 'Sarabun', sans-serif;
           font-weight: 600;
+          font-size: 14px;
           cursor: pointer;
           display: flex;
           align-items: center;
           justify-content: center;
           gap: 8px;
+          transition: opacity 0.2s ease;
+
+          &:hover {
+            opacity: 0.9;
+          }
         }
 
         .btn-discount {
@@ -227,12 +280,11 @@ $color-purple: #8e24aa;
         }
       }
 
-      // 🟢 ปุ่มเลือกวิธีชำระเงิน เรียงคนละแถว (แนวตั้ง)
       .payment-method-section {
         display: flex;
         flex-direction: column;
         gap: 8px;
-        margin-top: 8px;
+        margin-top: 4px;
 
         .section-title {
           font-size: 14px;
@@ -242,7 +294,7 @@ $color-purple: #8e24aa;
         .payment-btn-group.vertical {
           display: flex;
           flex-direction: column;
-          gap: 12px;
+          gap: 10px;
 
           .btn-payment {
             width: 100%;
@@ -252,7 +304,7 @@ $color-purple: #8e24aa;
             gap: 10px;
             padding: 14px;
             border-radius: 8px;
-            border: 1px solid #333;
+            border: 1px solid transparent;
             font-size: 16px;
             font-weight: 600;
             font-family: 'Sarabun', sans-serif;
@@ -266,9 +318,8 @@ $color-purple: #8e24aa;
             }
 
             &.btn-cash {
-              background-color: #16a34a; // สีเขียวสำหรับเงินสด
+              background-color: #16a34a;
               color: #fff;
-              border-color: #16a34a;
 
               &:hover {
                 background-color: #15803d;
@@ -276,9 +327,8 @@ $color-purple: #8e24aa;
             }
 
             &.btn-qrcode {
-              background-color: #8b5cf6; // สีม่วงสำหรับ QR Code
+              background-color: #8b5cf6;
               color: #fff;
-              border-color: #8b5cf6;
 
               &:hover {
                 background-color: #7c3aed;
@@ -289,16 +339,12 @@ $color-purple: #8e24aa;
       }
     }
 
-    // Helper Alignment Classes
-    .text-center {
-      text-align: center;
-    }
-
-    .text-end {
-      text-align: right;
-    }
+    .text-center { text-align: center; }
+    .text-end { text-align: right; }
   }
 }
+
+/* Modal Styling */
 .discount-dialog-list {
   display: flex;
   flex-direction: column;
@@ -351,7 +397,6 @@ input[type="number"]::-webkit-inner-spin-button {
   margin: 0;
 }
 
-/* รองรับ Firefox */
 input[type="number"] {
   -moz-appearance: textfield;
   appearance: textfield;

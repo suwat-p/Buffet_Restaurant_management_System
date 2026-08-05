@@ -38,9 +38,9 @@ export class MenuCashier {
   menuItems = [
     { label: 'รายการบิลชำระเงิน', icon: 'groups', route: '/BillingList', active: true },
     {
-      label: 'เช็คอินโต๊ะที่ลูกค้าจอง',
-      icon: 'fact_check',
-      route: '/ConfirmCheckin',
+      label: 'ใบเสร็จ',
+      icon: 'receipt_long',
+      route: '/Receipt',
       active: false,
     },
     { label: 'นำเสิร์ฟอาหาร', icon: 'room_service', route: '/ManageTable', active: false }, // หรือ grid_view
