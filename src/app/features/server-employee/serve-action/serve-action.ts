@@ -13,8 +13,11 @@ import { OrderService } from '../../../service/api/order.service';
 })
 export class ServeAction implements OnInit {
   loading = true;
+  submitting = false;
+  isServed = false;
   error = '';
   orderInfo: any = null;
+  orderId!: number;
 
   constructor(
     private route: ActivatedRoute,
@@ -22,27 +25,41 @@ export class ServeAction implements OnInit {
   ) {}
 
   ngOnInit() {
-    const orderId = Number(this.route.snapshot.queryParamMap.get('orderId'));
-    if (!orderId) {
-      this.error = 'ไม่พบเลขออเดอร์ใน QR';
+    this.orderId = Number(this.route.snapshot.queryParamMap.get('orderId'));
+    if (!this.orderId) {
+      this.error = 'ไม่พบหมายเลขออเดอร์ใน QR Code';
       this.loading = false;
       return;
     }
 
-    // 📲 ดึงโต๊ะ + รายการอาหารมาแสดงให้พนักงานเช็คก่อน
-    this.orderService.GetServeInfo(orderId).subscribe({
-      next: (info) => {
+    // 1. ดึงข้อมูลโต๊ะ/รายการอาหาร + เปลี่ยนสถานะเป็น "กำลังนำเสิร์ฟ" ทันทีที่สแกน
+    this.orderService.GetServeInfo(this.orderId).subscribe({
+      next: (info: any) => {
         this.orderInfo = info;
         this.loading = false;
-
-        // 🍽️ เปลี่ยนสถานะเป็น "กำลังนำเสิร์ฟ" ทันทีที่สแกน ไม่ต้องกดยืนยันซ้ำ
-        this.orderService.ServeOrder(orderId).subscribe({
-          error: (err) => console.error('อัปเดตสถานะไม่สำเร็จ', err),
-        });
+        if (info.orderStatus === 'SERVED') {
+          this.isServed = true;
+        }
       },
       error: () => {
-        this.error = 'ไม่พบรายการออเดอร์นี้ หรือถูกเสิร์ฟไปแล้ว';
+        this.error = 'ไม่พบข้อมูลออเดอร์นี้ หรือออเดอร์ถูกยกเลิกแล้ว';
         this.loading = false;
+      },
+    });
+  }
+
+  // 2. พนักงานกดปุ่ม "เสิร์ฟเสร็จแล้ว" เมื่อนำของไปวางที่โต๊ะเรียบร้อย
+  completeServe() {
+    this.submitting = true;
+    this.orderService.ServeOrder(this.orderId).subscribe({
+      next: () => {
+        this.submitting = false;
+        this.isServed = true;
+      },
+      error: (err) => {
+        console.error('อัปเดตสถานะเสิร์ฟไม่สำเร็จ', err);
+        this.submitting = false;
+        alert('เกิดข้อผิดพลาดในการอัปเดตสถานะ');
       },
     });
   }
