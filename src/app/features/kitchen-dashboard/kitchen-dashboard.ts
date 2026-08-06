@@ -17,7 +17,6 @@ import { MenuManager } from '../../components/menu-bar/menu-manager/menu-manager
 export class KitchenDashboard implements OnInit, OnDestroy {
   activeOrders: any[] = [];
   pendingCount: number = 0;
-  cookingCount: number = 0;
   completedTodayCount: number = 0;
 
   timeNow: string = '';
@@ -34,10 +33,12 @@ export class KitchenDashboard implements OnInit, OnDestroy {
   ngOnInit() {
     this.startClock();
 
+    // 🍳 ออเดอร์ใหม่เข้ามา → ดึงตั๋วมาแสดงบนจอ (ไม่ต้องมีใครกดอะไร)
     this.newOrderSub = this.signalrService.newKitchenOrder$.subscribe((orderId) => {
       this.fetchAndAddTicket(orderId);
     });
 
+    // 📲 ออเดอร์ถูกเสิร์ฟแล้ว (สแกน QR ตอนเดินเสิร์ฟจริง) → หายไปจากจอเอง
     this.statusSub = this.signalrService.orderStatusUpdated$.subscribe(({ orderId, status }) => {
       if (status === 'กำลังนำเสิร์ฟ' || status === 'SERVED') {
         this.removeOrder(orderId);
@@ -58,6 +59,20 @@ export class KitchenDashboard implements OnInit, OnDestroy {
     });
   }
 
+  // ⏱️ คำนวณเวลาที่ออเดอร์ค้างอยู่ (นาที) เพื่อใช้เปลี่ยนสีเตือน
+  getElapsedMinutes(orderTime: string | Date): number {
+    const diffMs = Date.now() - new Date(orderTime).getTime();
+    return Math.floor(diffMs / 60000);
+  }
+
+  // 🎨 ระดับความเร่งด่วน: normal (<5นาที) / warning (5-10นาที) / urgent (>10นาที)
+  getUrgencyClass(orderTime: string | Date): string {
+    const mins = this.getElapsedMinutes(orderTime);
+    if (mins >= 10) return 'urgent';
+    if (mins >= 5) return 'warning';
+    return 'normal';
+  }
+
   private fetchAndAddTicket(orderId: number) {
     this.orderService.GetKitchenTicket(orderId).subscribe({
       next: (ticket: any) => {
@@ -75,13 +90,6 @@ export class KitchenDashboard implements OnInit, OnDestroy {
     this.activeOrders = this.activeOrders.filter((o) => o.orderId !== orderId);
     this.pendingCount = this.activeOrders.length;
     this.completedTodayCount++;
-  }
-
-  markAsDone(orderId: number) {
-    this.orderService.ServeOrder(orderId).subscribe({
-      next: () => this.removeOrder(orderId),
-      error: (err) => console.error('อัปเดตสถานะออเดอร์ไม่สำเร็จ', err),
-    });
   }
 
   ngOnDestroy() {

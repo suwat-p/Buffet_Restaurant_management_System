@@ -27,6 +27,7 @@ import { ResetPassword } from './features/reset-password/reset-password';
 import { ConfrimCheckin } from './features/server-employee/confrim-checkin/confrim-checkin';
 import { CreateBill } from './features/server-employee/create-bill/create-bill';
 import { EmployeeAttendance } from './features/server-employee/employee-checkin/employee-attendance';
+import { ServeAction } from './features/server-employee/serve-action/serve-action';
 import { employeeGuard } from './guards/employee-guard';
 import { memberGuard } from './guards/member-guard';
 import { Index } from './index';
@@ -53,6 +54,7 @@ export const routes: Routes = [
   { path: 'Employeecheckin', component: EmployeeAttendance },
   { path: 'EmployeeIncome', component: EmployeeIncome },
   { path: 'KitchenDashboard', component: KitchenDashboard },
+  { path: 'serve-action', component: ServeAction },
 
   {
     path: 'ManageEmployee',
