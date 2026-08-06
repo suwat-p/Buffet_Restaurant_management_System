@@ -133,7 +133,9 @@ export class LoginEmployee implements OnInit {
     });
   }
 
-  forgotPassword() {}
+  forgotPassword() {
+    this.router.navigate(['reset-password']);
+  }
 
   onRegisterMember() {
     this.router.navigate(['/Registermember']);

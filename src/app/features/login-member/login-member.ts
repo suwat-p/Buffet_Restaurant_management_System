@@ -1,12 +1,12 @@
-import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AuthService } from '../../service/api/auth.service';
 import { HttpClient } from '@angular/common/http';
-import { Toast } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
-import { MatIconModule } from '@angular/material/icon';
+import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
+import { MessageService } from 'primeng/api';
+import { Toast } from 'primeng/toast';
+import { AuthService } from '../../service/api/auth.service';
 @Component({
   selector: 'app-login-member',
   imports: [Toast, MatIconModule, FormsModule, CommonModule],
@@ -60,7 +60,9 @@ export class LoginMember {
     );
   }
 
-  forgotPassword() {}
+  forgotPassword() {
+    this.router.navigate(['reset-password']);
+  }
 
   onRegisterMember() {
     this.router.navigate(['/Registermember']);

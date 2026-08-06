@@ -5,6 +5,7 @@ import { BillingList } from './features/cashier-employee/bill/bill';
 import { CheckOut } from './features/cashier-employee/check-out/check-out';
 import { DisplayCheckout } from './features/cashier-employee/display-checkout/display-checkout';
 import { Receipt } from './features/cashier-employee/receipt/receipt';
+import { KitchenDashboard } from './features/kitchen-dashboard/kitchen-dashboard';
 import { LoginEmployee } from './features/login-employee/login-employee';
 import { LoginMember } from './features/login-member/login-member';
 import { Dashboard } from './features/manager/dashboard/dashboard';
@@ -22,6 +23,7 @@ import { BookingStatus } from './features/member/booking-status/booking-status';
 import { Booking } from './features/member/booking/booking';
 import { RegisterEmployee } from './features/register-employee/register-employee';
 import { RegisterMember } from './features/register-member/register-member';
+import { ResetPassword } from './features/reset-password/reset-password';
 import { ConfrimCheckin } from './features/server-employee/confrim-checkin/confrim-checkin';
 import { CreateBill } from './features/server-employee/create-bill/create-bill';
 import { EmployeeAttendance } from './features/server-employee/employee-checkin/employee-attendance';
@@ -29,7 +31,6 @@ import { employeeGuard } from './guards/employee-guard';
 import { memberGuard } from './guards/member-guard';
 import { Index } from './index';
 import { StatusCustomerOrder } from './status/status-customer-order/status-customer-order';
-import { KitchenDashboard } from './features/kitchen-dashboard/kitchen-dashboard';
 
 export const routes: Routes = [
   { path: '', component: Index },
@@ -143,6 +144,10 @@ export const routes: Routes = [
   {
     path: 'display-checkout',
     component: DisplayCheckout,
+  },
+  {
+    path: 'reset-password',
+    component: ResetPassword,
   },
 
   { path: '**', redirectTo: '' },
