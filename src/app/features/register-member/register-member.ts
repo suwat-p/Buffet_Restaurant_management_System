@@ -89,10 +89,10 @@ export class RegisterMember {
       const isDisposable = apiRes?.email_quality?.is_disposable;
 
       if (status !== 'deliverable' || !isSmtpValid) {
-      this.emailError = 'อีเมลนี้ไม่มีอยู่จริง';
-      this.isCheckingEmail = false;
-      return false;
-    }
+        this.emailError = 'อีเมลนี้ไม่มีอยู่จริง';
+        this.isCheckingEmail = false;
+        return false;
+      }
 
       if (isDisposable) {
         this.emailError = 'ไม่อนุญาตให้ใช้อีเมลชั่วคราว (Disposable Email)';
@@ -144,7 +144,26 @@ export class RegisterMember {
     this.phoneError = '';
     return true;
   }
+  // --- PASSWORD CHECK GETTERS FOR TEMPLATE ---
+  get hasMinLength(): boolean {
+    return (this.password || '').length >= 8;
+  }
 
+  get hasUpperCase(): boolean {
+    return /[A-Z]/.test(this.password || '');
+  }
+
+  get hasLowerCase(): boolean {
+    return /[a-z]/.test(this.password || '');
+  }
+
+  get hasNumeric(): boolean {
+    return /[0-9]/.test(this.password || '');
+  }
+
+  get hasSpecialChar(): boolean {
+    return /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(this.password || '');
+  }
   validatePassword(): boolean {
     if (!this.password) {
       this.passwordError = 'กรุณากรอกรหัสผ่าน';

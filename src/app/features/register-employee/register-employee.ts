@@ -149,7 +149,25 @@ export class RegisterEmployee {
     this.phoneError = '';
     return true;
   }
+  get hasMinLength(): boolean {
+  return (this.password || '').length >= 8;
+}
 
+get hasUpperCase(): boolean {
+  return /[A-Z]/.test(this.password || '');
+}
+
+get hasLowerCase(): boolean {
+  return /[a-z]/.test(this.password || '');
+}
+
+get hasNumeric(): boolean {
+  return /[0-9]/.test(this.password || '');
+}
+
+get hasSpecialChar(): boolean {
+  return /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(this.password || '');
+}
   validatePassword(): boolean {
     if (!this.password) {
       this.passwordError = 'กรุณากรอกรหัสผ่าน';

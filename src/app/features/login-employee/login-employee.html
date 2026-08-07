@@ -2,44 +2,78 @@
 
 <div class="login-container">
   <div class="login-card">
-    <h1>เข้าสู่ระบบเพื่อเริ่มต้นใช้งาน</h1>
-    <h3>(สำหรับพนักงาน)</h3>
+    
+    <!-- HEADER -->
+    <div class="card-header">
+      <div class="brand-logo">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+          <circle cx="8.5" cy="7" r="4"></circle>
+          <polyline points="17 11 19 13 23 9"></polyline>
+        </svg>
+      </div>
+      <h2>เข้าสู่ระบบเพื่อเริ่มต้นใช้งาน</h2>
+      <p class="subtitle">ระบบจัดการร้านอาหาร buffet <strong>(สำหรับพนักงาน)</strong></p>
+    </div>
 
-    <form>
+    <form (ngSubmit)="onLogin()">
+      <!-- เบอร์โทรศัพท์ -->
       <div class="form-group">
+        <label for="phone">เบอร์โทรศัพท์</label>
         <div class="input-wrapper">
-          <input type="tel" name="phone" placeholder="เบอร์โทรศัพท์" [(ngModel)]="phone" />
-          <mat-icon>phone</mat-icon>
+          <mat-icon class="input-icon">phone</mat-icon>
+          <input 
+            type="tel" 
+            id="phone" 
+            name="phone" 
+            placeholder="08X-XXX-XXXX" 
+            [(ngModel)]="phone" 
+          />
         </div>
       </div>
 
+      <!-- รหัสผ่าน -->
       <div class="form-group">
+        <label for="password">รหัสผ่าน</label>
         <div class="input-wrapper">
-          <input type="password" name="password" placeholder="รหัสผ่าน" [(ngModel)]="password" />
-          <mat-icon>lock</mat-icon>
+          <mat-icon class="input-icon">lock</mat-icon>
+          <input 
+            type="password" 
+            id="password" 
+            name="password" 
+            placeholder="กรอกรหัสผ่าน" 
+            [(ngModel)]="password" 
+          />
         </div>
       </div>
 
-      <div class="remember-me">
-        <input type="checkbox" id="remember" name="remember" [(ngModel)]="rememberMe" />
-        <label for="remember">จดจำการเข้าสู่ระบบ</label>
+      <!-- ตัวเลือกจดจำ & ลืมรหัสผ่าน -->
+      <div class="options-wrapper">
+        <div class="remember-me">
+          <input type="checkbox" id="remember" name="remember" [(ngModel)]="rememberMe" />
+          <label for="remember">จดจำการเข้าสู่ระบบ</label>
+        </div>
+        <a (click)="forgotPassword()" class="forgot-pass">ลืมรหัสผ่าน?</a>
       </div>
 
-      <button type="button" class="btn-login" (click)="onLogin()">Login/เข้าสู่ระบบ</button>
+      <!-- ปุ่มเข้าสู่ระบบ -->
+      <button type="submit" class="btn-login">
+        เข้าสู่ระบบ (Login)
+      </button>
 
-      <div class="divider">-OR-</div>
+      <div class="divider">
+        <span>หรือ</span>
+      </div>
 
+      <!-- ปุ่มสมัครสมาชิก -->
       <button type="button" class="btn-register-customer" (click)="onRegisterMember()">
-        Register/สมัครสมาชิก (สำหรับ ลูกค้า)
+        สมัครสมาชิก (สำหรับ ลูกค้า)
       </button>
 
       <button type="button" class="btn-register-staff" (click)="onRegisterEmployee()">
-        Register/สมัครสมาชิก (สำหรับ พนักงาน)
+        สมัครสมาชิก (สำหรับ พนักงาน)
       </button>
-
-      <div class="footer-links">
-        <a (click)="forgotPassword()" class="forgot-pass">ลืมรหัสผ่าน</a>
-      </div>
     </form>
+    
   </div>
 </div>
