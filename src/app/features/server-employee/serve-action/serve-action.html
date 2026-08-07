@@ -1,12 +1,21 @@
-<app-menu-server>
+<app-index-navbar *ngIf="!isLoggedIn || !isServerRole">
+  <ng-container *ngTemplateOutlet="mainContent"></ng-container>
+</app-index-navbar>
+
+<app-menu-server *ngIf="isLoggedIn && isServerRole">
+  <ng-container *ngTemplateOutlet="mainContent"></ng-container>
+</app-menu-server>
+
+<!-- เนื้อหาหลักของหน้าเสิร์ฟ -->
+<ng-template #mainContent>
   <div class="serve-container">
-    <!-- Loading -->
+    <!-- โหลดข้อมูล -->
     <div class="card loading-card" *ngIf="loading">
       <div class="spinner"></div>
       <p>กำลังโหลดข้อมูลออเดอร์...</p>
     </div>
 
-    <!-- Serve Card -->
+    <!-- การ์ดรายการนำเสิร์ฟ -->
     <div class="card serve-card" *ngIf="!loading && !error && orderInfo">
       <div class="card-header">
         <span class="status-badge delivering">
@@ -26,7 +35,7 @@
         </div>
       </div>
 
-      <!-- Action Button -->
+      <!-- ปุ่มยืนยันเสิร์ฟ -->
       <div class="card-footer" *ngIf="!isServed">
         <button class="btn-complete-serve" (click)="completeServe()" [disabled]="submitting">
           <mat-icon>check_circle</mat-icon>
@@ -34,17 +43,17 @@
         </button>
       </div>
 
-      <!-- Success State -->
+      <!-- เสิร์ฟเสร็จแล้ว -->
       <div class="success-banner" *ngIf="isServed">
         <mat-icon>task_alt</mat-icon>
         <p>เสิร์ฟอาหารเรียบร้อยแล้ว</p>
       </div>
     </div>
 
-    <!-- Error State -->
+    <!-- กรณีไม่มีสิทธิ์ หรือ เกิดข้อผิดพลาด -->
     <div class="card error-card" *ngIf="error">
       <mat-icon>error_outline</mat-icon>
       <p>{{ error }}</p>
     </div>
   </div>
-</app-menu-server>
+</ng-template>

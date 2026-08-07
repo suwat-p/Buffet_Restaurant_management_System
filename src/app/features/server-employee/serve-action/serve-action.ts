@@ -5,11 +5,12 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { OrderService } from '../../../service/api/order.service';
 import { AuthService } from '../../../service/api/auth.service';
 import { MenuServer } from '../../../components/menu-bar/menu-server/menu-server';
+import { IndexNavbar } from '../../../components/menu-bar/index-navbar/index-navbar'; // 🟢 1. Import IndexNavbar (ปรับ path ตามโครงสร้างโปรเจกต์)
 
 @Component({
   selector: 'app-serve-action',
   standalone: true,
-  imports: [CommonModule, MatIconModule, MenuServer],
+  imports: [CommonModule, MatIconModule, MenuServer, IndexNavbar], // 🟢 2. เพิ่ม IndexNavbar เข้า imports
   templateUrl: './serve-action.html',
   styleUrl: './serve-action.scss',
 })
@@ -21,6 +22,10 @@ export class ServeAction implements OnInit {
   orderInfo: any = null;
   orderId!: number;
 
+  // 🟢 3. เพิ่มตัวแปรสำหรับเช็คสถานะการเข้าสู่ระบบและบทบาท
+  isLoggedIn: boolean = false;
+  isServerRole: boolean = false;
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -29,21 +34,24 @@ export class ServeAction implements OnInit {
   ) {}
 
   ngOnInit() {
-    // 1. เช็คสิทธิ์และสถานะ Login
+    // Check การเข้าสู่ระบบ
     const member = this.authService.getMember();
-    if (!member) {
+    this.isLoggedIn = !!member;
+    this.isServerRole = this.authService.isServer();
+
+    if (!this.isLoggedIn) {
       this.error = 'กรุณาเข้าสู่ระบบก่อนดำเนินการ';
       this.loading = false;
       return;
     }
 
-    if (!this.authService.isServer()) {
+    if (!this.isServerRole) {
       this.error = 'คุณไม่มีสิทธิ์เข้าถึงหน้านี้ (เฉพาะพนักงานเสิร์ฟเท่านั้น)';
       this.loading = false;
       return;
     }
 
-    // 2. ดึงหมายเลขออเดอร์จาก Query Params
+    // ดึงออเดอร์
     this.orderId = Number(this.route.snapshot.queryParamMap.get('orderId'));
     if (!this.orderId) {
       this.error = 'ไม่พบหมายเลขออเดอร์ใน QR Code';
@@ -51,7 +59,6 @@ export class ServeAction implements OnInit {
       return;
     }
 
-    // 3. ดึงรายละเอียดออเดอร์
     this.orderService.GetServeInfo(this.orderId).subscribe({
       next: (info: any) => {
         this.orderInfo = info;
