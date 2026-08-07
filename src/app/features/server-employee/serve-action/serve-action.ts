@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { ActivatedRoute } from '@angular/router';
 import { OrderService } from '../../../service/api/order.service';
+import { MenuServer } from '../../../components/menu-bar/menu-server/menu-server';
 
 @Component({
   selector: 'app-serve-action',
   standalone: true,
-  imports: [CommonModule, MatIconModule],
+  imports: [CommonModule, MatIconModule, MenuServer],
   templateUrl: './serve-action.html',
   styleUrl: './serve-action.scss',
 })
@@ -32,7 +33,6 @@ export class ServeAction implements OnInit {
       return;
     }
 
-    // 1. ดึงข้อมูลโต๊ะ/รายการอาหาร + เปลี่ยนสถานะเป็น "กำลังนำเสิร์ฟ" ทันทีที่สแกน
     this.orderService.GetServeInfo(this.orderId).subscribe({
       next: (info: any) => {
         this.orderInfo = info;
@@ -48,7 +48,6 @@ export class ServeAction implements OnInit {
     });
   }
 
-  // 2. พนักงานกดปุ่ม "เสิร์ฟเสร็จแล้ว" เมื่อนำของไปวางที่โต๊ะเรียบร้อย
   completeServe() {
     this.submitting = true;
     this.orderService.ServeOrder(this.orderId).subscribe({

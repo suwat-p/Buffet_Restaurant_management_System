@@ -1,48 +1,50 @@
-<div class="serve-container">
-  <!-- โหลดข้อมูล -->
-  <div class="card loading-card" *ngIf="loading">
-    <div class="spinner"></div>
-    <p>กำลังโหลดข้อมูลออเดอร์...</p>
-  </div>
-
-  <!-- การ์ดเสิร์ฟอาหาร -->
-  <div class="card serve-card" *ngIf="!loading && !error && orderInfo">
-    <div class="card-header">
-      <span class="status-badge delivering">
-        <mat-icon>local_shipping</mat-icon> กำลังนำเสิร์ฟ
-      </span>
-      <h2>ออเดอร์ #{{ orderInfo.orderId }}</h2>
-      <div class="table-badge">โต๊ะ {{ orderInfo.tableNumber }}</div>
+<app-menu-server>
+  <div class="serve-container">
+    <!-- โหลดข้อมูล -->
+    <div class="card loading-card" *ngIf="loading">
+      <div class="spinner"></div>
+      <p>กำลังโหลดข้อมูลออเดอร์...</p>
     </div>
 
-    <div class="card-body">
-      <h3>รายการอาหาร</h3>
-      <div class="items-list">
-        <div class="item-row" *ngFor="let item of orderInfo.items">
-          <span class="qty">{{ item.quantity }}x</span>
-          <span class="name">{{ item.menuName }}</span>
+    <!-- การ์ดเสิร์ฟอาหาร -->
+    <div class="card serve-card" *ngIf="!loading && !error && orderInfo">
+      <div class="card-header">
+        <span class="status-badge delivering">
+          <mat-icon>local_shipping</mat-icon> กำลังนำเสิร์ฟ
+        </span>
+        <h2>ออเดอร์ #{{ orderInfo.orderId }}</h2>
+        <div class="table-badge">โต๊ะ {{ orderInfo.tableNumber }}</div>
+      </div>
+
+      <div class="card-body">
+        <h3>รายการอาหาร</h3>
+        <div class="items-list">
+          <div class="item-row" *ngFor="let item of orderInfo.items">
+            <span class="qty">{{ item.quantity }}x</span>
+            <span class="name">{{ item.menuName }}</span>
+          </div>
         </div>
+      </div>
+
+      <!-- ปุ่มกดยืนยันเมื่อของถึงโต๊ะ -->
+      <div class="card-footer" *ngIf="!isServed">
+        <button class="btn-complete-serve" (click)="completeServe()" [disabled]="submitting">
+          <mat-icon>check_circle</mat-icon>
+          <span>{{ submitting ? 'กำลังบันทึก...' : 'เสิร์ฟเสร็จแล้ว (ถึงโต๊ะแล้ว)' }}</span>
+        </button>
+      </div>
+
+      <!-- แสดงเมื่อเสิร์ฟเสร็จแล้ว -->
+      <div class="success-banner" *ngIf="isServed">
+        <mat-icon>task_alt</mat-icon>
+        <p>เสิร์ฟอาหารเรียบร้อยแล้ว</p>
       </div>
     </div>
 
-    <!-- ปุ่มกดยืนยันเมื่อของถึงโต๊ะ -->
-    <div class="card-footer" *ngIf="!isServed">
-      <button class="btn-complete-serve" (click)="completeServe()" [disabled]="submitting">
-        <mat-icon>check_circle</mat-icon>
-        <span>{{ submitting ? 'กำลังบันทึก...' : 'เสิร์ฟเสร็จแล้ว (ถึงโต๊ะแล้ว)' }}</span>
-      </button>
-    </div>
-
-    <!-- แสดงเมื่อเสิร์ฟเสร็จแล้ว -->
-    <div class="success-banner" *ngIf="isServed">
-      <mat-icon>task_alt</mat-icon>
-      <p>เสิร์ฟอาหารเรียบร้อยแล้ว</p>
+    <!-- กรณีเกิดข้อผิดพลาด -->
+    <div class="card error-card" *ngIf="error">
+      <mat-icon>error_outline</mat-icon>
+      <p>{{ error }}</p>
     </div>
   </div>
-
-  <!-- กรณีเกิดข้อผิดพลาด -->
-  <div class="card error-card" *ngIf="error">
-    <mat-icon>error_outline</mat-icon>
-    <p>{{ error }}</p>
-  </div>
-</div>
+</app-menu-server>
