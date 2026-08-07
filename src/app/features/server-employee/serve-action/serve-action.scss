@@ -40,7 +40,6 @@ $text-gray: #aaaaaa;
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* ---------- Loading ---------- */
 .loading-card {
   text-align: center;
   color: $text-gray;
@@ -62,7 +61,6 @@ $text-gray: #aaaaaa;
   to { transform: rotate(360deg); }
 }
 
-/* ---------- Serve card ---------- */
 .serve-card {
   .card-header {
     text-align: center;
@@ -78,11 +76,7 @@ $text-gray: #aaaaaa;
       font-weight: 600;
       margin-bottom: 12px;
 
-      mat-icon {
-        font-size: 18px;
-        width: 18px;
-        height: 18px;
-      }
+      mat-icon { font-size: 18px; width: 18px; height: 18px; }
 
       &.delivering {
         background: rgba(239, 108, 0, 0.2);
@@ -117,9 +111,7 @@ $text-gray: #aaaaaa;
       font-weight: 500;
     }
 
-    .items-list {
-      border-top: 1px solid #2d2d2d;
-    }
+    .items-list { border-top: 1px solid #2d2d2d; }
 
     .item-row {
       display: flex;
@@ -135,16 +127,11 @@ $text-gray: #aaaaaa;
         color: #ffca28;
       }
 
-      .name {
-        color: $text-white;
-        font-size: 1rem;
-      }
+      .name { color: $text-white; font-size: 1rem; }
     }
   }
 
-  .card-footer {
-    margin-top: 24px;
-  }
+  .card-footer { margin-top: 24px; }
 
   .btn-complete-serve {
     width: 100%;
@@ -174,9 +161,7 @@ $text-gray: #aaaaaa;
       cursor: not-allowed;
     }
 
-    &:not(:disabled):active {
-      transform: scale(0.98);
-    }
+    &:not(:disabled):active { transform: scale(0.98); }
   }
 
   .success-banner {
@@ -196,7 +181,6 @@ $text-gray: #aaaaaa;
   }
 }
 
-/* ---------- Error card ---------- */
 .error-card {
   text-align: center;
   color: #ff5252;

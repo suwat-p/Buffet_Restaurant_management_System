@@ -55,7 +55,12 @@ export const routes: Routes = [
   { path: 'EmployeeIncome', component: EmployeeIncome },
   { path: 'KitchenDashboard', component: KitchenDashboard },
   { path: 'serve-action', component: ServeAction },
-
+  {
+    path: 'serve-action',
+    component: ServeAction,
+    canActivate: [employeeGuard],
+    data: { roles: ['พนักงานเสิร์ฟ'] },
+  },
   {
     path: 'ManageEmployee',
     component: ManageEmployee,

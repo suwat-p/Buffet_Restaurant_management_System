@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { OrderService } from '../../../service/api/order.service';
+import { AuthService } from '../../../service/api/auth.service';
 import { MenuServer } from '../../../components/menu-bar/menu-server/menu-server';
 
 @Component({
@@ -22,10 +23,27 @@ export class ServeAction implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
+    private router: Router,
     private orderService: OrderService,
+    private authService: AuthService,
   ) {}
 
   ngOnInit() {
+    // 1. เช็คสิทธิ์และสถานะ Login
+    const member = this.authService.getMember();
+    if (!member) {
+      this.error = 'กรุณาเข้าสู่ระบบก่อนดำเนินการ';
+      this.loading = false;
+      return;
+    }
+
+    if (!this.authService.isServer()) {
+      this.error = 'คุณไม่มีสิทธิ์เข้าถึงหน้านี้ (เฉพาะพนักงานเสิร์ฟเท่านั้น)';
+      this.loading = false;
+      return;
+    }
+
+    // 2. ดึงหมายเลขออเดอร์จาก Query Params
     this.orderId = Number(this.route.snapshot.queryParamMap.get('orderId'));
     if (!this.orderId) {
       this.error = 'ไม่พบหมายเลขออเดอร์ใน QR Code';
@@ -33,6 +51,7 @@ export class ServeAction implements OnInit {
       return;
     }
 
+    // 3. ดึงรายละเอียดออเดอร์
     this.orderService.GetServeInfo(this.orderId).subscribe({
       next: (info: any) => {
         this.orderInfo = info;

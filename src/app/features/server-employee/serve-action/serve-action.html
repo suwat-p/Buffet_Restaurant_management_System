@@ -1,12 +1,12 @@
 <app-menu-server>
   <div class="serve-container">
-    <!-- โหลดข้อมูล -->
+    <!-- Loading -->
     <div class="card loading-card" *ngIf="loading">
       <div class="spinner"></div>
       <p>กำลังโหลดข้อมูลออเดอร์...</p>
     </div>
 
-    <!-- การ์ดเสิร์ฟอาหาร -->
+    <!-- Serve Card -->
     <div class="card serve-card" *ngIf="!loading && !error && orderInfo">
       <div class="card-header">
         <span class="status-badge delivering">
@@ -26,7 +26,7 @@
         </div>
       </div>
 
-      <!-- ปุ่มกดยืนยันเมื่อของถึงโต๊ะ -->
+      <!-- Action Button -->
       <div class="card-footer" *ngIf="!isServed">
         <button class="btn-complete-serve" (click)="completeServe()" [disabled]="submitting">
           <mat-icon>check_circle</mat-icon>
@@ -34,14 +34,14 @@
         </button>
       </div>
 
-      <!-- แสดงเมื่อเสิร์ฟเสร็จแล้ว -->
+      <!-- Success State -->
       <div class="success-banner" *ngIf="isServed">
         <mat-icon>task_alt</mat-icon>
         <p>เสิร์ฟอาหารเรียบร้อยแล้ว</p>
       </div>
     </div>
 
-    <!-- กรณีเกิดข้อผิดพลาด -->
+    <!-- Error State -->
     <div class="card error-card" *ngIf="error">
       <mat-icon>error_outline</mat-icon>
       <p>{{ error }}</p>
