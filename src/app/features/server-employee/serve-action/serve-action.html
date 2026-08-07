@@ -9,14 +9,30 @@
 <!-- เนื้อหาหลักของหน้าเสิร์ฟ -->
 <ng-template #mainContent>
   <div class="serve-container">
+    <!-- กรณีไม่ได้เข้าสู่ระบบ -->
+    <div class="card error-card" *ngIf="!isLoggedIn">
+      <mat-icon>lock</mat-icon>
+      <p>กรุณาเข้าสู่ระบบก่อนดำเนินการเสิร์ฟอาหาร</p>
+      <button class="btn-login-redirect" (click)="goToLogin()">เข้าสู่ระบบพนักงาน</button>
+    </div>
+
+    <!-- กรณีไม่มีสิทธิ์ -->
+    <div class="card error-card" *ngIf="isLoggedIn && !isServerRole">
+      <mat-icon>error_outline</mat-icon>
+      <p>คุณไม่มีสิทธิ์เข้าถึงหน้านี้ (เฉพาะพนักงานเสิร์ฟเท่านั้น)</p>
+    </div>
+
     <!-- โหลดข้อมูล -->
-    <div class="card loading-card" *ngIf="loading">
+    <div class="card loading-card" *ngIf="isLoggedIn && isServerRole && loading">
       <div class="spinner"></div>
       <p>กำลังโหลดข้อมูลออเดอร์...</p>
     </div>
 
     <!-- การ์ดรายการนำเสิร์ฟ -->
-    <div class="card serve-card" *ngIf="!loading && !error && orderInfo">
+    <div
+      class="card serve-card"
+      *ngIf="isLoggedIn && isServerRole && !loading && !error && orderInfo"
+    >
       <div class="card-header">
         <span class="status-badge delivering">
           <mat-icon>local_shipping</mat-icon> กำลังนำเสิร์ฟ
@@ -50,8 +66,8 @@
       </div>
     </div>
 
-    <!-- กรณีไม่มีสิทธิ์ หรือ เกิดข้อผิดพลาด -->
-    <div class="card error-card" *ngIf="error">
+    <!-- กรณีเกิดข้อผิดพลาดในการโหลดออเดอร์ -->
+    <div class="card error-card" *ngIf="isLoggedIn && isServerRole && error">
       <mat-icon>error_outline</mat-icon>
       <p>{{ error }}</p>
     </div>

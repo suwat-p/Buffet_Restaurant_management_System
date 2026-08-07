@@ -3,14 +3,15 @@ import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
-import { Router } from '@angular/router';
-import { jwtDecode } from 'jwt-decode'; // นำเข้า jwt-decode
+import { ActivatedRoute, Router } from '@angular/router';
+import { jwtDecode } from 'jwt-decode';
 import { MessageService } from 'primeng/api';
 import { Toast } from 'primeng/toast';
 import { AuthService } from '../../service/api/auth.service';
 
 @Component({
   selector: 'app-login-employee',
+  standalone: true,
   imports: [CommonModule, MatIconModule, FormsModule, Toast],
   providers: [MessageService],
   templateUrl: './login-employee.html',
@@ -22,19 +23,22 @@ export class LoginEmployee implements OnInit {
     private http: HttpClient,
     private messageService: MessageService,
     private router: Router,
+    private route: ActivatedRoute,
   ) {}
 
   email: string = '';
   password: string = '';
   phone: string = '';
   rememberMe: boolean = false;
+  returnUrl: string = '';
 
   ngOnInit() {
+    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '';
+
     const token = localStorage.getItem('token') || sessionStorage.getItem('token');
 
     if (token) {
       try {
-        // ใช้ jwtDecode ถอดรหัส Token
         const decoded: any = jwtDecode(token);
         const role = decoded.role;
         console.log('Role จาก Token (ngOnInit):', role);
@@ -63,7 +67,6 @@ export class LoginEmployee implements OnInit {
         let userRole = '';
 
         try {
-          // ใช้ jwtDecode ถอดรหัส Token จาก Response ทันที
           const decoded: any = jwtDecode(token);
           userRole = decoded.role;
           console.log('Role จาก Token (onLogin):', userRole);
@@ -101,11 +104,23 @@ export class LoginEmployee implements OnInit {
     );
   }
 
-  // จัดการ Routing ตาม Role
   private navigateByRole(role: string) {
+    if (this.returnUrl) {
+      this.router.navigateByUrl(this.returnUrl).then((success) => {
+        if (success) {
+          console.log(`กลับไปยัง URL ดั้งเดิม: ${this.returnUrl}`);
+          return;
+        }
+        this.fallbackNavigateByRole(role);
+      });
+    } else {
+      this.fallbackNavigateByRole(role);
+    }
+  }
+
+  private fallbackNavigateByRole(role: string) {
     let targetRoute = '';
 
-    // เช็ค role แบบตัดช่องว่างออก
     switch (role?.trim()) {
       case 'เจ้าของร้าน':
         targetRoute = '/Dashboard';
@@ -120,15 +135,15 @@ export class LoginEmployee implements OnInit {
         targetRoute = '/BillingList';
         break;
       default:
-        targetRoute = '/Dashboard'; // Fallback route
+        targetRoute = '/Dashboard';
         break;
     }
 
     this.router.navigate([targetRoute]).then((success) => {
       if (success) {
-        console.log(`2. เปลี่ยนหน้าสำเร็จ! ไปที่ ${targetRoute} ด้วย Role: ${role}`);
+        console.log(`เปลี่ยนหน้าสำเร็จ! ไปที่ ${targetRoute} ด้วย Role: ${role}`);
       } else {
-        console.error(`3. เปลี่ยนหน้าล้มเหลว! ไปที่ ${targetRoute} (อาจจะติด Guard)`);
+        console.error(`เปลี่ยนหน้าล้มเหลว! ไปที่ ${targetRoute}`);
       }
     });
   }

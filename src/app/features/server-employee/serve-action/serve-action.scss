@@ -8,6 +8,22 @@ $text-gray: #aaaaaa;
   width: 100%;
 }
 
+.btn-login-redirect {
+  margin-top: 16px;
+  padding: 10px 22px;
+  background-color: #ef6c00;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: #e65100;
+  }
+}
 .serve-container {
   background-color: $bg-dark;
   min-height: calc(100vh - 60px);

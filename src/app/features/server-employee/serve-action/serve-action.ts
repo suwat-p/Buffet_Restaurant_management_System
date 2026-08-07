@@ -5,12 +5,12 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { OrderService } from '../../../service/api/order.service';
 import { AuthService } from '../../../service/api/auth.service';
 import { MenuServer } from '../../../components/menu-bar/menu-server/menu-server';
-import { IndexNavbar } from '../../../components/menu-bar/index-navbar/index-navbar'; // 🟢 1. Import IndexNavbar (ปรับ path ตามโครงสร้างโปรเจกต์)
+import { IndexNavbar } from '../../../components/menu-bar/index-navbar/index-navbar';
 
 @Component({
   selector: 'app-serve-action',
   standalone: true,
-  imports: [CommonModule, MatIconModule, MenuServer, IndexNavbar], // 🟢 2. เพิ่ม IndexNavbar เข้า imports
+  imports: [CommonModule, MatIconModule, MenuServer, IndexNavbar],
   templateUrl: './serve-action.html',
   styleUrl: './serve-action.scss',
 })
@@ -22,7 +22,6 @@ export class ServeAction implements OnInit {
   orderInfo: any = null;
   orderId!: number;
 
-  // 🟢 3. เพิ่มตัวแปรสำหรับเช็คสถานะการเข้าสู่ระบบและบทบาท
   isLoggedIn: boolean = false;
   isServerRole: boolean = false;
 
@@ -34,7 +33,6 @@ export class ServeAction implements OnInit {
   ) {}
 
   ngOnInit() {
-    // Check การเข้าสู่ระบบ
     const member = this.authService.getMember();
     this.isLoggedIn = !!member;
     this.isServerRole = this.authService.isServer();
@@ -51,7 +49,6 @@ export class ServeAction implements OnInit {
       return;
     }
 
-    // ดึงออเดอร์
     this.orderId = Number(this.route.snapshot.queryParamMap.get('orderId'));
     if (!this.orderId) {
       this.error = 'ไม่พบหมายเลขออเดอร์ใน QR Code';
@@ -71,6 +68,14 @@ export class ServeAction implements OnInit {
         this.error = 'ไม่พบข้อมูลออเดอร์นี้ หรือออเดอร์ถูกยกเลิกแล้ว';
         this.loading = false;
       },
+    });
+  }
+
+  // 🟢 ฟังก์ชันส่งผู้ใช้ไปหน้า Login พร้อมส่ง URL หน้าปัจจุบันไปบันทึก
+  goToLogin() {
+    const currentUrl = this.router.url;
+    this.router.navigate(['/Loginemployee'], {
+      queryParams: { returnUrl: currentUrl },
     });
   }
 
