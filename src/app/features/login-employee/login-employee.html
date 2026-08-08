@@ -3,6 +3,12 @@
 <div class="login-container">
   <div class="login-card">
     
+    <!-- Loading Overlay -->
+    <div class="card-loading-overlay" *ngIf="isLoading">
+      <div class="spinner-lg"></div>
+      <span>กำลังเข้าสู่ระบบพนักงาน...</span>
+    </div>
+
     <!-- HEADER -->
     <div class="card-header">
       <div class="brand-logo">
@@ -28,6 +34,7 @@
             name="phone" 
             placeholder="08X-XXX-XXXX" 
             [(ngModel)]="phone" 
+            [disabled]="isLoading"
           />
         </div>
       </div>
@@ -43,6 +50,7 @@
             name="password" 
             placeholder="กรอกรหัสผ่าน" 
             [(ngModel)]="password" 
+            [disabled]="isLoading"
           />
         </div>
       </div>
@@ -50,15 +58,16 @@
       <!-- ตัวเลือกจดจำ & ลืมรหัสผ่าน -->
       <div class="options-wrapper">
         <div class="remember-me">
-          <input type="checkbox" id="remember" name="remember" [(ngModel)]="rememberMe" />
+          <input type="checkbox" id="remember" name="remember" [(ngModel)]="rememberMe" [disabled]="isLoading" />
           <label for="remember">จดจำการเข้าสู่ระบบ</label>
         </div>
         <a (click)="forgotPassword()" class="forgot-pass">ลืมรหัสผ่าน?</a>
       </div>
 
       <!-- ปุ่มเข้าสู่ระบบ -->
-      <button type="submit" class="btn-login">
-        เข้าสู่ระบบ (Login)
+      <button type="submit" class="btn-login" [disabled]="isLoading">
+        <span *ngIf="isLoading" class="spinner-sm"></span>
+        <span>{{ isLoading ? 'กำลังเข้าสู่ระบบ...' : 'เข้าสู่ระบบ (Login)' }}</span>
       </button>
 
       <div class="divider">
@@ -66,11 +75,11 @@
       </div>
 
       <!-- ปุ่มสมัครสมาชิก -->
-      <button type="button" class="btn-register-customer" (click)="onRegisterMember()">
+      <button type="button" class="btn-register-customer" (click)="onRegisterMember()" [disabled]="isLoading">
         สมัครสมาชิก (สำหรับ ลูกค้า)
       </button>
 
-      <button type="button" class="btn-register-staff" (click)="onRegisterEmployee()">
+      <button type="button" class="btn-register-staff" (click)="onRegisterEmployee()" [disabled]="isLoading">
         สมัครสมาชิก (สำหรับ พนักงาน)
       </button>
     </form>

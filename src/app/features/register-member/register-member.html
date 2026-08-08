@@ -3,6 +3,12 @@
 <div class="register-container">
   <div class="register-card">
     
+    <!-- Loading Overlay -->
+    <div class="card-loading-overlay" *ngIf="isLoading">
+      <div class="spinner-lg"></div>
+      <span>กำลังลงทะเบียนสมัครสมาชิก...</span>
+    </div>
+
     <!-- HEADER -->
     <div class="card-header">
       <div class="brand-logo">
@@ -29,6 +35,7 @@
             placeholder="กรอกชื่อ-นามสกุล" 
             [(ngModel)]="fullname" 
             (input)="validateFullname()"
+            [disabled]="isLoading"
           />
         </div>
         <small class="error-text" *ngIf="fullnameError">{{ fullnameError }}</small>
@@ -47,6 +54,7 @@
             [(ngModel)]="email" 
             (blur)="validateEmailWithAPI()"
             (input)="clearEmailError()"
+            [disabled]="isLoading"
           />
         </div>
         <small class="info-text" *ngIf="isCheckingEmail">กำลังตรวจสอบอีเมล...</small>
@@ -66,12 +74,13 @@
             [(ngModel)]="phone" 
             (input)="validatePhone()"
             maxLength="10"
+            [disabled]="isLoading"
           />
         </div>
         <small class="error-text" *ngIf="phoneError">{{ phoneError }}</small>
       </div>
 
-      <!-- รหัสผ่าน (การแสดงผลเงื่อนไขความปลอดภัย) -->
+      <!-- รหัสผ่าน -->
       <div class="form-group">
         <label for="password">รหัสผ่าน <span class="required-star">*</span></label>
         <div class="input-wrapper" [class.input-error]="passwordError">
@@ -83,8 +92,9 @@
             placeholder="กรอกรหัสผ่านใหม่" 
             [(ngModel)]="password" 
             (input)="validatePassword()"
+            [disabled]="isLoading"
           />
-          <button type="button" class="toggle-eye" (click)="togglePasswordVisibility()">
+          <button type="button" class="toggle-eye" (click)="togglePasswordVisibility()" [disabled]="isLoading">
             <mat-icon>{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
           </button>
         </div>
@@ -135,14 +145,16 @@
             name="Birthday" 
             [(ngModel)]="birthday" 
             (change)="validateBirthday()"
+            [disabled]="isLoading"
           />
         </div>
         <small class="error-text" *ngIf="birthdayError">{{ birthdayError }}</small>
       </div>
 
       <!-- ปุ่ม Submit -->
-      <button type="submit" class="btn-submit" [disabled]="isCheckingEmail">
-        สมัครสมาชิก (สำหรับ ลูกค้า)
+      <button type="submit" class="btn-submit" [disabled]="isCheckingEmail || isLoading">
+        <span *ngIf="isLoading" class="spinner-sm"></span>
+        <span>{{ isLoading ? 'กำลังบันทึกข้อมูล...' : 'สมัครสมาชิก (สำหรับ ลูกค้า)' }}</span>
       </button>
 
       <div class="footer-links">

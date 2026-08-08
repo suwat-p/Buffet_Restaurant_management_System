@@ -25,13 +25,16 @@ export class LoginMember {
   password: string = '';
   phone: string = '';
   rememberMe: boolean = false;
+  isLoading: boolean = false;
   onLogin() {
+    this.isLoading = true;
     const fromData = new FormData();
     fromData.append('Phone', this.phone);
     fromData.append('Password', this.password);
 
     this.authService.loginMember(fromData).subscribe(
       (res) => {
+        this.isLoading = false;
         if (this.rememberMe) {
           localStorage.setItem('token', res.token);
         }

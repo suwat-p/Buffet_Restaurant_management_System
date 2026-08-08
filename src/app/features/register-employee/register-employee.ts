@@ -41,6 +41,7 @@ export class RegisterEmployee {
   // UI Control States
   showPassword: boolean = false;
   isCheckingEmail: boolean = false;
+  isLoading: boolean = false;
 
   // Inline Error Messages
   fullnameError: string = '';
@@ -269,6 +270,7 @@ get hasSpecialChar(): boolean {
 
   async onSubmit() {
     // รัน Validation ทุกช่องเพื่อโชว์ Error
+    this.isLoading = true;
     const isNameValid = this.validateFullname();
     const isEmailValid = await this.validateEmailWithAPI();
     const isPhoneValid = this.validatePhone();
@@ -319,6 +321,7 @@ get hasSpecialChar(): boolean {
       const response = await lastValueFrom(this.authService.registerEmployee(formData));
 
       if (response) {
+        this.isLoading = false;
         this.messageService.add({
           severity: 'success',
           summary: 'สำเร็จ',
