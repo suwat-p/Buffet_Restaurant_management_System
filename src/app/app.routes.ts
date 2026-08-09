@@ -54,7 +54,6 @@ export const routes: Routes = [
   { path: 'Employeecheckin', component: EmployeeAttendance },
   { path: 'EmployeeIncome', component: EmployeeIncome },
   { path: 'KitchenDashboard', component: KitchenDashboard },
-  { path: 'serve-action', component: ServeAction },
   {
     path: 'serve-action',
     component: ServeAction,
