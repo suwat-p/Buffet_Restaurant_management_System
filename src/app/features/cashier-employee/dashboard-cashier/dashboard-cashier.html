@@ -1,0 +1,115 @@
+<app-menu-cashier>
+  <div class="dashboard-container">
+    <!-- Header -->
+    <div class="header-section">
+      <h1>Dashbord</h1>
+    </div>
+
+    <div class="content-section">
+      <!-- Filter Buttons -->
+      <div class="filters">
+        <p-button label="รายวัน" icon="pi pi-chart-line" 
+          [outlined]="currentFilter !== 'daily'" 
+          (onClick)="loadStats('daily')" 
+          class="custom-btn btn-daily">
+        </p-button>
+        <p-button label="รายเดือน" icon="pi pi-chart-line" 
+          [outlined]="currentFilter !== 'monthly'" 
+          (onClick)="loadStats('monthly')" 
+          class="custom-btn btn-monthly">
+        </p-button>
+        <p-button label="รายปี" icon="pi pi-chart-line" 
+          [outlined]="currentFilter !== 'yearly'" 
+          (onClick)="loadStats('yearly')" 
+          class="custom-btn btn-yearly">
+        </p-button>
+      </div>
+
+      <!-- Stats Grid using p-card -->
+      <div class="stats-grid">
+        <p-card styleClass="stat-card bg-green">
+          <h2>฿{{ (stats?.netRevenue ?? 0) | number:'1.0-2' }}</h2>
+          <p>ยอดรายรับสุทธิ</p>
+        </p-card>
+
+        <p-card styleClass="stat-card bg-teal">
+          <h2>{{ (stats?.totalAdults ?? 0) | number }}</h2>
+          <p>จำนวนผู้ใหญ่</p>
+        </p-card>
+
+        <p-card styleClass="stat-card bg-olive">
+          <h2>{{ (stats?.totalChildren ?? 0) | number }}</h2>
+          <p>จำนวนเด็ก</p>
+        </p-card>
+
+        <p-card styleClass="stat-card bg-red">
+          <h2>-฿{{ (stats?.totalDiscount ?? 0) | number:'1.0-2' }}</h2>
+          <p>ส่วนลด(ที่ใช้ไป)</p>
+        </p-card>
+
+        <p-card styleClass="stat-card bg-purple">
+          <h2>฿{{ (stats?.totalFines ?? 0) | number:'1.0-2' }}</h2>
+          <p>ค่าปรับ</p>
+        </p-card>
+
+        <p-card styleClass="stat-card bg-navy">
+          <h2>฿{{ (stats?.cashAmount ?? 0) | number:'1.0-2' }}</h2>
+          <p>เงินสด</p>
+        </p-card>
+
+        <p-card styleClass="stat-card bg-emerald">
+          <h2>฿{{ (stats?.transferAmount ?? 0) | number:'1.0-2' }}</h2>
+          <p>โอน</p>
+        </p-card>
+      </div>
+
+      <!-- Chart Section -->
+       <!-- Section กราฟยอดขาย -->
+        <div class="chart-section p-4 border-round-xl">
+          <div class="flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+            <h2 class="text-xl font-bold text-white m-0">ยอดขาย</h2>
+
+            <!-- ปุ่มสลับช่วงเวลากราฟ -->
+            <div class="flex gap-2">
+              <button
+                pButton
+                label="รายวัน"
+                (click)="fetchSalesChart('daily')"
+                [class.active-btn]="selectedFilter === 'daily'"
+                class="p-button-outlined p-button-success p-button-sm custom-btn"
+              ></button>
+              <button
+                pButton
+                label="รายเดือน"
+                (click)="fetchSalesChart('monthly')"
+                [class.active-btn]="selectedFilter === 'monthly'"
+                class="p-button-outlined p-button-warning p-button-sm custom-btn"
+              ></button>
+              <button
+                pButton
+                label="รายปี"
+                (click)="fetchSalesChart('yearly')"
+                [class.active-btn]="selectedFilter === 'yearly'"
+                class="p-button-outlined p-button-danger p-button-sm custom-btn"
+              ></button>
+            </div>
+          </div>
+
+          <!-- สัญลักษณ์ Legend เปลี่ยนข้อความตามปุ่มที่เลือก -->
+          <div class="flex justify-content-center mb-2">
+            <div class="flex align-items-center gap-2">
+              <span class="block w-2rem h-1rem bg-green-500"></span>
+              <span class="text-gray-400 text-sm">
+                {{ selectedFilter === 'daily' ? 'ยอดขายรายวัน' : selectedFilter === 'monthly' ? 'ยอดขายรายเดือน' : 'ยอดขายรายปี' }}
+              </span>
+            </div>
+          </div>
+
+          <!-- กราฟ PrimeNG -->
+          <div class="chart-container">
+            <p-chart type="bar" [data]="data" [options]="options" height="350px"></p-chart>
+          </div>
+        </div>
+    </div>
+  </div>
+</app-menu-cashier>

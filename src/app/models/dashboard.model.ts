@@ -15,3 +15,12 @@ export interface SalesChartResponse {
   type: ChartType;
   data: SalesChartItem[];
 }
+export interface CashierDashboardStats {
+    netRevenue: number;
+    totalAdults: number;
+    totalChildren: number;
+    totalDiscount: number;
+    totalFines: number;
+    cashAmount: number;
+    transferAmount: number;
+}

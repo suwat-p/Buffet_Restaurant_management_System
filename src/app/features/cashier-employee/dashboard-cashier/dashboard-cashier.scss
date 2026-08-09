@@ -1,0 +1,138 @@
+$bg-main: #121212;
+$bg-header: #1a1a1a;
+$text-light: #ffffff;
+
+.dashboard-container {
+    min-height: 100vh;
+    background-color: $bg-main;
+    color: $text-light;
+    font-family: 'Prompt', 'Kanit', sans-serif;
+}
+
+.header-section {
+    background-color: $bg-header;
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid #333;
+
+    h1 {
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 500;
+    }
+}
+
+.content-section {
+    padding: 2rem;
+}
+
+/* Custom PrimeNG Buttons */
+.filters {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+
+    ::ng-deep .custom-btn {
+        .p-button {
+            background: transparent;
+            color: $text-light;
+            border-radius: 4px;
+            padding: 0.5rem 1rem;
+            font-family: 'Prompt', sans-serif;
+
+            &:hover {
+                background: rgba(255, 255, 255, 0.1);
+            }
+        }
+
+        &.btn-daily .p-button {
+            border: 1px solid #22c55e;
+            color: #22c55e;
+        }
+
+        &.btn-monthly .p-button {
+            border: 1px solid #eab308;
+            color: #eab308;
+        }
+
+        &.btn-yearly .p-button {
+            border: 1px solid #ef4444;
+            color: #ef4444;
+        }
+
+        &.btn-daily .pi { color: #22c55e; }
+        &.btn-monthly .pi { color: #eab308; }
+        &.btn-yearly .pi { color: #ef4444; }
+    }
+}
+
+/* Custom PrimeNG Cards */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.25rem;
+    margin-bottom: 3rem;
+
+    @media (max-width: 1200px) {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    @media (max-width: 768px) {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (max-width: 480px) {
+        grid-template-columns: 1fr;
+    }
+
+    /* สไตล์หลักของการ์ดที่ผ่าน styleClass */
+    ::ng-deep .p-card.stat-card {
+        border-radius: 8px !important;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4) !important;
+        border: none !important;
+
+        .p-card-body,
+        .p-card-content {
+            background: transparent !important;
+            padding: 0 !important;
+        }
+
+        .p-card-body {
+            padding: 1.5rem 1rem !important;
+        }
+
+        h2 {
+            margin: 0 0 0.5rem 0 !important;
+            font-size: 1.75rem !important;
+            font-weight: 600 !important;
+            color: #ffffff !important;
+            text-align: center !important;
+        }
+
+        p {
+            margin: 0 !important;
+            font-size: 0.95rem !important;
+            color: rgba(255, 255, 255, 0.85) !important;
+            text-align: center !important;
+        }
+    }
+
+    /* ระบุสีพื้นหลังตาม Class ของ styleClass */
+    ::ng-deep .p-card.bg-green { background-color: #105c15 !important; }
+    ::ng-deep .p-card.bg-teal { background-color: #0b4d5e !important; }
+    ::ng-deep .p-card.bg-olive { background-color: #614f05 !important; }
+    ::ng-deep .p-card.bg-red { background-color: #6e0d16 !important; }
+    ::ng-deep .p-card.bg-purple { background-color: #4e0d6e !important; }
+    ::ng-deep .p-card.bg-navy { background-color: #0d0f6e !important; }
+    ::ng-deep .p-card.bg-emerald { background-color: #0d6e47 !important; }
+}
+
+/* Chart Area */
+.chart-wrapper {
+    margin-top: 1rem;
+
+    .chart-title {
+        font-size: 1.15rem;
+        font-weight: 500;
+        margin-bottom: 2rem;
+    }
+}
