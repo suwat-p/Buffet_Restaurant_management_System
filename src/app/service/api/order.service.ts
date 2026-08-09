@@ -45,11 +45,12 @@ export class OrderService {
     }
   }
 
-  // 📲 ดึงโต๊ะ + รายการอาหาร สำหรับหน้า /serve-action (อ่านอย่างเดียว ไม่มี side-effect)
+  // 📲 ดึงโต๊ะ + รายการอาหาร สำหรับหน้า /serve-action
+
   public GetServeInfo(orderId: number): Observable<any> {
     try {
       const url = this.constants.API_ENDPOINT + `/Order/getServeInfo/${orderId}`;
-      const response = this.http.get(url);
+      const response = this.http.post(url, {});
       return response;
     } catch (error) {
       console.error('Error occurred while getting serve info:', error);
