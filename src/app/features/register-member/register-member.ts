@@ -32,7 +32,8 @@ export class RegisterMember {
   birthday: string = '';
 
   showPassword: boolean = false;
-  isCheckingEmail: boolean = false; // สถานะขณะยิง API เช็คอีเมล
+  isCheckingEmail: boolean = false;
+  isLoading: boolean = false;
 
   // ตัวแปรสำหรับเก็บ Error Message รายบุคคล
   fullnameError: string = '';
@@ -211,6 +212,7 @@ export class RegisterMember {
   }
 
   async onSubmit() {
+    this.isLoading = true;
     const isNameValid = this.validateFullname();
     const isEmailValid = await this.validateEmailWithAPI();
     const isPhoneValid = this.validatePhone();
@@ -237,6 +239,7 @@ export class RegisterMember {
     try {
       const response = await lastValueFrom(this.authService.registerMember(memberdata));
       if (response) {
+        this.isLoading = false;
         this.messageService.add({
           severity: 'success',
           summary: 'Success',

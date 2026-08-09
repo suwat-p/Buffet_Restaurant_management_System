@@ -31,6 +31,7 @@ export class LoginEmployee implements OnInit {
   phone: string = '';
   rememberMe: boolean = false;
   returnUrl: string = '';
+  isLoading: boolean = false;
 
   ngOnInit() {
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '';
@@ -58,11 +59,11 @@ export class LoginEmployee implements OnInit {
     const forms = new FormData();
     forms.append('Phone', this.phone);
     forms.append('Password', this.password);
-
+    this.isLoading = true;
     this.authService.loginEmployee(forms).subscribe(
       (res: any) => {
         console.log(res);
-
+        
         const token = res.token;
         let userRole = '';
 
@@ -101,7 +102,9 @@ export class LoginEmployee implements OnInit {
           detail: errorMessage,
         });
       },
-    );
+    ).add(() => {
+      this.isLoading = false;
+    });
   }
 
   private navigateByRole(role: string) {

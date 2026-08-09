@@ -1,6 +1,6 @@
 $primary-teal: #14b8a6;
 $primary-blue: #3b82f6;
-$card-bg-dark: rgba(15, 23, 42, 0.85); // สีเทาเข้มโปร่งแสงสำหรับกระจกเบลอ
+$card-bg-dark: rgba(15, 23, 42, 0.85);
 $input-bg-dark: #000000;
 $border-dark: rgba(255, 255, 255, 0.15);
 $text-main: #f8fafc;
@@ -22,6 +22,7 @@ $warning-color: #f59e0b;
 }
 
 .register-card {
+  position: relative;
   width: 100%;
   max-width: 480px;
   background: $card-bg-dark;
@@ -31,6 +32,35 @@ $warning-color: #f59e0b;
   backdrop-filter: blur(12px);
   padding: 2.25rem 1.75rem;
   box-sizing: border-box;
+
+  /* Card Loading Overlay */
+  .card-loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(6px);
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    z-index: 20;
+    color: $text-main;
+    font-size: 0.9rem;
+
+    .spinner-lg {
+      width: 40px;
+      height: 40px;
+      border: 3px solid rgba(255, 255, 255, 0.2);
+      border-top-color: $warning-color;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+  }
 
   /* Header */
   .card-header {
@@ -79,7 +109,6 @@ $warning-color: #f59e0b;
     gap: 1.1rem;
   }
 
-  /* Form Group Controls */
   .form-group {
     display: flex;
     flex-direction: column;
@@ -137,10 +166,15 @@ $warning-color: #f59e0b;
           border-color: $primary-teal;
           box-shadow: 0 0 0 4px rgba($primary-teal, 0.2);
         }
+
+        &:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
       }
 
       textarea {
-        padding-left: 1rem; /* Textarea ไม่ต้องมีไอคอนฝั่งซ้าย */
+        padding-left: 1rem;
         resize: vertical;
       }
 
@@ -159,7 +193,6 @@ $warning-color: #f59e0b;
         }
       }
 
-      /* ปุ่มกดซ่อน/แสดงรหัสผ่าน */
       .toggle-eye {
         position: absolute;
         right: 0.75rem;
@@ -184,7 +217,6 @@ $warning-color: #f59e0b;
         }
       }
 
-      /* แสดงสถานะเมื่อข้อมูลไม่ถูกต้อง */
       &.input-error input,
       &.input-error select,
       &.input-error textarea {
@@ -205,7 +237,6 @@ $warning-color: #f59e0b;
     }
   }
 
-  /* 🟢 Password Requirements Section (ปรับแต่งตาม Reset Password แต่เป็น Dark Theme) */
   .password-requirements {
     display: flex;
     flex-direction: column;
@@ -231,17 +262,16 @@ $warning-color: #f59e0b;
       }
 
       &.valid {
-        color: $success-green; /* สีเขียวเมื่อเงื่อนไขผ่าน */
+        color: $success-green;
         font-weight: 500;
       }
 
       &.invalid {
-        color: $error-red; /* สีแดงเมื่อเงื่อนไขยังไม่ผ่าน */
+        color: $error-red;
       }
     }
   }
 
-  /* File Upload Component */
   .file-upload {
     display: flex;
     align-items: center;
@@ -264,8 +294,13 @@ $warning-color: #f59e0b;
       cursor: pointer;
       transition: background 0.2s ease;
 
-      &:hover {
+      &:hover:not(:disabled) {
         background: rgba($primary-teal, 0.3);
+      }
+
+      &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
       }
     }
 
@@ -280,7 +315,6 @@ $warning-color: #f59e0b;
     }
   }
 
-  /* Submit Button */
   .btn-submit {
     width: 100%;
     padding: 0.8rem;
@@ -293,6 +327,10 @@ $warning-color: #f59e0b;
     cursor: pointer;
     transition: all 0.2s ease;
     margin-top: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
 
     &:hover:not(:disabled) {
       background: darken($warning-color, 8%);
@@ -304,7 +342,6 @@ $warning-color: #f59e0b;
     }
   }
 
-  /* Footer Links */
   .footer-links {
     display: flex;
     align-items: center;
@@ -338,7 +375,21 @@ $warning-color: #f59e0b;
   }
 }
 
-/* Responsive Design */
+.spinner-sm {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 @media (max-width: 480px) {
   .register-container {
     padding: 1rem 0.5rem;
@@ -369,7 +420,6 @@ $warning-color: #f59e0b;
   }
 }
 
-/* Toast override */
 :host ::ng-deep {
   @media (max-width: 768px) {
     .p-toast {

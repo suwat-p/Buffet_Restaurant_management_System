@@ -3,6 +3,12 @@
 <div class="register-container">
   <div class="register-card">
     
+    <!-- Loading Overlay -->
+    <div class="card-loading-overlay" *ngIf="isLoading">
+      <div class="spinner-lg"></div>
+      <span>กำลังลงทะเบียนข้อมูลพนักงาน...</span>
+    </div>
+
     <!-- HEADER -->
     <div class="card-header">
       <div class="brand-logo">
@@ -31,6 +37,7 @@
             placeholder="กรอกชื่อ-นามสกุล" 
             [(ngModel)]="fullname" 
             (input)="validateFullname()"
+            [disabled]="isLoading"
           />
         </div>
         <small class="error-text" *ngIf="fullnameError">{{ fullnameError }}</small>
@@ -49,6 +56,7 @@
             [(ngModel)]="email" 
             (blur)="validateEmailWithAPI()"
             (input)="clearEmailError()"
+            [disabled]="isLoading"
           />
         </div>
         <small class="info-text" *ngIf="isCheckingEmail">กำลังตรวจสอบอีเมล...</small>
@@ -68,12 +76,13 @@
             [(ngModel)]="phone" 
             (input)="validatePhone()"
             maxLength="10"
+            [disabled]="isLoading"
           />
         </div>
         <small class="error-text" *ngIf="phoneError">{{ phoneError }}</small>
       </div>
 
-      <!-- รหัสผ่าน (ปรับปรุงการแสดงผลเงื่อนไขแบบ Reset Password) -->
+      <!-- รหัสผ่าน -->
       <div class="form-group">
         <label for="password">รหัสผ่าน <span class="required-star">*</span></label>
         <div class="input-wrapper" [class.input-error]="passwordError">
@@ -85,8 +94,9 @@
             placeholder="กรอกรหัสผ่านใหม่" 
             [(ngModel)]="password" 
             (input)="validatePassword()"
+            [disabled]="isLoading"
           />
-          <button type="button" class="toggle-eye" (click)="togglePasswordVisibility()">
+          <button type="button" class="toggle-eye" (click)="togglePasswordVisibility()" [disabled]="isLoading">
             <mat-icon>{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
           </button>
         </div>
@@ -139,6 +149,7 @@
             [(ngModel)]="idCard"
             maxlength="13"
             (input)="validateIdCard()"
+            [disabled]="isLoading"
           />
         </div>
         <small class="error-text" *ngIf="idCardError">{{ idCardError }}</small>
@@ -154,8 +165,9 @@
             (change)="onFileSelected($event)"
             accept="image/*"
             style="display: none"
+            [disabled]="isLoading"
           />
-          <button type="button" class="btn-select" (click)="fileInput.click()">เลือกไฟล์</button>
+          <button type="button" class="btn-select" (click)="fileInput.click()" [disabled]="isLoading">เลือกไฟล์</button>
           <span class="file-name">
             {{ selectedFile ? selectedFileName : 'ไม่ได้เลือกไฟล์ใด' }}
           </span>
@@ -168,7 +180,7 @@
         <label for="gender">เพศ <span class="required-star">*</span></label>
         <div class="input-wrapper" [class.input-error]="genderError">
           <mat-icon class="input-icon">wc</mat-icon>
-          <select id="gender" name="gender" [(ngModel)]="gender" (change)="validateGender()">
+          <select id="gender" name="gender" [(ngModel)]="gender" (change)="validateGender()" [disabled]="isLoading">
             <option value="" disabled selected>เลือกเพศ</option>
             <option value="ชาย">ชาย</option>
             <option value="หญิง">หญิง</option>
@@ -181,7 +193,7 @@
       <div class="form-group">
         <label for="address">ที่อยู่ <span class="required-star">*</span></label>
         <div class="input-wrapper" [class.input-error]="addressError">
-          <textarea id="address" name="address" rows="3" placeholder="กรอกที่อยู่ปัจจุบัน" [(ngModel)]="address" (input)="validateAddress()"></textarea>
+          <textarea id="address" name="address" rows="3" placeholder="กรอกที่อยู่ปัจจุบัน" [(ngModel)]="address" (input)="validateAddress()" [disabled]="isLoading"></textarea>
         </div>
         <small class="error-text" *ngIf="addressError">{{ addressError }}</small>
       </div>
@@ -191,7 +203,7 @@
         <label for="department">แผนก <span class="required-star">*</span></label>
         <div class="input-wrapper" [class.input-error]="departmentError">
           <mat-icon class="input-icon">business_center</mat-icon>
-          <select id="department" name="department" [(ngModel)]="department" (change)="validateDepartment()">
+          <select id="department" name="department" [(ngModel)]="department" (change)="validateDepartment()" [disabled]="isLoading">
             <option value="" disabled selected>เลือกแผนก</option>
             <option value="พนักงานเสิร์ฟ">พนักงานเสิร์ฟ</option>
             <option value="พนักงานครัว">พนักงานครัว</option>
@@ -206,7 +218,7 @@
         <label for="employeeType">ประเภทพนักงาน <span class="required-star">*</span></label>
         <div class="input-wrapper" [class.input-error]="employeeTypeError">
           <mat-icon class="input-icon">work_outline</mat-icon>
-          <select id="employeeType" name="employeeType" [(ngModel)]="employeeType" (change)="validateEmployeeType()">
+          <select id="employeeType" name="employeeType" [(ngModel)]="employeeType" (change)="validateEmployeeType()" [disabled]="isLoading">
             <option value="" disabled selected>เลือกประเภทพนักงาน</option>
             <option value="ประจำ">ประจำ</option>
             <option value="พาร์ทไทม์">พาร์ทไทม์</option>
@@ -216,8 +228,9 @@
       </div>
 
       <!-- ปุ่ม Submit -->
-      <button type="submit" class="btn-submit" [disabled]="isCheckingEmail">
-        สมัครสมาชิก (สำหรับ พนักงาน)
+      <button type="submit" class="btn-submit" [disabled]="isCheckingEmail || isLoading">
+        <span *ngIf="isLoading" class="spinner-sm"></span>
+        <span>{{ isLoading ? 'กำลังบันทึกข้อมูล...' : 'สมัครสมาชิก (สำหรับ พนักงาน)' }}</span>
       </button>
 
       <div class="footer-links">
