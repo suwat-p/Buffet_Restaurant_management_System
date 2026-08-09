@@ -60,7 +60,7 @@ export class ServeAction implements OnInit {
       next: (info: any) => {
         this.orderInfo = info;
         this.loading = false;
-        if (info.orderStatus === 'SERVED') {
+        if (info.orderStatus === 'เสร็จสิ้น') {
           this.isServed = true;
         }
       },
