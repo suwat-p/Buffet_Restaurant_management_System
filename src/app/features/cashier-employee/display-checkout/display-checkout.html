@@ -1,192 +1,213 @@
 <div class="display-wrapper">
+  <!-- โหมดสแตนด์บาย -->
+  <div *ngIf="!displayData" class="idle-index-screen">
+    <div class="page-container">
+      <!-- Banner Carousel ด้านบน -->
+      <section class="hero-banner-wrapper" *ngIf="banners.length > 0">
+        <p-carousel
+          [value]="banners"
+          [numVisible]="1"
+          [numScroll]="1"
+          [circular]="true"
+          [autoplayInterval]="slideInterval"
+          [showIndicators]="false"
+          [page]="currentBannerIndex"
+          (onPage)="onBannerChange($event)"
+        >
+          <ng-template let-banner pTemplate="item">
+            <div class="banner-item">
+              <img [src]="banner.image" alt="Promotion Banner" class="banner-img" />
+              <div class="banner-overlay"></div>
+            </div>
+          </ng-template>
+        </p-carousel>
 
-    <!-- โหมดสแตนด์บาย -->
-    <div *ngIf="!displayData" class="idle-index-screen">
-        <div class="page-container">
+        <div class="banner-thumbnails">
+          <div
+            class="banner-thumb-box"
+            *ngFor="let banner of banners; let i = index"
+            [class.active]="i === currentBannerIndex"
+            (click)="onClicksmailPictures(i)"
+          >
+            <img [src]="banner.image" alt="Thumbnail" />
+          </div>
+        </div>
+      </section>
 
-            <!-- Banner Carousel ด้านบน -->
-            <section class="hero-banner-wrapper" *ngIf="banners.length > 0">
-                <p-carousel [value]="banners" [numVisible]="1" [numScroll]="1" [circular]="true"
-                    [autoplayInterval]="slideInterval" [showIndicators]="false" [page]="currentBannerIndex"
-                    (onPage)="onBannerChange($event)">
-                    <ng-template let-banner pTemplate="item">
-                        <div class="banner-item">
-                            <img [src]="banner.image" alt="Promotion Banner" class="banner-img" />
-                            <div class="banner-overlay"></div>
-                        </div>
-                    </ng-template>
-                </p-carousel>
-
-                <div class="banner-thumbnails">
-                    <div class="banner-thumb-box" *ngFor="let banner of banners; let i = index"
-                        [class.active]="i === currentBannerIndex" (click)="onClicksmailPictures(i)">
-                        <img [src]="banner.image" alt="Thumbnail" />
-                    </div>
-                </div>
-            </section>
-
-            <!-- ข้อมูลร้านค้า & ราคาบุฟเฟต์ -->
-            <div class="main-content-bg">
-                <div class="content-wrapper">
-                    <section class="info-card">
-                        <div class="poster-col">
-                            <div class="poster-frame">
-                                <img [src]="posterUrl || 'assets/Images/shop-info.png'" alt="Shop Info" />
-                            </div>
-                        </div>
-
-                        <div class="details-col">
-                            <h1 class="shop-title">ข้อมูลร้านบุฟเฟ่ต์หมูกระทะ</h1>
-
-                            <div class="price-grid">
-                                <div class="price-box adult">
-                                    <div class="price-label">ราคาผู้ใหญ่ /คน</div>
-                                    <div class="price-amount">{{ resData?.price_Adult || '-' }} บาท</div>
-                                </div>
-                                <div class="price-box child">
-                                    <div class="price-label">ราคาเด็ก</div>
-                                    <div class="price-amount">{{ resData?.price_Child || '-' }} บาท</div>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-
-                    <!-- ตารางโปรโมชั่นส่วนลด -->
-                    <section class="table-card" *ngIf="discountData.length > 0">
-                        <div class="table-header">
-                            <h2>ส่วนลดที่มีอยู่</h2>
-                        </div>
-
-                        <div class="table-responsive">
-                            <table class="custom-table">
-                                <thead>
-                                    <tr>
-                                        <th style="width: 60%">ชื่อส่วนลด</th>
-                                        <th style="width: 40%; text-align: center">ส่วนลด</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr *ngFor="let discount of discountData">
-                                        <td>
-                                            <div class="promo-name">{{ discount.discount_Name }}</div>
-                                        </td>
-                                        <td class="text-center highlight-text">
-                                            {{ discount.discount_amount }}{{ discount.discount_Type === 'percent' ? '%'
-                                            : ' บาท' }}
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </section>
-                </div>
+      <!-- ข้อมูลร้านค้า & ราคาบุฟเฟต์ -->
+      <div class="main-content-bg">
+        <div class="content-wrapper">
+          <section class="info-card">
+            <div class="poster-col">
+              <div class="poster-frame">
+                <img [src]="posterUrl || 'assets/Images/shop-info.png'" alt="Shop Info" />
+              </div>
             </div>
 
+            <div class="details-col">
+              <h1 class="shop-title">ข้อมูลร้านบุฟเฟ่ต์หมูกระทะ</h1>
+
+              <div class="price-grid">
+                <div class="price-box adult">
+                  <div class="price-label">ราคาผู้ใหญ่ /คน</div>
+                  <div class="price-amount">{{ resData?.price_Adult || '-' }} บาท</div>
+                </div>
+                <div class="price-box child">
+                  <div class="price-label">ราคาเด็ก</div>
+                  <div class="price-amount">{{ resData?.price_Child || '-' }} บาท</div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ตารางโปรโมชั่นส่วนลด -->
+          <section class="table-card" *ngIf="discountData.length > 0">
+            <div class="table-header">
+              <h2>ส่วนลดที่มีอยู่</h2>
+            </div>
+
+            <div class="table-responsive">
+              <table class="custom-table">
+                <thead>
+                  <tr>
+                    <th style="width: 60%">ชื่อส่วนลด</th>
+                    <th style="width: 40%; text-align: center">ส่วนลด</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let discount of discountData">
+                    <td>
+                      <div class="promo-name">{{ discount.discount_Name }}</div>
+                    </td>
+                    <td class="text-center highlight-text">
+                      {{ discount.discount_amount
+                      }}{{ discount.discount_Type === 'percent' ? '%' : ' บาท' }}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- โหมดคิดเงิน Real-time -->
+  <div *ngIf="displayData && !isPaidSuccess" class="checkout-container">
+    <!-- ฝั่งซ้าย: รายการอาหาร และ ยอดสรุป -->
+    <div class="left-box">
+      <div class="table-header-title">
+        <span>โต๊ะ {{ displayData.tableNumbers }}</span>
+      </div>
+
+      <div class="table-scroll-area">
+        <table class="display-table">
+          <thead>
+            <tr>
+              <th class="col-id">#</th>
+              <th class="col-name">รายการ</th>
+              <th class="col-qty">จำนวน</th>
+              <th class="col-price">ราคา</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of displayData.items; let i = index">
+              <td class="col-id">{{ i + 1 }}</td>
+              <td class="col-name">{{ item.name }}</td>
+              <td class="col-qty">{{ item.quantity }}</td>
+              <td class="col-price">{{ item.subTotal | number: '1.2-2' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="summary-section">
+        <div class="summary-line" *ngIf="displayData.fineAmount > 0">
+          <span>ค่าปรับ</span>
+          <span>{{ displayData.fineAmount | number: '1.2-2' }} ฿</span>
+        </div>
+        <div class="summary-line">
+          <span>โปรโมชั่น</span>
+          <span>{{ displayData.discountName }}</span>
+        </div>
+        <div class="grand-total-line">
+          <span class="total-label">รวมสุทธิ</span>
+          <span class="total-amount">{{ displayData.grandTotal | number: '1.2-2' }} ฿</span>
+        </div>
+      </div>
     </div>
 
-    <!-- โหมดคิดเงิน Real-time -->
-    <div *ngIf="displayData && !isPaidSuccess" class="checkout-container">
+    <!-- ฝั่งขวา: แสดง QR Code Payment -->
+    <div class="right-box">
+      <div class="qr-container" *ngIf="displayData.parsedQrUrl">
+        <div class="qr-card">
+          <!-- Header สีน้ำเงินพร้อมโลโก้ Thai QR Payment -->
+          <div class="qr-header">
+            <div class="thai-qr-logo">
+              <!-- ใช้ SVG โลโก้มาตรฐาน Thai QR Payment สีขาว -->
+              <svg viewBox="0 0 200 45" class="qr-header-logo">
+                <g fill="#ffffff">
+                  <path d="M25 10 h 20 v 20 h -20 z M30 15 v 10 h 10 v -10 z" />
+                  <path
+                    d="M20 5 h 15 v 5 h -15 z M40 5 h 5 v 15 h -5 z M15 20 h 5 v 15 h -5 z M20 35 h 15 v 5 h -15 z"
+                  />
+                  <text
+                    x="60"
+                    y="24"
+                    font-family="Arial, sans-serif"
+                    font-weight="bold"
+                    font-size="16"
+                  >
+                    THAI QR
+                  </text>
+                  <text
+                    x="60"
+                    y="38"
+                    font-family="Arial, sans-serif"
+                    font-weight="bold"
+                    font-size="14"
+                    letter-spacing="1"
+                  >
+                    PAYMENT
+                  </text>
+                </g>
+              </svg>
+            </div>
+          </div>
 
-        <!-- ฝั่งซ้าย: รายการอาหาร และ ยอดสรุป -->
-        <div class="left-box">
-            <div class="table-header-title">
-                <span>โต๊ะ {{ displayData.tableNumbers }}</span>
+          <!-- Body สีขาว -->
+          <div class="qr-body">
+            <!-- โลโก้ PromptPay ล้อมกรอบ -->
+            <div class="promptpay-logo-wrapper">
+              <div class="promptpay-badge">
+                <span class="pp-sub">พร้อมเพย์</span>
+                <span class="pp-main">PromptPay</span>
+              </div>
             </div>
 
-            <div class="table-scroll-area">
-                <table class="display-table">
-                    <thead>
-                        <tr>
-                            <th class="col-id">#</th>
-                            <th class="col-name">รายการ</th>
-                            <th class="col-qty">จำนวน</th>
-                            <th class="col-price">ราคา</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr *ngFor="let item of displayData.items; let i = index">
-                            <td class="col-id">{{ i + 1 }}</td>
-                            <td class="col-name">{{ item.name }}</td>
-                            <td class="col-qty">{{ item.quantity }}</td>
-                            <td class="col-price">{{ item.subTotal | number:'1.2-2' }}</td>
-                        </tr>
-                    </tbody>
-                </table>
+            <!-- ตัว QR Code -->
+            <div class="qr-image-wrapper">
+              <img [src]="displayData.parsedQrUrl" alt="PromptPay QR Code" class="qr-image" />
             </div>
+            <p class="qr-instruction">กรุณาสแกน QR เพื่อชำระเงิน</p>
 
-            <div class="summary-section">
-                <div class="summary-line" *ngIf="displayData.fineAmount > 0">
-                    <span>ค่าปรับ</span>
-                    <span>{{ displayData.fineAmount | number:'1.2-2' }} ฿</span>
-                </div>
-                <div class="summary-line">
-                    <span>โปรโมชั่น</span>
-                    <span>{{ displayData.discountName }}</span>
-                </div>
-                <div class="grand-total-line">
-                    <span class="total-label">รวมสุทธิ</span>
-                    <span class="total-amount">{{ displayData.grandTotal | number:'1.2-2' }} ฿</span>
-                </div>
-            </div>
+            <p class="pay-amount">ยอดชำระ: {{ displayData.grandTotal | number: '1.2-2' }} บาท</p>
+          </div>
         </div>
+      </div>
 
-        <!-- ฝั่งขวา: แสดง QR Code Payment -->
-        <div class="right-box">
-            <div class="qr-container" *ngIf="displayData.parsedQrUrl">
-                <div class="qr-card">
-                    <!-- Header สีน้ำเงินพร้อมโลโก้ Thai QR Payment -->
-                    <div class="qr-header">
-                        <div class="thai-qr-logo">
-                            <!-- ใช้ SVG โลโก้มาตรฐาน Thai QR Payment สีขาว -->
-                            <svg viewBox="0 0 200 45" class="qr-header-logo">
-                                <g fill="#ffffff">
-                                    <path d="M25 10 h 20 v 20 h -20 z M30 15 v 10 h 10 v -10 z" />
-                                    <path
-                                        d="M20 5 h 15 v 5 h -15 z M40 5 h 5 v 15 h -5 z M15 20 h 5 v 15 h -5 z M20 35 h 15 v 5 h -15 z" />
-                                    <text x="60" y="24" font-family="Arial, sans-serif" font-weight="bold"
-                                        font-size="16">THAI QR</text>
-                                    <text x="60" y="38" font-family="Arial, sans-serif" font-weight="bold"
-                                        font-size="14" letter-spacing="1">PAYMENT</text>
-                                </g>
-                            </svg>
-                        </div>
-                    </div>
-
-                    <!-- Body สีขาว -->
-                    <div class="qr-body">
-                        <!-- โลโก้ PromptPay ล้อมกรอบ -->
-                        <div class="promptpay-logo-wrapper">
-                            <div class="promptpay-badge">
-                                <span class="pp-sub">พร้อมเพย์</span>
-                                <span class="pp-main">PromptPay</span>
-                            </div>
-                        </div>
-
-                        <!-- ตัว QR Code -->
-                        <div class="qr-image-wrapper">
-                            <img [src]="displayData.parsedQrUrl" alt="PromptPay QR Code" class="qr-image" />
-                        </div>
-                        <p class="qr-instruction">กรุณาสแกน QR เพื่อชำระเงิน</p>
-
-                        <p class="pay-amount">ยอดชำระ: {{ displayData.grandTotal | number:'1.2-2' }} บาท</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="cash-wait-box" *ngIf="!displayData.parsedQrUrl">
-                <mat-icon class="cash-icon">payments</mat-icon>
-                <p>รอพนักงานทำรายการ</p>
-            </div>
-        </div>
-
+      <div class="cash-wait-box" *ngIf="!displayData.parsedQrUrl">
+        <mat-icon class="cash-icon">payments</mat-icon>
+        <p>รอพนักงานทำรายการ</p>
+      </div>
     </div>
+  </div>
 
-    <!-- หน้าจอแสดงความยินดีเมื่อจ่ายสำเร็จ -->
-    <div *ngIf="isPaidSuccess" class="success-container">
-        <mat-icon class="success-icon">check_circle</mat-icon>
-        <h2>ชำระเงินเรียบร้อยแล้ว</h2>
-        <p>ขอบคุณที่ใช้บริการครับ/ค่ะ</p>
-    </div>
-
+  <!-- หน้าจอแสดงความยินดีเมื่อจ่ายสำเร็จ -->
+  <div *ngIf="isPaidSuccess" class="success-container">
+    <mat-icon class="success-icon">check_circle</mat-icon>
+    <h2>ชำระเงินเรียบร้อยแล้ว</h2>
+    <p>ขอบคุณที่ใช้บริการครับ/ค่ะ</p>
+  </div>
 </div>

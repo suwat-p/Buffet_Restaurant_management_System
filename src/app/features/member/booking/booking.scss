@@ -689,6 +689,187 @@ $color-selected-text: #000000;
   @media (min-width: 600px) { display: none; }
 }
 
+// ════════════════════════════════════════════
+// PAYMENT SHEET — Display Style (เหมือนหน้าจอ Display)
+// ════════════════════════════════════════════
+.pay-sheet.display-style {
+  background: #0b0b0b;
+  padding: 18px 20px 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+
+  .drag-handle { background: #444; }
+
+  .pay-close {
+    position: absolute;
+    top: 14px; right: 16px;
+    width: 32px; height: 32px;
+    background: rgba(255, 255, 255, 0.08);
+    border: none;
+    border-radius: 50%;
+    color: #fff;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+    z-index: 5;
+
+    &:hover { background: rgba(255, 255, 255, 0.18); }
+  }
+
+  .top-chips {
+    margin-top: 8px;
+    margin-bottom: 14px;
+  }
+
+  .pay-table-chips {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    justify-content: center;
+
+    .pay-chip {
+      background: rgba(255, 202, 40, 0.12);
+      border: 1px solid rgba(255, 202, 40, 0.4);
+      color: #ffca28;
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 4px 14px;
+      border-radius: 20px;
+    }
+  }
+
+  .qr-card {
+    background: #ffffff;
+    border-radius: 20px;
+    width: 100%;
+    max-width: 340px;
+    overflow: hidden;
+    text-align: center;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+
+    .qr-header {
+      background-color: #003b7a;
+      padding: 14px 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      .qr-header-logo {
+        height: 34px;
+        width: auto;
+      }
+    }
+
+    .qr-body {
+      padding: 22px 20px 26px;
+      background: #ffffff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+
+      .promptpay-logo-wrapper {
+        margin-bottom: 16px;
+      }
+
+      .promptpay-badge {
+        border: 1.5px solid #003b7a;
+        border-radius: 4px;
+        padding: 2px 14px 4px;
+        display: inline-flex;
+        flex-direction: column;
+        align-items: center;
+        background: #ffffff;
+
+        .pp-sub {
+          font-size: 0.62rem;
+          color: #003b7a;
+          line-height: 1;
+          margin-bottom: 1px;
+        }
+
+        .pp-main {
+          font-size: 1.05rem;
+          font-weight: 800;
+          color: #003b7a;
+          font-family: Arial, sans-serif;
+          letter-spacing: -0.5px;
+          line-height: 1;
+        }
+      }
+
+      .qr-image-wrapper {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        margin-bottom: 14px;
+
+        .qr-image {
+          width: clamp(180px, 55vw, 230px);
+          height: clamp(180px, 55vw, 230px);
+          object-fit: contain;
+          display: block;
+        }
+
+        .qr-image-skeleton {
+          width: clamp(180px, 55vw, 230px);
+          height: clamp(180px, 55vw, 230px);
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: 10px;
+          color: #999;
+          font-size: 0.85rem;
+          border: 2px dashed #ddd;
+          border-radius: 10px;
+
+          .skeleton-spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid #eee;
+            border-top-color: #003b7a;
+            border-radius: 50%;
+            animation: spin360 0.75s linear infinite;
+          }
+        }
+      }
+
+      .qr-instruction {
+        color: #444;
+        font-size: 0.9rem;
+        margin: 4px 0;
+      }
+
+      .pay-amount {
+        color: #003b7a;
+        font-size: 1.3rem;
+        font-weight: 800;
+        margin: 4px 0 16px;
+      }
+
+      .auto-check-badge {
+        position: static;
+        background: #e3f2fd;
+        color: #1976d2;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        border: 1px solid #bbdefb;
+        box-shadow: none;
+      }
+    }
+  }
+}
+
 // ── Header ─────────────────────────────────
 .pay-header {
   background: linear-gradient(135deg, #003087 0%, #0057cc 60%, #1976d2 100%);
