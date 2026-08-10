@@ -1,0 +1,348 @@
+$theme-bg: #000000;
+$card-bg: #141414;
+$primary-red: #9e1c1c;
+$primary-gold: #ffca28;
+$text-white: #ffffff;
+$text-gray: #a0a0a0;
+$bar-bg: linear-gradient(to bottom, #3d0000, #1a0000);
+$active-red: #b30000;
+$text-inactive: #e0e0e0;
+
+:host {
+  display: block;
+  width: 100%;
+}
+
+.background-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+
+  .bg-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .bg-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+  }
+}
+
+.page-container {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  background-color: transparent;
+  color: $text-white;
+  padding-bottom: 80px;
+  font-family: 'Kanit', sans-serif;
+}
+
+.hero-banner-wrapper {
+  width: 100%;
+  background: #000;
+
+  .banner-item {
+    position: relative;
+    width: 100%;
+    height: 400px;
+    overflow: hidden;
+
+    .banner-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+    }
+    .banner-overlay {
+      position: absolute;
+      bottom: 0; left: 0; width: 100%; height: 100px;
+      background: linear-gradient(to top, #000, transparent);
+    }
+  }
+
+  ::ng-deep .p-carousel-indicators {
+    padding: 10px;
+    background: rgba(0,0,0,0.5);
+    .p-carousel-indicator button {
+      width: 30px; height: 4px; background-color: rgba(255,255,255,0.3); border-radius: 2px;
+      &:hover { background-color: $primary-gold; }
+    }
+    .p-highlight button { background-color: $primary-gold; }
+  }
+}
+
+.banner-thumbnails {
+  display: flex; justify-content: left; gap: 12px; padding: 15px;
+  background: #000; margin-top: -10px; position: relative; z-index: 2;
+
+  .banner-thumb-box {
+    width: 80px; height: 45px; border-radius: 6px; overflow: hidden; cursor: pointer;
+    border: 2px solid rgba(255,255,255,0.2); transition: all 0.3s ease; opacity: 0.6;
+    img { width: 100%; height: 100%; object-fit: cover; }
+    &.active, &:hover {
+      border-color: $primary-gold; opacity: 1; transform: scale(1.1);
+      box-shadow: 0 0 10px rgba(255, 202, 40, 0.5);
+    }
+  }
+}
+
+.preorder-header-info {
+  background: #1a1a1a;
+  border-left: 4px solid #d84315;
+  padding: 12px 20px;
+  margin: 15px;
+  border-radius: 4px;
+
+  h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: #ff9100;
+  }
+}
+
+@media (max-width: 900px) { .hero-banner-wrapper .banner-item { height: 250px; } }
+@media (max-width: 576px) { .banner-thumb-box { width: 50px; height: 30px; } }
+
+.category-navbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  width: 100%;
+  background: $bar-bg;
+  border-bottom: 1px solid #c0c0c0;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+  padding: 10px 0;
+
+  .category-scroll {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    overflow-x: auto;
+    padding: 0 15px;
+    scrollbar-width: none;
+    
+    &::-webkit-scrollbar {
+      display: none;
+    }
+
+    .nav-item {
+      background: transparent;
+      color: $text-inactive;
+      border: none;
+      padding: 8px 24px;
+      font-size: 1rem;
+      font-family: 'Kanit', sans-serif;
+      cursor: pointer;
+      white-space: nowrap;
+      border-radius: 50px;
+      transition: all 0.3s ease;
+
+      &:hover:not(.active) {
+        color: #fff;
+        background: rgba(255, 255, 255, 0.1);
+      }
+
+      &.active {
+        background-color: $active-red;
+        color: $text-white;
+        font-weight: 600;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+      }
+    }
+  }
+}
+
+.menu-content {
+  padding-top: 20px;
+  padding: 20px 15px;
+
+  .section-header {
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 20px;
+    text-align: center;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+  }
+
+  .food-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+
+    @media (min-width: 768px) {
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 25px;
+    }
+
+    .food-card {
+      background: $bar-bg;
+      border-radius: 12px;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+      border: 1px solid #2a2a2a;
+
+      .card-img-wrapper {
+        width: 100%;
+        aspect-ratio: 4/3;
+        overflow: hidden;
+        position: relative;
+        
+        img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          transition: transform 0.5s ease;
+        }
+
+        &::after {
+          content: '';
+          position: absolute;
+          bottom: 0; left: 0; width: 100%; height: 40%;
+          background: linear-gradient(to top, $card-bg, transparent);
+        }
+      }
+
+      &:hover .card-img-wrapper img {
+        transform: scale(1.1);
+      }
+
+      .card-body {
+        padding: 12px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+
+        .food-name {
+          font-size: 1rem;
+          color: #fff;
+          margin: 0 0 12px 0;
+          line-height: 1.4;
+          font-weight: 500;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
+
+        .card-action-row {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          gap: 8px;
+
+          .add-cart-btn {
+            flex: 1;
+            background: #d84315;
+            color: #fff;
+            border: none;
+            padding: 8px 5px;
+            border-radius: 100rem;
+            font-size: 0.8rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            transition: background 0.2s;
+
+            i { font-size: 0.9rem; }
+
+            &:active {
+              transform: scale(0.95);
+            }
+          }
+
+          .price {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #fff;
+            white-space: nowrap;
+          }
+        }
+      }
+    }
+  }
+}
+
+::ng-deep .dark-dialog {
+  .p-dialog-header {
+    background: #1f1f1f;
+    color: #fff;
+    border-bottom: 1px solid #333;
+  }
+  .p-dialog-content {
+    background: #121212;
+    color: #fff;
+    padding-top: 20px;
+  }
+  .p-dialog-footer {
+    background: #1f1f1f;
+    border-top: 1px solid #333;
+    padding: 15px;
+  }
+}
+
+.cart-list {
+  .cart-item {
+    display: flex; gap: 12px; padding-bottom: 15px; margin-bottom: 15px;
+    border-bottom: 1px solid #333;
+    
+    .cart-thumb { width: 60px; height: 60px; border-radius: 8px; object-fit: cover; }
+    
+    .cart-details {
+      flex: 1;
+      .row-top { 
+        display: flex; justify-content: space-between; margin-bottom: 8px; 
+        .item-name { font-weight: 500; font-size: 1rem; }
+        .item-price { color: $primary-gold; font-weight: bold; }
+      }
+      
+      .row-actions {
+        display: flex; align-items: center; justify-content: space-between;
+        
+        .qty-ctrl {
+          display: flex; align-items: center; background: #333; border-radius: 20px; padding: 2px;
+          button {
+            width: 28px; height: 28px; border-radius: 50%; border: none; background: #444; color: #fff;
+            display: flex; align-items: center; justify-content: center; cursor: pointer;
+            &:active { background: $primary-red; }
+          }
+          .qty { margin: 0 10px; min-width: 20px; text-align: center; font-weight: bold; }
+        }
+
+        .del-btn { 
+          background: none; border: none; color: #ff5555; 
+          cursor: pointer; font-size: 1.1rem; padding: 5px;
+        }
+      }
+    }
+  }
+}
+
+.cart-summary {
+  .total-line {
+    display: flex; justify-content: space-between; font-size: 1.2rem; margin-bottom: 15px; color: #fff;
+    .highlight-price { color: $primary-gold; font-weight: bold; font-size: 1.4rem; }
+  }
+  .confirm-btn {
+    width: 100%; background: #d84315; color: white; border: none;
+    padding: 14px; font-size: 1.1rem; font-weight: bold; border-radius: 8px; cursor: pointer;
+    box-shadow: 0 4px 10px rgba(216, 67, 21, 0.4);
+    &:disabled { background: #444; color: #888; box-shadow: none; cursor: not-allowed; }
+  }
+}

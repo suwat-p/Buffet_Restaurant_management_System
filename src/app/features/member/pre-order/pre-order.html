@@ -1,1 +1,143 @@
-<p>pre-order works!</p>
+<app-customer-navbar>
+  <p-toast></p-toast>
+
+  <div class="background-wrapper">
+    <img src="assets/Images/bg.png" alt="background" class="bg-img" />
+    <div class="bg-overlay"></div>
+  </div>
+
+  <div class="page-container">
+    <!-- Hero Banner -->
+    <section class="hero-banner-wrapper">
+      <p-carousel
+        [value]="banners"
+        [numVisible]="1"
+        [numScroll]="1"
+        [circular]="true"
+        [autoplayInterval]="slideInterval"
+        [showIndicators]="false"
+        [page]="currentBannerIndex"
+        (onPage)="onBannerChange($event)"
+      >
+        <ng-template let-banner pTemplate="item">
+          <div class="banner-item">
+            <img [src]="banner.image" alt="Promotion Banner" class="banner-img" />
+            <div class="banner-overlay"></div>
+          </div>
+        </ng-template>
+      </p-carousel>
+
+      <div class="banner-thumbnails">
+        <div
+          class="banner-thumb-box"
+          *ngFor="let banner of banners; let i = index"
+          [class.active]="i === currentBannerIndex"
+          (click)="onClicksmailPictures(i)"
+        >
+          <img [src]="banner.image" alt="Thumbnail" />
+        </div>
+      </div>
+    </section>
+
+    <!-- Header ระบุการสั่งล่วงหน้า -->
+    <div class="preorder-header-info" *ngIf="bookingId">
+      <h3>สั่งอาหารล่วงหน้าสำหรับการจอง #{{ bookingId }}</h3>
+    </div>
+
+    <!-- Category Bar -->
+    <div class="category-navbar">
+      <div class="category-scroll">
+        <button
+          *ngFor="let cat of categories"
+          class="nav-item"
+          [class.active]="currentCategory === cat"
+          (click)="filterCategory(cat)"
+          pRipple
+        >
+          {{ cat }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Food Content Grid -->
+    <div class="menu-content">
+      <h2 class="section-header">{{ currentCategory }}</h2>
+
+      <div class="food-grid">
+        <div class="food-card" *ngFor="let item of displayItems" pRipple>
+          <div class="card-img-wrapper">
+            <img [src]="item.menu_Image" class="cart-thumb" />
+          </div>
+
+          <div class="card-body">
+            <h3 class="food-name">{{ item.menu_Name }}</h3>
+
+            <div class="card-action-row">
+              <button class="add-cart-btn" (click)="addToCart(item)" pRipple>
+                <i class="pi pi-shopping-cart"></i> สั่งล่วงหน้า
+              </button>
+              <span class="price" *ngIf="item.menu_Type !== 'อยู่ในบุฟเฟ่ต์'">
+                {{ (item.price | number) + ' ฿' }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</app-customer-navbar>
+
+<!-- Cart Dialog -->
+<p-dialog
+  header="รายการสั่งอาหารล่วงหน้า"
+  [(visible)]="isCartVisible"
+  [modal]="true"
+  [style]="{ width: '90vw', maxWidth: '400px' }"
+  [draggable]="false"
+  [resizable]="false"
+  [dismissableMask]="true"
+  styleClass="dark-dialog"
+>
+  <div class="cart-list">
+    <div class="cart-item" *ngFor="let item of cart">
+      <img [src]="'assets/Images/product/' + item.menu_Image" class="cart-thumb" />
+      <div class="cart-details">
+        <div class="row-top">
+          <span class="item-name">{{ item.menu_Name }}</span>
+          <span class="item-price">{{ item.price * item.quantity | number }} ฿</span>
+        </div>
+        <div class="row-actions">
+          <div class="qty-ctrl">
+            <button class="minus" (click)="updateQuantity(item, -1)">
+              <i class="pi pi-minus"></i>
+            </button>
+            <span class="qty">{{ item.quantity }}</span>
+            <button class="plus" (click)="updateQuantity(item, 1)">
+              <i class="pi pi-plus"></i>
+            </button>
+          </div>
+          <button class="del-btn" (click)="removeItem(item)">
+            <i class="pi pi-trash"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="empty-state" *ngIf="cart.length === 0">
+      <i class="pi pi-shopping-cart" style="font-size: 2rem; margin-bottom: 10px; color: #666"></i>
+      <p>ยังไม่มีรายการอาหารล่วงหน้า</p>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <div class="cart-summary">
+      <div class="total-line">
+        <span>รวมทั้งหมด</span>
+        <span class="highlight-price">{{ cartTotalPrice | number }} ฿</span>
+      </div>
+      <button class="confirm-btn" (click)="confirmOrder()" [disabled]="cart.length === 0" pRipple>
+        ยืนยันการสั่งล่วงหน้า
+      </button>
+    </div>
+  </ng-template>
+</p-dialog>

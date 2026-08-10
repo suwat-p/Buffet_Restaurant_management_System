@@ -164,10 +164,8 @@ export class BookingStatus implements OnInit {
   formatDate(dateTimeStr: string): string {
     if (!dateTimeStr || dateTimeStr.startsWith('0001')) return '-';
 
-    // สร้าง Object Date จาก String ที่ Backend ส่งมา
     const dateObj = new Date(dateTimeStr);
 
-    // ตรวจสอบความถูกต้องของวันที่
     if (isNaN(dateObj.getTime())) return '-';
 
     return dateObj.toLocaleDateString('th-TH', {
@@ -176,6 +174,7 @@ export class BookingStatus implements OnInit {
       year: 'numeric',
     });
   }
+
   formatTime(dateTimeStr: string): string {
     if (!dateTimeStr || dateTimeStr.startsWith('0001')) return '-';
 
@@ -277,7 +276,9 @@ export class BookingStatus implements OnInit {
     window.history.back();
   }
 
-  goPreOrder() {
-    this.router.navigate(['/PreOrder']);
+  goPreOrder(booking: BookingDetail) {
+    this.router.navigate(['/PreOrder'], {
+      queryParams: { bookingId: booking.booking_id },
+    });
   }
 }

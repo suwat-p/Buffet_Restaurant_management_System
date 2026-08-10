@@ -1,0 +1,27 @@
+<app-menu-member>
+  <div class="preorder-container">
+    <header class="preorder-navbar">
+      <div class="nav-left">
+        <button class="nav-btn" (click)="goToBookingStatus()">
+          <mat-icon>arrow_back</mat-icon>
+          <span>สถานะการจอง</span>
+        </button>
+      </div>
+
+      <div class="nav-title">
+        <span>ระบบสั่งอาหารล่วงหน้า</span>
+        <small *ngIf="bookingId">(การจอง #{{ bookingId }})</small>
+      </div>
+
+      <div class="nav-right">
+        <button class="cart-icon-btn" (click)="goToPreOrderCart()">
+          <mat-icon>shopping_cart</mat-icon>
+        </button>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <!-- เนื้อหาหน้า Pre-order ของคุณ -->
+    </main>
+  </div>
+</app-menu-member>

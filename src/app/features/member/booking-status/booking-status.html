@@ -4,7 +4,6 @@
       <span class="back-arrow">❮</span>
       <h1>สถานะการจองโต๊ะ</h1>
     </div>
-    <button class="pre-order-btn" (click)="goPreOrder()">สั่งล่วงหน้า</button>
   </header>
 
   <div *ngIf="errorMessage && bookingList.length === 0" class="empty-state">
@@ -45,9 +44,13 @@
         <label>สถานะ :</label>
         <div class="status-text success">{{ booking.status }}</div>
       </div>
-      <button class="qr-checkin-btn" (click)="toggleQrModal(booking.booking_id)">
-        คิวอาร์โค้ดเช็คอิน
-      </button>
+
+      <div class="action-buttons-group">
+        <button class="pre-order-btn" (click)="goPreOrder(booking)">สั่งล่วงหน้า</button>
+        <button class="qr-checkin-btn" (click)="toggleQrModal(booking.booking_id)">
+          คิวอาร์โค้ดเช็คอิน
+        </button>
+      </div>
     </div>
 
     <button class="cancel-btn-full" (click)="onCancelBooking(booking)">ยกเลิกการจอง</button>
@@ -144,12 +147,7 @@
 
     <div class="modal-footer-qr" style="gap: 10px; display: flex">
       <button class="close-btn-red" style="flex: 1" (click)="closeEditModal()">ยกเลิก</button>
-      <button
-        class="pre-order-btn"
-        style="flex: 1"
-        [disabled]="isEditing"
-        (click)="saveEditBooking()"
-      >
+      <button class="save-btn" style="flex: 1" [disabled]="isEditing" (click)="saveEditBooking()">
         {{ isEditing ? 'กำลังบันทึก...' : 'บันทึก' }}
       </button>
     </div>

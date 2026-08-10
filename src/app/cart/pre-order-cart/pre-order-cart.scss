@@ -1,0 +1,329 @@
+$primary-red: #8b0000;
+$active-red: #b30000;
+$primary-gold: #ffca28;
+$row-border: #333333;
+
+:host {
+  display: block;
+  width: 100%;
+}
+
+.cart-page {
+  min-height: calc(100vh - 60px);
+  width: 100%;
+  position: relative;
+  padding: 30px 20px;
+  font-family: 'Kanit', sans-serif;
+  overflow: hidden;
+}
+
+.background-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+
+  .bg-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .bg-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+  }
+}
+
+.container {
+  position: relative;
+  z-index: 1;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.page-header {
+  background: linear-gradient(to right, #4a0404, #2b0000);
+  padding: 15px 20px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  border-radius: 8px 8px 0 0;
+  border-bottom: 2px solid $primary-red;
+
+  h1 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: white;
+    font-weight: 600;
+  }
+
+  mat-icon {
+    color: white;
+    font-size: 28px;
+    width: 28px;
+    height: 28px;
+  }
+}
+
+.content-box {
+  background-color: rgba(18, 18, 18, 0.95);
+  border: 1px solid #333;
+  border-top: none;
+  padding: 20px;
+  border-radius: 0 0 8px 8px;
+
+  .box-header {
+    color: #ccc;
+    margin-bottom: 20px;
+    font-size: 1rem;
+    font-weight: 400;
+    border-bottom: 1px solid #2a2a2a;
+    padding-bottom: 10px;
+  }
+}
+
+/* รายการสินค้าสไตล์ Customer Cart */
+.cart-list {
+  .cart-item {
+    display: flex;
+    gap: 15px;
+    padding-bottom: 15px;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #333;
+    align-items: center;
+
+    .cart-thumb {
+      width: 70px;
+      height: 70px;
+      border-radius: 8px;
+      object-fit: cover;
+      background-color: #222;
+    }
+
+    .cart-details {
+      flex: 1;
+
+      .row-top {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+
+        .item-name {
+          font-weight: 500;
+          font-size: 1rem;
+          color: #fff;
+        }
+
+        .item-price {
+          color: $primary-gold;
+          font-weight: bold;
+          font-size: 1.05rem;
+        }
+      }
+
+      .row-actions {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        .qty-ctrl {
+          display: flex;
+          align-items: center;
+          background: #262626;
+          border-radius: 20px;
+          padding: 3px 6px;
+          border: 1px solid #444;
+
+          button {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: none;
+            background: #3a3a3a;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s;
+
+            &:hover {
+              background: #555;
+            }
+
+            &:active {
+              background: $active-red;
+            }
+          }
+
+          .qty {
+            margin: 0 12px;
+            min-width: 20px;
+            text-align: center;
+            font-weight: bold;
+            color: #fff;
+          }
+        }
+
+        .del-btn {
+          background: none;
+          border: none;
+          color: #ff5555;
+          cursor: pointer;
+          font-size: 1.2rem;
+          padding: 5px 8px;
+          border-radius: 4px;
+          transition: background 0.2s;
+
+          &:hover {
+            background: rgba(255, 85, 85, 0.1);
+          }
+        }
+      }
+    }
+  }
+}
+
+/* สรุปยอดเงินและปุ่มสั่งซื้อ */
+.cart-summary {
+  margin-top: 25px;
+  padding-top: 15px;
+  border-top: 2px dashed #444;
+
+  .total-line {
+    display: flex;
+    justify-content: space-between;
+    font-size: 1.1rem;
+    margin-bottom: 15px;
+    color: #ddd;
+
+    .highlight-price {
+      color: $primary-gold;
+      font-weight: bold;
+      font-size: 1.4rem;
+    }
+  }
+
+  .confirm-btn {
+    width: 100%;
+    background: linear-gradient(135deg, #a00000, #660000);
+    color: white;
+    border: none;
+    padding: 12px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: 'Kanit', sans-serif;
+    box-shadow: 0 4px 12px rgba(160, 0, 0, 0.4);
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: linear-gradient(135deg, #c00000, #800000);
+      transform: translateY(-1px);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
+}
+
+/* สถานะตะกร้าว่าง */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 50px 20px;
+  color: #888;
+  text-align: center;
+
+  p {
+    font-size: 1.1rem;
+    color: #eee;
+    margin: 5px 0;
+  }
+
+  .sub-text {
+    font-size: 0.85rem;
+    color: #666;
+  }
+}
+
+/* Dialog ลบรายการ */
+::ng-deep .custom-dark-dialog {
+  &.p-dialog {
+    background: #111111 !important;
+    border-radius: 12px !important;
+    border: 1px solid #333 !important;
+  }
+
+  .p-dialog-header {
+    background: linear-gradient(to right, #4a0404, #2b0000) !important;
+    padding: 1rem 1.2rem !important;
+    border-bottom: 2px solid $primary-red !important;
+  }
+
+  .p-dialog-content {
+    background: #111111 !important;
+    padding: 1.5rem !important;
+  }
+
+  .dialog-container {
+    text-align: center;
+    font-family: 'Kanit', sans-serif;
+
+    .warning-icon {
+      font-size: 50px;
+      width: 50px;
+      height: 50px;
+      color: #ff4d4d;
+    }
+
+    h3 {
+      color: white;
+      margin: 10px 0;
+    }
+    p {
+      color: #ccc;
+      margin-bottom: 5px;
+    }
+    .sub-text {
+      color: #666;
+      font-size: 0.85rem;
+    }
+  }
+
+  .dialog-footer {
+    display: flex;
+    gap: 12px;
+    margin-top: 1.5rem;
+
+    button {
+      flex: 1;
+      padding: 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      border: none;
+      font-family: 'Kanit', sans-serif;
+    }
+
+    .btn-cancel {
+      background: #333;
+      color: white;
+    }
+
+    .btn-confirm {
+      background: $primary-red;
+      color: white;
+    }
+  }
+}

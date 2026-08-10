@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Constants } from '../../config/contants'; // ตรวจสอบ path ให้ตรงกับเครื่องคุณ
 
 @Injectable({
@@ -28,19 +28,25 @@ export class CartService {
   }
 
   // 2. ดึงรายการในตะกร้า (ตาม Table ID)
-  public getCartItems(tableId: number) {
-    const url = this.constants.API_ENDPOINT + `/Cart/get-items/${tableId}`;
+  public getCartItems(tableId?: number, bookingId?: number) {
+    // กำหนด URL พื้นฐาน
+    let url = this.constants.API_ENDPOINT + `/Cart/get-items/${tableId ?? 0}`;
     const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+
+    let params = new HttpParams();
+    if (bookingId) {
+      params = params.set('bookingId', bookingId.toString());
+    }
 
     const httpOptions = {
       headers: new HttpHeaders({
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
       }),
+      params: params,
     };
 
-    const response = this.http.get<any>(url, httpOptions);
-    return response;
+    return this.http.get<any>(url, httpOptions);
   }
   public deleteItem(cartItemId: number) {
     const url = this.constants.API_ENDPOINT + `/Cart/delete-item/${cartItemId}`;

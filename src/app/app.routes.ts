@@ -33,6 +33,7 @@ import { employeeGuard } from './guards/employee-guard';
 import { memberGuard } from './guards/member-guard';
 import { Index } from './index';
 import { StatusCustomerOrder } from './status/status-customer-order/status-customer-order';
+import { PreOrder } from './features/member/pre-order/pre-order';
 
 export const routes: Routes = [
   { path: '', component: Index },
@@ -163,6 +164,11 @@ export const routes: Routes = [
     canActivate: [employeeGuard],
     data: { roles: ['พนักงานแคชเชียร์'] },
   },
-
+  {
+    path: 'PreOrder',
+    component: PreOrder,
+    canActivate: [memberGuard],
+    data: { role: ['Member'] },
+  },
   { path: '**', redirectTo: '' },
 ];
