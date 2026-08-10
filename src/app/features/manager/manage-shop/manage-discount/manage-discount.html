@@ -133,7 +133,9 @@
       <input
         type="number"
         min="0"
+        placeholder="0"
         [(ngModel)]="form.discount_amount"
+        (keydown)="preventNegativeKey($event)"
         class="dark-input w-full text-center"
       />
     </div>
@@ -141,11 +143,16 @@
     <div class="date-row">
       <div class="form-row">
         <label class="form-label">วันเริ่ม</label>
-        <input type="date" [(ngModel)]="form.startDate" class="dark-input w-full" />
+        <input type="date" [min]="minDate" [(ngModel)]="form.startDate" class="dark-input w-full" />
       </div>
       <div class="form-row">
         <label class="form-label">วันสิ้นสุด</label>
-        <input type="date" [(ngModel)]="form.endDate" class="dark-input w-full" />
+        <input
+          type="date"
+          [min]="form.startDate || minDate"
+          [(ngModel)]="form.endDate"
+          class="dark-input w-full"
+        />
       </div>
     </div>
   </div>

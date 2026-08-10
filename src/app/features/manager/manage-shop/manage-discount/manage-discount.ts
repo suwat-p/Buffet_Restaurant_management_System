@@ -17,9 +17,9 @@ import { DiscountService } from '../../../../service/api/discount.service';
 interface DiscountForm {
   discount_id: number | null;
   discount_Name: string;
-  discount_amount: number;
+  discount_amount: number | null;
   discount_Type: string;
-  startDate: string; // 'YYYY-MM-DD' จาก <input type="date">
+  startDate: string;
   endDate: string;
 }
 
@@ -50,6 +50,8 @@ export class ManageDiscount implements OnInit {
   showDialog = false;
   isEditMode = false;
 
+  minDate: string = this.toDateInputString(new Date());
+
   form: DiscountForm = this.emptyForm();
 
   constructor(
@@ -72,14 +74,20 @@ export class ManageDiscount implements OnInit {
     return {
       discount_id: null,
       discount_Name: '',
-      discount_amount: 0,
+      discount_amount: null,
       discount_Type: 'percent',
       startDate: todayStr,
       endDate: todayStr,
     };
   }
 
-  // แปลง Date → 'YYYY-MM-DD' สำหรับ <input type="date">
+  // ป้องกันการพิมพ์เครื่องหมาย -, +, e, E ตั้งแต่กดคีย์บอร์ด
+  preventNegativeKey(event: KeyboardEvent): void {
+    if (['-', '+', 'e', 'E'].includes(event.key)) {
+      event.preventDefault();
+    }
+  }
+
   private toDateInputString(date: Date): string {
     const y = date.getFullYear();
     const m = String(date.getMonth() + 1).padStart(2, '0');
@@ -158,6 +166,14 @@ export class ManageDiscount implements OnInit {
         severity: 'warn',
         summary: 'วันที่ไม่ถูกต้อง',
         detail: 'วันเริ่มต้องมาก่อนวันสิ้นสุด',
+      });
+      return;
+    }
+    if (!this.isEditMode && this.form.startDate < this.minDate) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'วันที่ไม่ถูกต้อง',
+        detail: 'ไม่สามารถเลือกวันเริ่มย้อนหลังได้',
       });
       return;
     }
