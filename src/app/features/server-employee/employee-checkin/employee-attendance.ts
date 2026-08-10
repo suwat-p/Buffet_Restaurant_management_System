@@ -172,7 +172,9 @@ export class EmployeeAttendance implements OnInit {
           }));
 
         this.myHistory = [...this.allLogs].sort(
-          (a, b) => new Date(b.clockInTime).getTime() - new Date(a.clockInTime).getTime(),
+          (a, b) =>
+            this.toBangkokInstant(b.clockInTime).getTime() -
+            this.toBangkokInstant(a.clockInTime).getTime(),
         );
 
         this.resolveTodayStatus();
@@ -188,10 +190,10 @@ export class EmployeeAttendance implements OnInit {
   }
 
   private resolveTodayStatus(): void {
-    const todayStr = new Date().toDateString();
+    const todayKey = this.bangkokDateKey(new Date());
 
     const todayLogs = this.myHistory.filter(
-      (l) => new Date(l.clockInTime).toDateString() === todayStr,
+      (l) => this.bangkokDateKey(this.toBangkokInstant(l.clockInTime)) === todayKey,
     );
 
     if (todayLogs.length === 0) {
@@ -362,12 +364,37 @@ export class EmployeeAttendance implements OnInit {
   }
 
   formatTime(iso: string): string {
-    const d = new Date(iso);
-    return d.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', hour12: false });
+    const d = this.toBangkokInstant(iso);
+    return d.toLocaleTimeString('th-TH', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+      timeZone: 'Asia/Bangkok',
+    });
   }
 
   formatThaiDate(iso: string): string {
-    const d = new Date(iso);
-    return `${d.getDate()} ${this.THAI_MONTHS[d.getMonth()]} ${d.getFullYear() + 543}`;
+    const d = this.toBangkokInstant(iso);
+    const parts = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Asia/Bangkok',
+      day: 'numeric',
+      month: 'numeric',
+      year: 'numeric',
+    }).formatToParts(d);
+
+    const day = Number(parts.find((p) => p.type === 'day')!.value);
+    const month = Number(parts.find((p) => p.type === 'month')!.value);
+    const year = Number(parts.find((p) => p.type === 'year')!.value);
+
+    return `${day} ${this.THAI_MONTHS[month - 1]} ${year + 543}`;
+  }
+
+  private toBangkokInstant(iso: string): Date {
+    const hasTimezone = /Z$|[+-]\d{2}:\d{2}$/.test(iso);
+    return new Date(hasTimezone ? iso : `${iso}+07:00`);
+  }
+
+  private bangkokDateKey(d: Date): string {
+    return d.toLocaleDateString('en-CA', { timeZone: 'Asia/Bangkok' });
   }
 }
