@@ -60,10 +60,6 @@ export class CustomerOrder implements OnInit {
 
   tableid: number = 0;
 
-  // โหมดสั่งอาหารล่วงหน้า (มาจากปุ่ม "สั่งล่วงหน้า" ในหน้า BookingStatus)
-  isPreOrderMode: boolean = false;
-  bookingId: number | null = null;
-
   constructor(
     private messageService: MessageService,
     private menuService: MenuService,
@@ -74,14 +70,6 @@ export class CustomerOrder implements OnInit {
 
   ngOnInit() {
     this.loadMenus();
-
-    // ถ้ามี bookingId แนบมาใน query param แปลว่ามาจากปุ่ม "สั่งล่วงหน้า" ที่หน้า BookingStatus
-    const urlBookingId = this.route.snapshot.queryParamMap.get('bookingId');
-    if (urlBookingId) {
-      this.bookingId = Number(urlBookingId);
-      this.isPreOrderMode = true;
-    }
-
     const urlTable = this.route.snapshot.queryParamMap.get('table');
     if (urlTable) {
       this.tableService.setTable(urlTable);
@@ -153,7 +141,7 @@ export class CustomerOrder implements OnInit {
   addToCart(item: Menu) {
     const payload = {
       TableId: this.tableid,
-      Booking_id: this.isPreOrderMode ? this.bookingId : null,
+      Booking_id: null,
       MenuId: item.menu_id,
       Quantity: 1,
     };

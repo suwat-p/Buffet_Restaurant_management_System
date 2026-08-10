@@ -1,3 +1,4 @@
+
 $bg-dark: #000000;
 $card-dark: #121212; 
 $text-white: #ffffff;
@@ -166,43 +167,9 @@ $color-red-danger: #b71c1c;
     }
   }
 
-  // แถวปุ่มด้านล่างสุด: สั่งล่วงหน้า + ยกเลิกการจอง
-  .card-actions-row {
-    display: flex;
-    gap: 12px;
-
-    @media (max-width: 480px) {
-      flex-direction: column;
-    }
-  }
-
-  // ปุ่มสั่งล่วงหน้า (รายการ์ด)
-  .pre-order-btn-card {
-    flex: 1;
-    background: transparent;
-    border: 1px solid #d84315;
-    color: #d84315;
-    padding: 15px;
-    border-radius: 6px;
-    font-size: 1.1rem;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.2s;
-
-    &:hover:not(:disabled) {
-      background: rgba(216, 67, 21, 0.1);
-    }
-
-    &:disabled {
-      border-color: #555;
-      color: #666;
-      cursor: not-allowed;
-    }
-  }
-
-  // ปุ่มยกเลิก
+  // ปุ่มยกเลิกด้านล่างสุด
   .cancel-btn-full {
-    flex: 1;
+    width: 100%;
     background-color: $color-red-danger;
     color: white;
     border: none;

@@ -16,7 +16,6 @@ interface BookingDetail {
   date: string;
   time: string;
   status: string;
-  rawStatus: string; // สถานะดิบจาก backend เช่น "Confirmed" ใช้เช็คสิทธิ์สั่งล่วงหน้า
   qrUrl: SafeUrl | string;
 }
 
@@ -134,7 +133,6 @@ export class BookingStatus implements OnInit {
           date: this.formatDate(b.booking_DateTime),
           time: this.formatTime(b.booking_DateTime),
           status: this.mapStatus(b.booking_Status),
-          rawStatus: b.booking_Status || '',
           qrUrl: b.qR_Url || b.qr_Url || b.QR_Url || this.loadQrFromStorage(b.booking_id),
           ConsoleLog: `Booking ID: ${b.booking_id}, QR URL: ${b.qR_Url || b.qr_Url || b.QR_Url}`,
         }));
@@ -279,18 +277,7 @@ export class BookingStatus implements OnInit {
     window.history.back();
   }
 
-  goPreOrder(booking: BookingDetail) {
-    // กันเหนียวฝั่ง frontend: อนุญาตเฉพาะสถานะ "ติดจอง" (Confirmed) เท่านั้น
-    if (booking.rawStatus !== 'Confirmed') {
-      alert('สามารถสั่งอาหารล่วงหน้าได้เฉพาะรายการที่สถานะ "ติดจอง" เท่านั้น');
-      return;
-    }
-
-    this.router.navigate(['/PreOrder'], {
-      queryParams: {
-        bookingId: booking.booking_id,
-        table: booking.tableNumbers?.[0] || '',
-      },
-    });
+  goPreOrder() {
+    this.router.navigate(['/PreOrder']);
   }
 }

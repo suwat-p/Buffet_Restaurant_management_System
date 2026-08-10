@@ -4,6 +4,7 @@
       <span class="back-arrow">❮</span>
       <h1>สถานะการจองโต๊ะ</h1>
     </div>
+    <button class="pre-order-btn" (click)="goPreOrder()">สั่งล่วงหน้า</button>
   </header>
 
   <div *ngIf="errorMessage && bookingList.length === 0" class="empty-state">
@@ -49,17 +50,7 @@
       </button>
     </div>
 
-    <div class="card-actions-row">
-      <button
-        class="pre-order-btn-card"
-        [disabled]="booking.rawStatus !== 'Confirmed'"
-        [title]="booking.rawStatus !== 'Confirmed' ? 'สั่งล่วงหน้าได้เฉพาะสถานะติดจองเท่านั้น' : ''"
-        (click)="goPreOrder(booking)"
-      >
-        สั่งล่วงหน้า
-      </button>
-      <button class="cancel-btn-full" (click)="onCancelBooking(booking)">ยกเลิกการจอง</button>
-    </div>
+    <button class="cancel-btn-full" (click)="onCancelBooking(booking)">ยกเลิกการจอง</button>
   </div>
 
   <!-- QR Modal -->
