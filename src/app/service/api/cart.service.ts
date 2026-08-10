@@ -42,6 +42,22 @@ export class CartService {
     const response = this.http.get<any>(url, httpOptions);
     return response;
   }
+  // 2b. ดึงรายการในตะกร้า (ตาม Booking ID) - สำหรับโหมดสั่งล่วงหน้า
+  public getCartItemsByBooking(bookingId: number) {
+    const url = this.constants.API_ENDPOINT + `/Cart/get-items-by-booking/${bookingId}`;
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+
+    const httpOptions = {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      }),
+    };
+
+    const response = this.http.get<any>(url, httpOptions);
+    return response;
+  }
+
   public deleteItem(cartItemId: number) {
     const url = this.constants.API_ENDPOINT + `/Cart/delete-item/${cartItemId}`;
     const token = localStorage.getItem('token') || sessionStorage.getItem('token');
