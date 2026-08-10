@@ -1,5 +1,9 @@
 <p-toast position="bottom-center"></p-toast>
-<p-confirmDialog [style]="{ width: '450px' }" styleClass="dark-dialog"></p-confirmDialog>
+<p-confirmDialog
+  [style]="{ width: '450px', maxWidth: '92vw' }"
+  [breakpoints]="{ '640px': '92vw' }"
+  styleClass="dark-dialog"
+></p-confirmDialog>
 
 <app-menu-manager>
   <div class="page-container">
@@ -9,6 +13,7 @@
 
         <div class="action-right">
           <span class="p-input-icon-left search-wrapper">
+            <i class="pi pi-search"></i>
             <input
               pInputText
               type="text"
@@ -64,7 +69,10 @@
                 <span class="badge category-badge">{{ menu.category }}</span>
               </td>
               <td>{{ menu.menu_Type }}</td>
-              <td class="price-text">{{ menu.price | number }} ฿</td>
+              <td class="price-text">
+                <span *ngIf="menu.price && menu.price > 0">{{ menu.price | number }} ฿</span>
+                <span *ngIf="!menu.price || menu.price === 0" class="buffet-label">บุฟเฟต์</span>
+              </td>
               <td class="text-center">
                 <button
                   pButton
@@ -89,7 +97,8 @@
 
 <p-dialog
   [(visible)]="menuDialog"
-  [style]="{ width: '500px' }"
+  [style]="{ width: '480px', maxWidth: '92vw' }"
+  [breakpoints]="{ '768px': '90vw', '480px': '95vw' }"
   header="รายละเอียดเมนู"
   [modal]="true"
   styleClass="dark-dialog p-fluid"
@@ -103,6 +112,7 @@
         pInputText
         id="name"
         [(ngModel)]="menu.menu_Name"
+        placeholder="เช่น หมูสไลด์, ชาต้ม"
         required
         autofocus
         class="dark-input"
@@ -113,31 +123,74 @@
     <div class="formgrid grid">
       <div class="field col-6">
         <label for="category">หมวดหมู่ (Category)</label>
+        <p-select
+          inputId="category"
+          [options]="categorySelectItems"
+          optionLabel="label"
+          optionValue="value"
+          [(ngModel)]="selectedCategory"
+          appendTo="body"
+          placeholder="-- เลือกหมวดหมู่ --"
+          [filter]="true"
+          filterPlaceholder="ค้นหา..."
+          class="dark-dropdown w-full"
+          panelStyleClass="dark-dropdown-panel"
+        ></p-select>
         <input
+          *ngIf="selectedCategory === OTHER_VALUE"
           type="text"
           pInputText
-          id="category"
-          [(ngModel)]="menu.category"
-          required
-          class="dark-input"
+          [(ngModel)]="customCategory"
+          placeholder="ระบุหมวดหมู่ใหม่"
+          class="dark-input other-input"
         />
       </div>
+
       <div class="field col-6">
         <label for="type">ประเภท (Type)</label>
-        <input type="text" pInputText id="type" [(ngModel)]="menu.menu_Type" class="dark-input" />
+        <p-select
+          inputId="type"
+          [options]="typeSelectItems"
+          optionLabel="label"
+          optionValue="value"
+          [(ngModel)]="selectedType"
+          (onChange)="onTypeChange()"
+          appendTo="body"
+          placeholder="-- เลือกประเภท --"
+          [filter]="true"
+          filterPlaceholder="ค้นหา..."
+          class="dark-dropdown w-full"
+          panelStyleClass="dark-dropdown-panel"
+        ></p-select>
+        <input
+          *ngIf="selectedType === OTHER_VALUE"
+          type="text"
+          pInputText
+          [(ngModel)]="customType"
+          (ngModelChange)="onTypeChange()"
+          placeholder="ระบุประเภทใหม่"
+          class="dark-input other-input"
+        />
       </div>
     </div>
 
-    <div class="field">
+    <!-- ซ่อนแบบ CSS ไม่กระตุกหรือเด้งหนี -->
+    <div class="field price-container" [class.hidden-price]="!showPriceField">
       <label for="price">ราคา</label>
       <p-inputNumber
         id="price"
         [(ngModel)]="menu.price"
+        (onInput)="onPriceInput($event)"
         mode="currency"
         currency="THB"
         locale="th-TH"
+        [min]="1"
+        placeholder="กรอกราคา (บาท)"
         styleClass="dark-input-num"
       ></p-inputNumber>
+      <small class="p-error" *ngIf="showPriceField && (!menu.price || menu.price < 1)">
+        ราคาต้องมากกว่า 0 บาท (ขั้นต่ำ 1 บาท)
+      </small>
     </div>
 
     <div class="field">
@@ -147,32 +200,13 @@
         id="image"
         (change)="onFileSelected($event)"
         accept="image/*"
-        class="dark-input"
-        style="
-          padding: 8px;
-          width: 100%;
-          background: #222;
-          border: 1px solid #333;
-          border-radius: 6px;
-          color: #fff;
-        "
+        class="dark-input file-input"
       />
-      <div
-        *ngIf="imagePreview"
-        style="
-          margin-top: 15px;
-          text-align: center;
-          background: #1a1a1a;
-          padding: 10px;
-          border-radius: 8px;
-          border: 1px dashed #444;
-        "
-      >
-        <img
-          [src]="imagePreview"
-          alt="Preview"
-          style="max-width: 100%; height: 150px; object-fit: contain; border-radius: 4px"
-        />
+      <div *ngIf="imagePreview" class="image-preview-box">
+        <button type="button" class="remove-image-btn" title="ลบรูปภาพ" (click)="clearImage()">
+          <i class="pi pi-times"></i>
+        </button>
+        <img [src]="imagePreview" alt="Preview" class="image-preview" />
       </div>
     </div>
   </ng-template>
@@ -183,7 +217,7 @@
       pRipple
       label="ยกเลิก"
       icon="pi pi-times"
-      class="p-button-text text-white"
+      class="p-button-text cancel-btn"
       (click)="hideDialog()"
     ></button>
     <button
@@ -191,10 +225,9 @@
       pRipple
       label="บันทึก"
       icon="pi pi-check"
-      class="p-button-success"
+      class="save-btn"
       (click)="saveMenu()"
       [disabled]="!menu.menu_Name"
     ></button>
   </ng-template>
 </p-dialog>
-<!-- .. -->
