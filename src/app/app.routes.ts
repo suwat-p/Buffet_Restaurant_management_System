@@ -3,6 +3,7 @@ import { Cart } from './cart/cart';
 import { CustomerOrder } from './customer-order/customer-order';
 import { BillingList } from './features/cashier-employee/bill/bill';
 import { CheckOut } from './features/cashier-employee/check-out/check-out';
+import { DashboardCashier } from './features/cashier-employee/dashboard-cashier/dashboard-cashier';
 import { DisplayCheckout } from './features/cashier-employee/display-checkout/display-checkout';
 import { Receipt } from './features/cashier-employee/receipt/receipt';
 import { KitchenDashboard } from './features/kitchen-dashboard/kitchen-dashboard';
@@ -155,6 +156,12 @@ export const routes: Routes = [
   {
     path: 'reset-password',
     component: ResetPassword,
+  },
+  {
+    path: 'cashier-dashboard',
+    component: DashboardCashier,
+    canActivate: [employeeGuard],
+    data: { roles: ['พนักงานแคชเชียร์'] },
   },
 
   { path: '**', redirectTo: '' },

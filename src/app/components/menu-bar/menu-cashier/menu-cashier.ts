@@ -25,7 +25,7 @@ export class MenuCashier {
   constructor(
     private router: Router,
     private authService: AuthService,
-  ) {}
+  ) { }
   isExpanded: boolean = false;
   userName: string = '';
   ngOnInit() {
@@ -43,7 +43,7 @@ export class MenuCashier {
       route: '/Receipt',
       active: false,
     },
-    { label: 'นำเสิร์ฟอาหาร', icon: 'room_service', route: '/ManageTable', active: false }, // หรือ grid_view
+    { label: 'แดชบอร์ด', icon: 'dashboard', route: '/cashier-dashboard', active: false },
     { label: 'ลงเวลาเข้างาน', icon: 'history', route: '/CheckIn', active: false },
     {
       label: 'เช็คเงินที่ทำงาน',
