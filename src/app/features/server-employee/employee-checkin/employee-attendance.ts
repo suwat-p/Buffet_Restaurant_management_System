@@ -50,7 +50,7 @@ export class EmployeeAttendance implements OnInit {
   employee: EmployeeProfile | null = null;
 
   activeTab: 'clock' | 'history' = 'clock';
-  isViewOnly = false; // 👈 เช็กโหมดผู้จัดการดูประวัติ
+  isViewOnly = false;
 
   allLogs: AttendanceRecord[] = [];
   myHistory: AttendanceRecord[] = [];
@@ -233,6 +233,49 @@ export class EmployeeAttendance implements OnInit {
 
   async doClockIn(): Promise<void> {
     if (!this.employee) return;
+
+    // เช็กว่าเจ้าของร้านกำหนดกะหรือไม่
+    if (!this.employee.shiftStart || !this.employee.shiftEnd) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'ไม่สามารถลงเวลาได้',
+        detail: 'ยังไม่ได้ระบุกะเวลาทำงาน กรุณาติดต่อผู้จัดการร้าน',
+        life: 5000,
+      });
+      return;
+    }
+
+    // คำนวณเวลาปัจจุบัน และเวลากะเข้างาน (แปลงเป็นนาที)
+    const now = new Date();
+    const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+    const [startH, startM] = this.employee.shiftStart.split(':').map(Number);
+    const shiftStartMinutes = startH * 60 + (startM || 0);
+
+    // เช็กว่ายังไม่ถึงเวลากะเข้างานหรือไม่ (ไม่อนุญาตให้เข้างานก่อนเวลา)
+    if (currentMinutes < shiftStartMinutes) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'ยังไม่ถึงเวลาเข้างาน',
+        detail: `กะของคุณเริ่มเวลา ${this.employee.shiftStart} น. ขณะนี้ยังไม่ถึงเวลาลงเวลาเข้างาน`,
+        life: 5000,
+      });
+      return;
+    }
+
+    // เช็กกรณีเข้างานสาย (เลยเวลากะ)
+    let isLate = false;
+    if (currentMinutes > shiftStartMinutes) {
+      isLate = true;
+      const lateMinutes = currentMinutes - shiftStartMinutes;
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'เข้างานสาย',
+        detail: `คุณเข้างานสาย ${lateMinutes} นาที ระบบจะคำนวณหักเงินตามเวลาที่สาย`,
+        life: 6000,
+      });
+    }
+
     this.isProcessing = true;
     this.pendingAction = 'in';
     try {
@@ -246,8 +289,8 @@ export class EmployeeAttendance implements OnInit {
         .subscribe({
           next: (res) => {
             this.messageService.add({
-              severity: 'success',
-              summary: 'สำเร็จ',
+              severity: isLate ? 'warn' : 'success',
+              summary: isLate ? 'ลงเวลาเข้างาน (สาย)' : 'สำเร็จ',
               detail: res.message,
             });
             this.loadHistory();
