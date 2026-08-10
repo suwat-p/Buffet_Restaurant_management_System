@@ -55,6 +55,14 @@ export class Booking implements OnInit, OnDestroy {
   currentMinTime: string = '';
   timeSlots: string[] = [];
 
+  // ── ช่วงเวลา (Period tabs) ──
+  periods: { key: string; label: string; range: string; start: string; end: string }[] = [
+    { key: 'morning', label: 'เช้า', range: '10:00-12:00', start: '10:00', end: '12:00' },
+    { key: 'afternoon', label: 'บ่าย', range: '12:30-16:30', start: '12:30', end: '16:30' },
+    { key: 'evening', label: 'เย็น', range: '17:00-22:00', start: '17:00', end: '22:00' },
+  ];
+  activePeriod: string = 'morning';
+
   private pollingTimer: any;
   private isPolling = false;
 
@@ -143,6 +151,77 @@ export class Booking implements OnInit, OnDestroy {
     this.bookingForm.BookingTime = this.bookingForm.BookingTime === slot ? '' : slot;
   }
 
+  // ── ช่วงเวลา (Period tabs) ──
+  selectPeriod(key: string) {
+    this.activePeriod = key;
+  }
+
+  getSlotsForPeriod(key: string): string[] {
+    const period = this.periods.find((p) => p.key === key);
+    if (!period) return [];
+    return this.timeSlots.filter((slot) => slot >= period.start && slot <= period.end);
+  }
+
+  get visibleSlots(): string[] {
+    return this.getSlotsForPeriod(this.activePeriod);
+  }
+
+  // เลือก tab อัตโนมัติตามเวลาที่เลือกไว้ (ถ้ามี)
+  private syncPeriodWithSelectedTime() {
+    if (!this.bookingForm.BookingTime) return;
+    const match = this.periods.find(
+      (p) => this.bookingForm.BookingTime >= p.start && this.bookingForm.BookingTime <= p.end,
+    );
+    if (match) this.activePeriod = match.key;
+  }
+
+  // ── นับจำนวนคน: กันติดลบ + ตรวจสอบแบบเรียลไทม์ ──
+  onGuestCountChange() {
+    const a = Number(this.bookingForm.NumAdults);
+    const c = Number(this.bookingForm.NumChildren);
+    this.bookingForm.NumAdults = isNaN(a) || a < 0 ? 0 : Math.floor(a);
+    this.bookingForm.NumChildren = isNaN(c) || c < 0 ? 0 : Math.floor(c);
+  }
+
+  incrementAdults() {
+    this.bookingForm.NumAdults = (Number(this.bookingForm.NumAdults) || 0) + 1;
+  }
+  decrementAdults() {
+    this.bookingForm.NumAdults = Math.max(0, (Number(this.bookingForm.NumAdults) || 0) - 1);
+  }
+  incrementChildren() {
+    this.bookingForm.NumChildren = (Number(this.bookingForm.NumChildren) || 0) + 1;
+  }
+  decrementChildren() {
+    this.bookingForm.NumChildren = Math.max(0, (Number(this.bookingForm.NumChildren) || 0) - 1);
+  }
+
+  get adultsInvalid(): boolean {
+    return Number(this.bookingForm.NumAdults) < 1;
+  }
+
+  get childrenInvalid(): boolean {
+    return Number(this.bookingForm.NumChildren) < 0;
+  }
+
+  // ข้อความแจ้งเตือนแบบเรียลไทม์ ตรวจตั้งแต่เริ่มกรอก ไม่ต้องรอกดปุ่ม
+  get guestError(): string | null {
+    const adults = Number(this.bookingForm.NumAdults);
+    const children = Number(this.bookingForm.NumChildren);
+    if (adults < 0 || children < 0) return 'จำนวนคนต้องไม่ติดลบ';
+    if (!adults || adults < 1) return 'ต้องมีผู้ใหญ่อย่างน้อย 1 คน';
+    return null;
+  }
+
+  get isDateTimeValid(): boolean {
+    return !!this.bookingForm.BookingDate && !!this.bookingForm.BookingTime;
+  }
+
+  // สถานะฟอร์มโดยรวม ใช้ปิด/เปิดปุ่มยืนยันแบบเรียลไทม์
+  get isFormValid(): boolean {
+    return !this.guestError && this.isDateTimeValid;
+  }
+
   loadTables() {
     this.tableService.getAlltables().subscribe({
       next: (response: Table[]) => {
@@ -185,6 +264,7 @@ export class Booking implements OnInit, OnDestroy {
       return;
     }
     this.setMinDate();
+    this.syncPeriodWithSelectedTime();
     this.showBookingModal = true;
   }
 
@@ -207,16 +287,17 @@ export class Booking implements OnInit, OnDestroy {
   }
 
   proceedToPayment() {
-    if (!this.bookingForm.BookingDate || !this.bookingForm.BookingTime) {
+    // การันตีความถูกต้องอีกชั้น แม้ปุ่มจะถูกปิดไว้แล้วเมื่อฟอร์มไม่ผ่าน
+    if (this.guestError) {
+      alert(this.guestError);
+      return;
+    }
+    if (!this.isDateTimeValid) {
       alert('กรุณาระบุวันและเวลาจอง');
       return;
     }
     const adults = Number(this.bookingForm.NumAdults) || 0;
     const children = Number(this.bookingForm.NumChildren) || 0;
-    if (adults <= 0 && children <= 0) {
-      alert('กรุณาระบุจำนวนผู้เข้าใช้บริการอย่างน้อย 1 คน');
-      return;
-    }
 
     const combinedDateTime = `${this.bookingForm.BookingDate}T${this.bookingForm.BookingTime}:00`;
 

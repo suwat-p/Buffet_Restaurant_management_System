@@ -57,13 +57,73 @@
 
           <div class="form-row">
             <div class="form-group half">
-              <label>จำนวนเด็ก /คน</label>
-              <input type="number" [(ngModel)]="bookingForm.NumChildren" placeholder="0" min="0" />
+              <label>จำนวนเด็ก <span class="unit">/คน</span></label>
+              <div class="stepper" [class.stepper-invalid]="childrenInvalid">
+                <button
+                  type="button"
+                  class="stepper-btn"
+                  (click)="decrementChildren()"
+                  [disabled]="bookingForm.NumChildren <= 0"
+                  aria-label="ลดจำนวนเด็ก"
+                >
+                  −
+                </button>
+                <input
+                  type="number"
+                  class="stepper-input"
+                  [(ngModel)]="bookingForm.NumChildren"
+                  (ngModelChange)="onGuestCountChange()"
+                  min="0"
+                  inputmode="numeric"
+                />
+                <button
+                  type="button"
+                  class="stepper-btn"
+                  (click)="incrementChildren()"
+                  aria-label="เพิ่มจำนวนเด็ก"
+                >
+                  +
+                </button>
+              </div>
             </div>
             <div class="form-group half">
-              <label>จำนวนผู้ใหญ่ /คน <span class="required">*</span></label>
-              <input type="number" [(ngModel)]="bookingForm.NumAdults" placeholder="0" min="0" />
+              <label
+                >จำนวนผู้ใหญ่ <span class="unit">/คน</span> <span class="required">*</span></label
+              >
+              <div class="stepper" [class.stepper-invalid]="adultsInvalid">
+                <button
+                  type="button"
+                  class="stepper-btn"
+                  (click)="decrementAdults()"
+                  [disabled]="bookingForm.NumAdults <= 0"
+                  aria-label="ลดจำนวนผู้ใหญ่"
+                >
+                  −
+                </button>
+                <input
+                  type="number"
+                  class="stepper-input"
+                  [(ngModel)]="bookingForm.NumAdults"
+                  (ngModelChange)="onGuestCountChange()"
+                  min="0"
+                  inputmode="numeric"
+                />
+                <button
+                  type="button"
+                  class="stepper-btn"
+                  (click)="incrementAdults()"
+                  aria-label="เพิ่มจำนวนผู้ใหญ่"
+                >
+                  +
+                </button>
+              </div>
             </div>
+          </div>
+
+          <!-- แจ้งเตือนแบบเรียลไทม์ ตรวจสอบทันทีตั้งแต่เริ่มกรอก ไม่ต้องกดปุ่ม -->
+          <div class="error-alert-inline" *ngIf="guestError">
+            <span class="error-icon">⚠</span>
+            <span>{{ guestError }}</span>
           </div>
 
           <div class="form-group">
@@ -78,9 +138,23 @@
 
           <div class="form-group">
             <label>เลือกเวลาจอง <span class="required">*</span></label>
-            <div class="time-grid">
+
+            <div class="period-tabs">
               <button
-                *ngFor="let slot of timeSlots"
+                *ngFor="let period of periods"
+                type="button"
+                class="period-tab"
+                [class.active]="activePeriod === period.key"
+                (click)="selectPeriod(period.key)"
+              >
+                <span>{{ period.label }}</span>
+                <span class="period-range">{{ period.range }}</span>
+              </button>
+            </div>
+
+            <div class="time-grid" *ngIf="visibleSlots.length > 0; else noSlots">
+              <button
+                *ngFor="let slot of visibleSlots"
                 type="button"
                 class="time-slot-btn"
                 [class.active]="bookingForm.BookingTime === slot"
@@ -90,6 +164,10 @@
                 {{ slot }}
               </button>
             </div>
+            <ng-template #noSlots>
+              <p class="no-slots-msg">ไม่มีรอบเวลาว่างในช่วงนี้ กรุณาเลือกช่วงเวลาอื่น</p>
+            </ng-template>
+
             <small *ngIf="bookingForm.BookingDate" class="time-hint">
               ร้านเปิด 10:00 – 22:00
               <span *ngIf="bookingForm.BookingDate === minDate"
@@ -97,9 +175,33 @@
               >
             </small>
           </div>
+
+          <div
+            class="booking-summary-bar"
+            *ngIf="bookingForm.BookingDate || bookingForm.BookingTime"
+          >
+            <div class="summary-item">
+              <span class="summary-label">วันที่</span>
+              <span class="summary-value">{{ bookingForm.BookingDate || '-' }}</span>
+            </div>
+            <div class="summary-divider"></div>
+            <div class="summary-item">
+              <span class="summary-label">เวลา</span>
+              <span class="summary-value">{{ bookingForm.BookingTime || '-' }}</span>
+            </div>
+            <div class="summary-divider"></div>
+            <div class="summary-item">
+              <span class="summary-label">จำนวนคน</span>
+              <span class="summary-value"
+                >{{ (bookingForm.NumAdults || 0) + (bookingForm.NumChildren || 0) }} คน</span
+              >
+            </div>
+          </div>
         </div>
         <div class="modal-footer">
-          <button class="confirm-btn" (click)="proceedToPayment()">จอง / ชำระค่ามัดจำ</button>
+          <button class="confirm-btn" [disabled]="!isFormValid" (click)="proceedToPayment()">
+            จอง / ชำระค่ามัดจำ
+          </button>
         </div>
       </div>
     </div>
