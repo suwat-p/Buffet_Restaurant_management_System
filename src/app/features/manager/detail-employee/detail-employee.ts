@@ -1,18 +1,18 @@
-import { Component, OnInit } from '@angular/core';
-import { MenuManager } from '../../../components/menu-bar/menu-manager/menu-manager';
-import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule, Location } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { MatIconModule } from '@angular/material/icon';
+import { ActivatedRoute, Router } from '@angular/router';
+import { MessageService } from 'primeng/api';
+import { ButtonModule } from 'primeng/button';
+import { DatePickerModule } from 'primeng/datepicker';
+import { DialogModule } from 'primeng/dialog';
+import { SelectModule } from 'primeng/select';
+import { Toast } from 'primeng/toast';
+import { MenuManager } from '../../../components/menu-bar/menu-manager/menu-manager';
 import { Employee } from '../../../models/employee.model';
 import { AuthService } from '../../../service/api/auth.service';
-import { DialogModule } from 'primeng/dialog';
-import { MatIconModule } from '@angular/material/icon';
-import { FormsModule } from '@angular/forms';
-import { DatePickerModule } from 'primeng/datepicker';
 import { ManagerService } from '../../../service/api/manager.service';
-import { MessageService } from 'primeng/api';
-import { Toast } from 'primeng/toast';
-import { SelectModule } from 'primeng/select';
-import { ButtonModule } from 'primeng/button';
 
 @Component({
   selector: 'app-detail-employee',
@@ -151,7 +151,7 @@ export class DetailEmployee implements OnInit {
         this.messageService.add({
           severity: 'success',
           summary: 'Update Successful',
-          detail: 'กำลังบันทึกข้อมูล...',
+          detail: 'บันทึกข้อมูลเรียบร้อยแล้ว',
         });
         this.ngOnInit();
         this.displayEditDepartment = false;
@@ -185,7 +185,7 @@ export class DetailEmployee implements OnInit {
         this.messageService.add({
           severity: 'success',
           summary: 'Update Successful',
-          detail: 'กำลังบันทึกข้อมูล...',
+          detail: 'บันทึกข้อมูลเรียบร้อยแล้ว',
         });
         this.ngOnInit();
         this.displayEditStatus = false;
@@ -220,7 +220,7 @@ export class DetailEmployee implements OnInit {
         this.messageService.add({
           severity: 'success',
           summary: 'Update Successful',
-          detail: 'กำลังบันทึกข้อมูล...',
+          detail: 'บันทึกข้อมูลเรียบร้อยแล้ว',
         });
         this.ngOnInit();
         this.displayEditType = false;
@@ -261,7 +261,7 @@ export class DetailEmployee implements OnInit {
         this.messageService.add({
           severity: 'success',
           summary: 'Update Successful',
-          detail: 'กำลังบันทึกข้อมูล...',
+          detail: 'บันทึกข้อมูลเรียบร้อยแล้ว',
         });
         this.ngOnInit();
         this.displayEditRevenue = false;

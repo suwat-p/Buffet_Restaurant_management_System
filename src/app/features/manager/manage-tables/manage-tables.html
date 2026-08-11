@@ -1,6 +1,7 @@
 <p-toast [breakpoints]="{ '120px': { width: '50%' } }" />
 <app-menu-manager class="menu">
   <div class="booking-container">
+    <!-- Page Header -->
     <header class="page-header">
       <h3>จัดการข้อมูลโต๊ะ</h3>
       <div class="header-actions">
@@ -11,6 +12,7 @@
       </div>
     </header>
 
+    <!-- Table Grid Section -->
     <div class="tables-grid-wrapper">
       <div class="num-table">
         <div class="table-count-info">
@@ -18,32 +20,54 @@
           <span class="count-number">{{ totalTable }}</span>
         </div>
 
-        <button class="status-btn" (click)="gotoEditDleteTable()">
-          <mat-icon>edit</mat-icon>
-          <span>จัดการโต๊ะ</span>
-        </button>
+        <div class="header-btn-actions">
+          <!-- ปุ่มโหมดลบโต๊ะ -->
+          <button 
+            class="btn-delete" 
+            [ngClass]="{ 'active-delete': isDeleteMode }" 
+            (click)="selectTableFordelete()"
+          >
+            <mat-icon>{{ isDeleteMode ? 'delete_forever' : 'delete' }}</mat-icon>
+            <span>
+              {{ isDeleteMode ? (selectedDeleteTables.length > 0 ? 'ยืนยันการลบ (' + selectedDeleteTables.length + ')' : 'กรุณาเลือกโต๊ะ') : 'เลือกโต๊ะที่จะลบ' }}
+            </span>
+          </button>
+
+          <!-- ปุ่มยกเลิกโหมดลบ (แสดงเฉพาะตอนอยู่ในโหมดลบ) -->
+          <button *ngIf="isDeleteMode" class="btn-cancel-delete" (click)="cancelDeleteMode()" title="ยกเลิก">
+            ✕
+          </button>
+
+          <!-- ปุ่มจัดการโต๊ะ -->
+          <button *ngIf="!isDeleteMode" class="status-btn" (click)="gotoEditDleteTable()">
+            <mat-icon>edit</mat-icon>
+            <span>จัดการโต๊ะ</span>
+          </button>
+        </div>
       </div>
 
       <div class="tables-grid">
         <div
           *ngFor="let table of tables"
           class="table-item"
-          (click)="showQr(table.table_id)"
+          (click)="isDeleteMode ? toggleDeleteSelection(table) : showQr(table.table_id)"
           [ngClass]="{
-            'status-free': table.table_Status === 'ว่าง',
-            'status-reserved': table.table_Status === 'ติดจอง',
-            'status-occupied': table.table_Status === 'ไม่ว่าง',
+            'selected-delete': isDeleteMode && isSelectedForDelete(table),
+            'status-free': !isDeleteMode && table.table_Status === 'ว่าง',
+            'status-reserved': !isDeleteMode && table.table_Status === 'ติดจอง',
+            'status-occupied': !isDeleteMode && table.table_Status === 'ไม่ว่าง'
           }"
         >
           <span>{{ table.table_Number }}</span>
-          <span class="tooltip-text" *ngIf="table.table_Status === 'ติดจอง'"> ติดจอง </span>
-          <span class="tooltip-text" *ngIf="table.table_Status === 'ไม่ว่าง'">
-            กำลังให้บริการ
-          </span>
-          <span class="tooltip-text" *ngIf="table.table_Status === 'ว่าง'"> ว่าง </span>
+          <ng-container *ngIf="!isDeleteMode">
+            <span class="tooltip-text" *ngIf="table.table_Status === 'ติดจอง'"> ติดจอง </span>
+            <span class="tooltip-text" *ngIf="table.table_Status === 'ไม่ว่าง'"> กำลังให้บริการ </span>
+            <span class="tooltip-text" *ngIf="table.table_Status === 'ว่าง'"> ว่าง </span>
+          </ng-container>
         </div>
       </div>
 
+      <!-- Add Table Modal -->
       <div class="modal-overlay" *ngIf="showAddTableModal">
         <div class="modal-content add-table-modal">
           <div class="modal-header">
@@ -52,16 +76,42 @@
           </div>
 
           <div class="modal-body">
-            <label>เลขโต๊ะ</label>
-            <div class="input-wrapper">
-              <input type="text" placeholder="10" [(ngModel)]="tableNumber" />
-              <mat-icon>table_restaurant</mat-icon>
+            <div class="form-group">
+              <label>ตัวอักษรนำหน้า (ไม่ใส่ก็ได้)</label>
+              <div class="input-wrapper">
+                <input type="text" placeholder="ตัวอย่าง: A" [(ngModel)]="tablePrefix" />
+                <mat-icon>label</mat-icon>
+              </div>
             </div>
+
+            <div class="form-row" style="display: flex; gap: 10px; margin-top: 10px;">
+              <div class="form-group" style="flex: 1;">
+                <label>เลขเริ่มต้น <span style="color: red">*</span></label>
+                <div class="input-wrapper">
+                  <input type="number" placeholder="10" [(ngModel)]="startTableNum" min="1" />
+                  <mat-icon>pin</mat-icon>
+                </div>
+              </div>
+
+              <div class="form-group" style="flex: 1;">
+                <label>เลขสิ้นสุด <span style="color: red">*</span></label>
+                <div class="input-wrapper">
+                  <input type="number" placeholder="30" [(ngModel)]="endTableNum" min="1" />
+                  <mat-icon>pin</mat-icon>
+                </div>
+              </div>
+            </div>
+
+            <small class="helper-text" style="color: #888; margin-top: 10px; display: block;">
+              * ตัวอย่าง: อักษร <strong>A</strong> | เริ่ม <strong>10</strong> | สิ้นสุด <strong>30</strong> ผลลัพธ์คือโต๊ะ <strong>A10 ถึง A30</strong>
+            </small>
           </div>
 
           <div class="modal-footer">
             <button class="btn-cancel" (click)="toggleAddTableModal(false)">ยกเลิก</button>
-            <button class="btn-confirm" (click)="confirmAddTable()">เพิ่ม</button>
+            <button class="btn-confirm" (click)="confirmAddBatchTables()" [disabled]="isLoading">
+              {{ isLoading ? 'กำลังบันทึก...' : 'บันทึกเพิ่มโต๊ะ' }}
+            </button>
           </div>
         </div>
       </div>
@@ -73,6 +123,45 @@
   </button>
 </app-menu-manager>
 
+<!-- Dialog ยืนยันการลบโต๊ะ -->
+<p-dialog
+  header="ยืนยันการลบ"
+  [(visible)]="displayconfirmDelete"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  styleClass="custom-dark-dialog"
+  [breakpoints]="{ '960px': '75vw', '640px': '90vw' }"
+  [style]="{ width: '400px' }"
+  appendTo="body"
+>
+  <div class="container" style="display: flex; flex-direction: column; align-items: center; text-align: center;">
+    <mat-icon style="font-size: 60px; width: 60px; height: 60px; color: #ff4d4d; margin-bottom: 1rem;">report_problem</mat-icon>
+    <h3>คุณแน่ใจหรือไม่?</h3>
+    <p style="color: #ccc; font-size: 1.1rem; margin-bottom: 0.2rem;">
+      ต้องการลบข้อมูล <strong>โต๊ะ {{ deleteTargetString }}</strong> ใช่หรือไม่?
+    </p>
+    <span style="color: #777; font-size: 0.85rem;">การดำเนินการนี้ไม่สามารถย้อนกลับได้</span>
+    
+    <div style="display: flex; gap: 1rem; margin-top: 1.5rem; width: 100%;">
+      <button 
+        style="flex: 1; padding: 12px; border-radius: 10px; border: none; background: #333; color: white; font-weight: bold; cursor: pointer;" 
+        (click)="displayconfirmDelete = false"
+      >
+        ยกเลิก
+      </button>
+      <button 
+        style="flex: 1; padding: 12px; border-radius: 10px; border: none; background: #7a1a1a; color: white; font-weight: bold; cursor: pointer;" 
+        (click)="executeDeleteTables()" 
+        [disabled]="isLoading"
+      >
+        {{ isLoading ? 'กำลังลบ...' : 'ยืนยัน' }}
+      </button>
+    </div>
+  </div>
+</p-dialog>
+
+<!-- QR Code Display Dialog -->
 <p-dialog
   header="โต๊ะ{{ selectedTable?.table_Number }}"
   [(visible)]="displayShowQr"
@@ -87,7 +176,7 @@
   <div class="qr-display-container">
     <div class="qr-wrapper" *ngIf="selectedTable?.table_QR_Code">
       <img
-        [src]="selectedTable.table_QR_Code"
+        [src]="selectedTable?.table_QR_Code"
         alt="QR Code Table {{ selectedTable.table_Number }}"
         class="qr-image"
       />
@@ -112,6 +201,7 @@
   </div>
 </p-dialog>
 
+<!-- Print Sections -->
 <div id="print-section" class="print-template">
   <div class="qr-print-block">
     <h1 class="table-number-print">{{ selectedTable?.table_Number }}</h1>

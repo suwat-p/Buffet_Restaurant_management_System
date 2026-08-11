@@ -11,7 +11,7 @@ export class AuthService {
   constructor(
     private http: HttpClient,
     private constants: Constants,
-  ) {}
+  ) { }
 
   public registerEmployee(options?: any) {
     const url = this.constants.API_ENDPOINT + '/Auth/register-employee';
@@ -43,11 +43,11 @@ export class AuthService {
 
     try {
       token = localStorage.getItem('token');
-    } catch (e) {}
+    } catch (e) { }
     if (!token) {
       try {
         token = sessionStorage.getItem('token');
-      } catch (e) {}
+      } catch (e) { }
     }
 
     if (token) {
@@ -103,5 +103,9 @@ export class AuthService {
     const url = this.constants.API_ENDPOINT + '/Auth/reset-password';
     const payload = { email: email, newPassword: newPassword };
     return this.http.post<any>(url, payload);
+  }
+  public editProfileEmployee(formData: FormData) {
+    const url = this.constants.API_ENDPOINT + '/Auth/edit-profile-employee';
+    return this.http.put<any>(url, formData);
   }
 }

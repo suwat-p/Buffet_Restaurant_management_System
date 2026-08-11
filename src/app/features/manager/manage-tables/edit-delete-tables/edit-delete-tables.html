@@ -1,6 +1,8 @@
 <p-toast [breakpoints]="{ '120px': { width: '50%' } }" />
+
 <app-menu-manager>
   <div class="booking-management-container">
+    <!-- Header -->
     <header class="header-section">
       <div class="header-title">
         <button class="back-btn" (click)="goBack()"><i class="pi pi-angle-left"></i> Back</button>
@@ -8,6 +10,7 @@
       </div>
     </header>
 
+    <!-- Summary Card -->
     <div class="summary-card">
       <div class="table-count">
         <span>จำนวนโต๊ะ</span>
@@ -18,6 +21,7 @@
 
     <div class="list-label">โต๊ะที่มีอยู่ปัจจุบัน</div>
 
+    <!-- Table List -->
     <div class="table-list">
       <div *ngFor="let table of tables" class="table-row">
         <div class="table-name">{{ table.table_Number }}</div>
@@ -37,6 +41,7 @@
   </div>
 </app-menu-manager>
 
+<!-- Dialog ยืนยันการลบ -->
 <p-dialog
   header="ยืนยันการลบ"
   [(visible)]="displayconfirm"
@@ -47,7 +52,8 @@
   [breakpoints]="{ '960px': '75vw', '640px': '90vw' }"
   [style]="{ width: '400px' }"
   appendTo="body"
-  ><div class="container">
+>
+  <div class="container">
     <div class="content">
       <mat-icon class="warning-icon">report_problem</mat-icon>
       <h3>คุณแน่ใจหรือไม่?</h3>
@@ -63,6 +69,7 @@
   </div>
 </p-dialog>
 
+<!-- Dialog แก้ไขเลขโต๊ะ -->
 <p-dialog
   header="แก้ไขเลขโต๊ะ"
   [(visible)]="displayEditTable"
@@ -76,6 +83,18 @@
 >
   <div class="edit-container">
     <div class="content-body">
+      <label class="input-label">เลขโต๊ะเดิม</label>
+      <div class="input-wrapper">
+        <mat-icon>table_restaurant</mat-icon>
+        <input 
+          type="text" 
+          [value]="tableNumberold" 
+          readonly 
+          disabled 
+          class="readonly-input" 
+        />
+      </div>
+
       <label class="input-label">ระบุเลขโต๊ะใหม่</label>
       <div class="input-wrapper">
         <mat-icon>table_restaurant</mat-icon>
@@ -87,6 +106,60 @@
     <div class="dialog-footer">
       <button class="btn-save" (click)="saveTableChanges(selectedTable?.table_id)">
         บันทึกการแก้ไข
+      </button>
+    </div>
+  </div>
+</p-dialog>
+
+<!-- Dialog เพิ่มโต๊ะ -->
+<p-dialog
+  header="เพิ่มโต๊ะ"
+  [(visible)]="showAddTableModal"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  styleClass="custom-dark-dialog add-table-dialog"
+  [breakpoints]="{ '960px': '75vw', '640px': '85vw' }"
+  [style]="{ width: '400px' }"
+  appendTo="body"
+>
+  <div class="edit-container">
+    <div class="content-body">
+      <div class="form-group">
+        <label class="input-label">ตัวอักษรนำหน้า (ไม่ใส่ก็ได้)</label>
+        <div class="input-wrapper">
+          <mat-icon>label</mat-icon>
+          <input type="text" placeholder="ตัวอย่าง: A" [(ngModel)]="tablePrefix" />
+        </div>
+      </div>
+
+      <div class="form-row" style="display: flex; gap: 10px; margin-top: 10px;">
+        <div class="form-group" style="flex: 1;">
+          <label class="input-label">เลขเริ่มต้น <span style="color: red">*</span></label>
+          <div class="input-wrapper">
+            <mat-icon>pin</mat-icon>
+            <input type="number" placeholder="1" [(ngModel)]="startTableNum" min="1" />
+          </div>
+        </div>
+
+        <div class="form-group" style="flex: 1;">
+          <label class="input-label">เลขสิ้นสุด <span style="color: red">*</span></label>
+          <div class="input-wrapper">
+            <mat-icon>pin</mat-icon>
+            <input type="number" placeholder="10" [(ngModel)]="endTableNum" min="1" />
+          </div>
+        </div>
+      </div>
+
+      <small class="helper-text" style="color: #888; margin-top: 10px; display: block;">
+        * ตัวอย่าง: อักษร <strong>A</strong> | เริ่ม <strong>1</strong> | สิ้นสุด <strong>10</strong> ผลลัพธ์คือโต๊ะ <strong>A1 ถึง A10</strong>
+      </small>
+    </div>
+
+    <div class="dialog-footer" style="margin-top: 20px;">
+      <button class="btn-cancel" (click)="toggleAddTableModal(false)">ยกเลิก</button>
+      <button class="btn-save" (click)="confirmAddBatchTables()" [disabled]="isLoading">
+        {{ isLoading ? 'กำลังบันทึก...' : 'บันทึกเพิ่มโต๊ะ' }}
       </button>
     </div>
   </div>

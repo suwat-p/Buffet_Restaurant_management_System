@@ -21,7 +21,7 @@
           </div>
           <span class="username" *ngIf="isExpanded">{{ userName }}</span>
         </div>
-        <span class="profile-badge-btn" *ngIf="isExpanded">ยินดีต้อนรับ</span>
+        <span class="profile-badge-btn" *ngIf="isExpanded" (click)="navigateToProfile()">โปรไฟล์</span>
       </div>
     </div>
 

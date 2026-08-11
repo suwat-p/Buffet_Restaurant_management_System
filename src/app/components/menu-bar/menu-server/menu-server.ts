@@ -57,6 +57,9 @@ export class MenuServer {
     this.isExpanded = !this.isExpanded;
   }
 
+  navigateToProfile(){
+    this.router.navigate(['/Profile-Employee']);
+  }
   closeSidebar() {
     // ปิดเมนูเมื่อคลิก (สำหรับ Mobile UX)
     if (window.innerWidth <= 768) {
