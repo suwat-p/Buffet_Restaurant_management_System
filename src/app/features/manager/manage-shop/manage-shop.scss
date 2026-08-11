@@ -5,7 +5,7 @@ $card-inner-bg: #0d0d0d;
 $primary-gold:  #ffca28;
 $text-white:    #ffffff;
 $text-muted:    #aaaaaa;
-$border-color:  #2a2a2a;
+$border-color:  #262626;
 $border-light:  #333333;
 $danger:        rgba(220, 53, 69, 0.9);
 
@@ -29,13 +29,13 @@ $danger:        rgba(220, 53, 69, 0.9);
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-  gap: 12px;
-  margin-bottom: 28px;
+  gap: 16px;
+  margin-bottom: 24px;
   padding-bottom: 16px;
   border-bottom: 1px solid $border-color;
 
   .section-header {
-    font-size: clamp(1.3rem, 3vw, 1.9rem);
+    font-size: clamp(1.3rem, 3vw, 1.8rem);
     font-weight: 700;
     color: $primary-gold;
     margin: 0;
@@ -43,10 +43,15 @@ $danger:        rgba(220, 53, 69, 0.9);
   }
 }
 
+.action-right {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
 .add-btn {
   font-family: 'Kanit', sans-serif;
   font-weight: 500;
-  min-width: 200px;
   white-space: nowrap;
 
   &.p-button {
@@ -60,10 +65,10 @@ $danger:        rgba(220, 53, 69, 0.9);
 .table-card {
   background: $card-bg;
   border-radius: 14px;
-  padding: clamp(16px, 3vw, 28px);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+  padding: clamp(16px, 3vw, 24px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
   border: 1px solid $border-color;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
 
   .card-header-flex {
     display: flex;
@@ -78,8 +83,8 @@ $danger:        rgba(220, 53, 69, 0.9);
   .card-title {
     margin: 0;
     color: $text-white;
-    font-size: clamp(1rem, 2vw, 1.2rem);
-    font-weight: 500;
+    font-size: clamp(1.05rem, 2vw, 1.25rem);
+    font-weight: 600;
   }
 
   .size-hint {
@@ -95,23 +100,17 @@ $danger:        rgba(220, 53, 69, 0.9);
 
 .text-gold { color: $primary-gold !important; }
 
-.section-divider {
-  border: 0;
-  border-top: 1px dashed #2a2a2a;
-  margin: 1.5rem 0;
-}
-
 // ===== Config Form =====
 .config-form {
   display: flex;
   flex-direction: column;
-  gap: 1.4rem;
+  gap: 1.2rem;
 }
 
 .form-row {
   display: flex;
   flex-direction: column;
-  gap: 7px;
+  gap: 6px;
 
   .form-label {
     color: $text-muted;
@@ -120,18 +119,16 @@ $danger:        rgba(220, 53, 69, 0.9);
   }
 }
 
-// ชื่อร้าน + เบอร์ — 2 คอลัมน์บนจอใหญ่
 .info-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1.4rem;
+  gap: 1.2rem;
 
   @media (max-width: 600px) {
     grid-template-columns: 1fr;
   }
 }
 
-// ราคา 3 ช่อง
 .price-row {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -145,25 +142,26 @@ $danger:        rgba(220, 53, 69, 0.9);
   }
 }
 
-// Dark input
+// Dark input Clean Look
 .dark-input,
 .p-inputtext.dark-input {
-  background: #111 !important;
+  background: #0d0d0d !important;
   border: 1px solid $border-light !important;
   color: #fff !important;
   font-family: 'Kanit', sans-serif;
   border-radius: 8px;
   height: 42px;
-  padding: 0 12px;
+  padding: 0 14px;
   width: 100%;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  font-size: 0.95rem;
+  transition: all 0.2s ease-in-out;
 
   &:focus {
     border-color: $primary-gold !important;
-    box-shadow: 0 0 0 1px rgba(255, 202, 40, 0.35) !important;
+    box-shadow: 0 0 0 1px rgba(255, 202, 40, 0.25) !important;
     outline: none;
   }
-  &::placeholder { color: #444 !important; }
+  &::placeholder { color: #555 !important; }
 }
 
 // InputNumber dark
@@ -171,7 +169,7 @@ $danger:        rgba(220, 53, 69, 0.9);
   width: 100%;
 
   .p-inputtext {
-    background: #111 !important;
+    background: #0d0d0d !important;
     border: 1px solid $border-light !important;
     color: #fff !important;
     font-family: 'Kanit', sans-serif;
@@ -181,7 +179,7 @@ $danger:        rgba(220, 53, 69, 0.9);
 
     &:focus {
       border-color: $primary-gold !important;
-      box-shadow: 0 0 0 1px rgba(255, 202, 40, 0.35) !important;
+      box-shadow: 0 0 0 1px rgba(255, 202, 40, 0.25) !important;
     }
   }
 
@@ -214,11 +212,11 @@ $danger:        rgba(220, 53, 69, 0.9);
     background: $card-inner-bg;
     padding: 14px;
     border-radius: 10px;
-    border: 1px solid #1e1e1e;
+    border: 1px solid $border-color;
 
     .badge-label {
       display: inline-block;
-      background: #222;
+      background: #1e1e1e;
       color: $primary-gold;
       padding: 3px 12px;
       border-radius: 4px;
@@ -240,7 +238,7 @@ $danger:        rgba(220, 53, 69, 0.9);
     border-radius: 6px;
     overflow: hidden;
     border: 1px solid #333;
-    opacity: 0.8;
+    opacity: 0.85;
     transition: 0.25s;
 
     &:hover { opacity: 1; border-color: $primary-gold; }
@@ -256,7 +254,7 @@ $danger:        rgba(220, 53, 69, 0.9);
 // ===== Banner Grid =====
 .banner-manage-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 1.2rem;
 
   @media (max-width: 480px) {
@@ -268,17 +266,17 @@ $danger:        rgba(220, 53, 69, 0.9);
   position: relative;
   border-radius: 10px;
   overflow: hidden;
-  border: 2px solid $border-light;
+  border: 1px solid $border-light;
   transition: transform 0.2s, border-color 0.2s;
 
   &:hover {
-    transform: translateY(-4px);
+    transform: translateY(-3px);
     border-color: $primary-gold;
   }
 
   img {
     width: 100%;
-    height: 150px;
+    height: 140px;
     object-fit: cover;
     display: block;
   }
@@ -319,15 +317,15 @@ $danger:        rgba(220, 53, 69, 0.9);
 .upload-placeholder {
   border: 2px dashed #383838;
   border-radius: 10px;
-  height: 150px;
+  height: 140px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   cursor: pointer;
-  color: #555;
+  color: #666;
   transition: 0.25s;
-  background: rgba(255, 255, 255, 0.015);
+  background: rgba(255, 255, 255, 0.01);
   font-size: 0.85rem;
 
   &:hover {
@@ -337,8 +335,8 @@ $danger:        rgba(220, 53, 69, 0.9);
   }
 
   .upload-icon {
-    font-size: 2rem;
-    margin-bottom: 8px;
+    font-size: 1.8rem;
+    margin-bottom: 6px;
   }
 }
 
@@ -346,19 +344,19 @@ $danger:        rgba(220, 53, 69, 0.9);
 .poster-single-manage {
   display: flex;
   justify-content: center;
-  padding: 16px 0 8px;
+  padding: 12px 0 8px;
 
   .poster-container {
     text-align: center;
     width: 100%;
-    max-width: 280px;
+    max-width: 260px;
   }
 
   .poster-preview-box {
     position: relative;
     border-radius: 12px;
     overflow: hidden;
-    border: 2px solid $border-light;
+    border: 1px solid $border-light;
     cursor: pointer;
     transition: 0.3s;
 
@@ -377,7 +375,7 @@ $danger:        rgba(220, 53, 69, 0.9);
     .poster-overlay {
       position: absolute;
       inset: 0;
-      background: rgba(0, 0, 0, 0.55);
+      background: rgba(0, 0, 0, 0.65);
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -395,234 +393,4 @@ $danger:        rgba(220, 53, 69, 0.9);
     margin-top: 14px;
     font-size: 0.88rem;
   }
-}
-// ===== Config Form =====
-.config-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1.4rem;
-}
-
-.form-row {
-  display: flex;
-  flex-direction: column;
-  gap: 7px;
-
-  .form-label {
-    color: #aaa;
-    font-size: 0.88rem;
-    font-weight: 500;
-  }
-}
-
-.info-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.4rem;
-
-  @media (max-width: 600px) { grid-template-columns: 1fr; }
-}
-
-.price-row {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.2rem;
-
-  @media (max-width: 768px) { grid-template-columns: 1fr 1fr; }
-  @media (max-width: 480px) { grid-template-columns: 1fr; }
-}
-
-.dark-input,
-.p-inputtext.dark-input {
-  background: #111 !important;
-  border: 1px solid #333 !important;
-  color: #fff !important;
-  font-family: 'Kanit', sans-serif;
-  border-radius: 8px;
-  height: 42px;
-  padding: 0 12px;
-  width: 100%;
-  transition: border-color 0.2s, box-shadow 0.2s;
-
-  &:focus {
-    border-color: #ffca28 !important;
-    box-shadow: 0 0 0 1px rgba(255, 202, 40, 0.35) !important;
-    outline: none;
-  }
-  &::placeholder { color: #444 !important; }
-}
-
-::ng-deep .p-inputnumber {
-  width: 100%;
-
-  .p-inputtext {
-    background: #111 !important;
-    border: 1px solid #333 !important;
-    color: #fff !important;
-    font-family: 'Kanit', sans-serif;
-    text-align: center;
-    height: 42px;
-  }
-
-  .p-button {
-    background: #1e1e1e !important;
-    border-color: #333 !important;
-    color: #aaa !important;
-
-    &:hover { background: #ffca28 !important; color: #000 !important; border-color: #ffca28 !important; }
-  }
-}
-
-// ===== Current Image Preview =====
-.current-display-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-
-  @media (max-width: 600px) { grid-template-columns: 1fr; }
-
-  .display-section {
-    background: #0d0d0d;
-    padding: 14px;
-    border-radius: 10px;
-    border: 1px solid #1e1e1e;
-
-    .badge-label {
-      display: inline-block;
-      background: #222;
-      color: #ffca28;
-      padding: 3px 12px;
-      border-radius: 4px;
-      font-size: 0.78rem;
-      margin-bottom: 12px;
-      border-left: 3px solid #ffca28;
-    }
-  }
-}
-
-.mini-gallery {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-
-  .mini-item {
-    width: 110px;
-    height: 58px;
-    border-radius: 6px;
-    overflow: hidden;
-    border: 1px solid #333;
-    opacity: 0.8;
-    transition: 0.25s;
-
-    &:hover { opacity: 1; border-color: #ffca28; }
-    img { width: 100%; height: 100%; object-fit: cover; }
-  }
-
-  &.poster-view .mini-item { width: 55px; height: 78px; }
-}
-
-// ===== Banner Grid =====
-.banner-manage-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 1.2rem;
-
-  @media (max-width: 480px) { grid-template-columns: 1fr; }
-}
-
-.image-item-preview {
-  position: relative;
-  border-radius: 10px;
-  overflow: hidden;
-  border: 2px solid #333;
-  transition: transform 0.2s, border-color 0.2s;
-
-  &:hover { transform: translateY(-4px); border-color: #ffca28; }
-
-  img { width: 100%; height: 150px; object-fit: cover; display: block; }
-
-  .new-badge {
-    position: absolute;
-    top: 8px; left: 8px;
-    background: #ffca28;
-    color: #000;
-    font-size: 0.72rem;
-    font-weight: 700;
-    padding: 2px 8px;
-    border-radius: 20px;
-  }
-
-  .btn-remove-img {
-    position: absolute;
-    top: 8px; right: 8px;
-    background: rgba(220, 53, 69, 0.9);
-    color: #fff;
-    border: none;
-    width: 30px; height: 30px;
-    border-radius: 50%;
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    transition: 0.2s;
-
-    &:hover { background: #ff0000; }
-  }
-}
-
-.upload-placeholder {
-  border: 2px dashed #383838;
-  border-radius: 10px;
-  height: 150px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-  color: #555;
-  transition: 0.25s;
-  background: rgba(255, 255, 255, 0.015);
-  font-size: 0.85rem;
-
-  &:hover { border-color: #ffca28; color: #ffca28; background: rgba(255, 202, 40, 0.04); }
-
-  .upload-icon { font-size: 2rem; margin-bottom: 8px; }
-}
-
-// ===== Poster =====
-.poster-single-manage {
-  display: flex;
-  justify-content: center;
-  padding: 16px 0 8px;
-
-  .poster-container { text-align: center; width: 100%; max-width: 280px; }
-
-  .poster-preview-box {
-    position: relative;
-    border-radius: 12px;
-    overflow: hidden;
-    border: 2px solid #333;
-    cursor: pointer;
-    transition: 0.3s;
-
-    &:hover { border-color: #ffca28; .poster-overlay { opacity: 1; } }
-
-    .main-poster-img { width: 100%; aspect-ratio: 3/4; object-fit: cover; display: block; }
-
-    .poster-overlay {
-      position: absolute; inset: 0;
-      background: rgba(0,0,0,0.55);
-      display: flex; flex-direction: column; justify-content: center; align-items: center;
-      color: #ffca28; opacity: 0; transition: 0.3s;
-      i { font-size: 2.2rem; margin-bottom: 8px; }
-      span { font-weight: 600; font-size: 0.95rem; }
-    }
-  }
-
-  .poster-info { margin-top: 14px; font-size: 0.88rem; }
-}
-
-// ===== Header action: 2 ปุ่ม =====
-.action-right {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
 }

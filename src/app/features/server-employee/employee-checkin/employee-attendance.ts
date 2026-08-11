@@ -50,7 +50,7 @@ export class EmployeeAttendance implements OnInit {
   employee: EmployeeProfile | null = null;
 
   activeTab: 'clock' | 'history' = 'clock';
-  isViewOnly = false; // 👈 เช็กโหมดผู้จัดการดูประวัติ
+  isViewOnly = false;
 
   allLogs: AttendanceRecord[] = [];
   myHistory: AttendanceRecord[] = [];
@@ -172,7 +172,9 @@ export class EmployeeAttendance implements OnInit {
           }));
 
         this.myHistory = [...this.allLogs].sort(
-          (a, b) => new Date(b.clockInTime).getTime() - new Date(a.clockInTime).getTime(),
+          (a, b) =>
+            this.toBangkokInstant(b.clockInTime).getTime() -
+            this.toBangkokInstant(a.clockInTime).getTime(),
         );
 
         this.resolveTodayStatus();
@@ -188,10 +190,10 @@ export class EmployeeAttendance implements OnInit {
   }
 
   private resolveTodayStatus(): void {
-    const todayStr = new Date().toDateString();
+    const todayKey = this.bangkokDateKey(new Date());
 
     const todayLogs = this.myHistory.filter(
-      (l) => new Date(l.clockInTime).toDateString() === todayStr,
+      (l) => this.bangkokDateKey(this.toBangkokInstant(l.clockInTime)) === todayKey,
     );
 
     if (todayLogs.length === 0) {
@@ -231,6 +233,49 @@ export class EmployeeAttendance implements OnInit {
 
   async doClockIn(): Promise<void> {
     if (!this.employee) return;
+
+    // เช็กว่าเจ้าของร้านกำหนดกะหรือไม่
+    if (!this.employee.shiftStart || !this.employee.shiftEnd) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'ไม่สามารถลงเวลาได้',
+        detail: 'ยังไม่ได้ระบุกะเวลาทำงาน กรุณาติดต่อผู้จัดการร้าน',
+        life: 5000,
+      });
+      return;
+    }
+
+    // คำนวณเวลาปัจจุบัน และเวลากะเข้างาน (แปลงเป็นนาที)
+    const now = new Date();
+    const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+    const [startH, startM] = this.employee.shiftStart.split(':').map(Number);
+    const shiftStartMinutes = startH * 60 + (startM || 0);
+
+    // เช็กว่ายังไม่ถึงเวลากะเข้างานหรือไม่ (ไม่อนุญาตให้เข้างานก่อนเวลา)
+    if (currentMinutes < shiftStartMinutes) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'ยังไม่ถึงเวลาเข้างาน',
+        detail: `กะของคุณเริ่มเวลา ${this.employee.shiftStart} น. ขณะนี้ยังไม่ถึงเวลาลงเวลาเข้างาน`,
+        life: 5000,
+      });
+      return;
+    }
+
+    // เช็กกรณีเข้างานสาย (เลยเวลากะ)
+    let isLate = false;
+    if (currentMinutes > shiftStartMinutes) {
+      isLate = true;
+      const lateMinutes = currentMinutes - shiftStartMinutes;
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'เข้างานสาย',
+        detail: `คุณเข้างานสาย ${lateMinutes} นาที ระบบจะคำนวณหักเงินตามเวลาที่สาย`,
+        life: 6000,
+      });
+    }
+
     this.isProcessing = true;
     this.pendingAction = 'in';
     try {
@@ -244,8 +289,8 @@ export class EmployeeAttendance implements OnInit {
         .subscribe({
           next: (res) => {
             this.messageService.add({
-              severity: 'success',
-              summary: 'สำเร็จ',
+              severity: isLate ? 'warn' : 'success',
+              summary: isLate ? 'ลงเวลาเข้างาน (สาย)' : 'สำเร็จ',
               detail: res.message,
             });
             this.loadHistory();
@@ -362,12 +407,37 @@ export class EmployeeAttendance implements OnInit {
   }
 
   formatTime(iso: string): string {
-    const d = new Date(iso);
-    return d.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', hour12: false });
+    const d = this.toBangkokInstant(iso);
+    return d.toLocaleTimeString('th-TH', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+      timeZone: 'Asia/Bangkok',
+    });
   }
 
   formatThaiDate(iso: string): string {
-    const d = new Date(iso);
-    return `${d.getDate()} ${this.THAI_MONTHS[d.getMonth()]} ${d.getFullYear() + 543}`;
+    const d = this.toBangkokInstant(iso);
+    const parts = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Asia/Bangkok',
+      day: 'numeric',
+      month: 'numeric',
+      year: 'numeric',
+    }).formatToParts(d);
+
+    const day = Number(parts.find((p) => p.type === 'day')!.value);
+    const month = Number(parts.find((p) => p.type === 'month')!.value);
+    const year = Number(parts.find((p) => p.type === 'year')!.value);
+
+    return `${day} ${this.THAI_MONTHS[month - 1]} ${year + 543}`;
+  }
+
+  private toBangkokInstant(iso: string): Date {
+    const hasTimezone = /Z$|[+-]\d{2}:\d{2}$/.test(iso);
+    return new Date(hasTimezone ? iso : `${iso}+07:00`);
+  }
+
+  private bangkokDateKey(d: Date): string {
+    return d.toLocaleDateString('en-CA', { timeZone: 'Asia/Bangkok' });
   }
 }

@@ -39,35 +39,29 @@
       <!-- ===== ตั้งค่าร้าน ===== -->
       <div class="table-card mb-4">
         <div class="card-header-flex">
-          <h3 class="card-title"><i class="pi pi-cog mr-2"></i>ข้อมูลร้านค้า</h3>
+          <h3 class="card-title"><i class="pi pi-shop mr-2"></i>ข้อมูลร้านค้า</h3>
         </div>
 
         <div class="config-form mt-4">
           <!-- ชื่อร้าน + เบอร์โทร -->
           <div class="info-row">
             <div class="form-row">
-              <label class="form-label"><i class="pi pi-shop mr-1"></i>ชื่อร้าน</label>
-              <span class="p-input-icon-left w-full">
-                <i class="pi pi-pencil"></i>
-                <input
-                  pInputText
-                  [(ngModel)]="configForm.res_name"
-                  placeholder="ชื่อร้านค้า"
-                  class="dark-input w-full"
-                />
-              </span>
+              <label class="form-label"><i class="pi pi-pencil mr-1"></i>ชื่อร้าน</label>
+              <input
+                pInputText
+                [(ngModel)]="configForm.res_name"
+                placeholder="ชื่อร้านค้า"
+                class="dark-input w-full"
+              />
             </div>
             <div class="form-row">
               <label class="form-label"><i class="pi pi-phone mr-1"></i>เบอร์โทรศัพท์</label>
-              <span class="p-input-icon-left w-full">
-                <i class="pi pi-mobile"></i>
-                <input
-                  pInputText
-                  [(ngModel)]="configForm.res_phone"
-                  placeholder="เบอร์โทรศัพท์"
-                  class="dark-input w-full"
-                />
-              </span>
+              <input
+                pInputText
+                [(ngModel)]="configForm.res_phone"
+                placeholder="เบอร์โทรศัพท์"
+                class="dark-input w-full"
+              />
             </div>
           </div>
 
@@ -106,9 +100,9 @@
             </div>
 
             <div class="form-row">
-              <label class="form-label"
-                ><i class="pi pi-exclamation-circle mr-1"></i>ค่าปรับ (บาท)</label
-              >
+              <label class="form-label">
+                <i class="pi pi-exclamation-circle mr-1"></i>ค่าปรับ (บาท)
+              </label>
               <p-inputNumber
                 [(ngModel)]="configForm.fine"
                 [min]="0"
@@ -125,8 +119,6 @@
           </div>
         </div>
       </div>
-
-      <hr class="section-divider" />
 
       <!-- ===== รูปภาพที่ใช้งาน ===== -->
       <div class="table-card mb-4">
@@ -150,15 +142,13 @@
               <div class="mini-item" *ngIf="currentPoster">
                 <img [src]="currentPoster.image_Url" />
               </div>
-              <span *ngIf="!currentPoster" style="font-size: 0.8rem; color: #888"
-                >ยังไม่มี Poster</span
-              >
+              <span *ngIf="!currentPoster" style="font-size: 0.8rem; color: #888">
+                ยังไม่มี Poster
+              </span>
             </div>
           </div>
         </div>
       </div>
-
-      <hr class="section-divider" />
 
       <!-- ===== Banner ===== -->
       <div class="table-card mb-4">
