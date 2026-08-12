@@ -4,7 +4,6 @@ import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
-import { Toast } from 'primeng/toast';
 import { Subscription } from 'rxjs';
 import { MenuCashier } from "../../../components/menu-bar/menu-cashier/menu-cashier";
 import { Bill } from '../../../models/bill.model';
@@ -21,7 +20,6 @@ import { TableService } from '../../../service/api/table.service';
     CommonModule,
     MatIconModule,
     FormsModule,
-    Toast
   ],
   templateUrl: './bill.html',
   styleUrl: './bill.scss',

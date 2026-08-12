@@ -2,7 +2,7 @@
 
 <app-menu-cashier>
   <div class="cashier-page-container">
-    
+
     <!-- 🟢 เพิ่มแถบด้านบน: ปุ่ม Back & หัวข้อ "ชำระเงิน" -->
     <div class="page-header-bar">
       <button type="button" class="btn-back" (click)="goBack()">
@@ -116,12 +116,12 @@
             <span>ค่าปรับ</span>
             <span>{{ fineAmount | number:'1.2-2' }} ฿</span>
           </div>
-          
+
           <!-- แสดงรายละเอียดโปรโมชั่น + จำนวนเงินที่ลด -->
           <div class="summary-row">
             <span>โปรโมชั่น</span>
             <span [class.text-danger]="discountAmount > 0">
-              {{ discountName }} 
+              {{ discountName }}
               <ng-container *ngIf="discountAmount > 0">
                 (-{{ discountAmount | number:'1.2-2' }} ฿)
               </ng-container>
@@ -165,9 +165,8 @@
           <button class="btn-discount" (click)="openDiscountModal()">
             + ส่วนลด
           </button>
-          <button class="btn-print" (click)="printReceipt()">
-            <mat-icon>print</mat-icon>
-            <span>ปริ้นใบเสร็จ</span>
+          <button class="btn-print" (click)="openFineModal()">
+            <span>ค่าปรับ</span>
           </button>
         </div>
 
@@ -175,16 +174,12 @@
         <div class="payment-method-section">
           <label class="section-title">เลือกวิธีชำระเงิน</label>
           <div class="payment-btn-group vertical">
-            <button type="button" 
-                    class="btn-payment btn-cash" 
-                    (click)="processPayment('cash')">
+            <button type="button" class="btn-payment btn-cash" (click)="processPayment('cash')">
               <mat-icon>payments</mat-icon>
               <span>เงินสด</span>
             </button>
 
-            <button type="button" 
-                    class="btn-payment btn-qrcode" 
-                    (click)="processPayment('qrcode')">
+            <button type="button" class="btn-payment btn-qrcode" (click)="processPayment('qrcode')">
               <mat-icon>qr_code_2</mat-icon>
               <span>QR Code</span>
             </button>
@@ -205,10 +200,8 @@
     </div>
     <hr />
 
-    <div *ngFor="let d of discounts" 
-         class="discount-item" 
-         [class.active]="selectedDiscount?.discount_id === d.discount_id"
-         (click)="selectDiscount(d)">
+    <div *ngFor="let d of discounts" class="discount-item"
+      [class.active]="selectedDiscount?.discount_id === d.discount_id" (click)="selectDiscount(d)">
       <div class="discount-info">
         <span class="discount-title">{{ d.discount_Name }}</span>
         <span class="discount-value text-primary">
@@ -220,5 +213,28 @@
     <div *ngIf="discounts.length === 0" class="text-center p-3 text-muted">
       ไม่พบโปรโมชั่นในระบบ
     </div>
+  </div>
+</p-dialog>
+
+<!-- Modal ป๊อปอัพค่าปรับ -->
+<p-dialog header="ค่าปรับ" [(visible)]="showFineModal" [modal]="true" [style]="{width: '400px'}"
+  styleClass="custom-dark-dialog">
+  <div class="fine-dialog-content">
+    <div class="fine-input-group">
+      <label>ค่าปรับต่อ g</label>
+      <input type="number" [value]="res_fine_g" readonly />
+    </div>
+    <div class="fine-input-group">
+      <label>จำนวน g ที่เกิน</label>
+      <input type="number" [(ngModel)]="fine" min="0" (keydown)="preventNegative($event)" />
+    </div>
+
+    <div class="fine-total-display">
+      <span>รวมค่าปรับ:</span>
+      <span class="total-amount" >{{ fineAmount | number:'1.2-2' }} ฿</span>
+    </div>
+  </div>
+  <div class="fine-footer">
+    <button class="btn-confrim-fine" (click)="confirmFine()" >ยืนยัน</button>
   </div>
 </p-dialog>

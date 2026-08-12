@@ -46,4 +46,8 @@ export class BillService {
     const url = `${this.constants.API_ENDPOINT}/Bill/CreateBillFromBooking/${bookingid}`;
     return this.http.post(url, payload);
   }
+  public updateFine(billid: number, Fine: number){
+    const url = `${this.constants.API_ENDPOINT}/Bill/updateFine/${billid}`
+    return this.http.put(url,{Fine: Fine});
+  }
 }

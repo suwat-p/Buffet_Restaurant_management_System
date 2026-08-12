@@ -8,7 +8,7 @@ export interface Bill {
     closed_at?: Date | string | null;
     numAdults: number;
     numChildren: number;
-    fine_kg: number;
+    fine: number;
     total_amount: number;
     paymentMethod?: string | null;
     tableNumbers?: string;

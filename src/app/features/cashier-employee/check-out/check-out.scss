@@ -339,8 +339,13 @@ $color-purple: #8b5cf6;
       }
     }
 
-    .text-center { text-align: center; }
-    .text-end { text-align: right; }
+    .text-center {
+      text-align: center;
+    }
+
+    .text-end {
+      text-align: right;
+    }
   }
 }
 
@@ -400,4 +405,185 @@ input[type="number"]::-webkit-inner-spin-button {
 input[type="number"] {
   -moz-appearance: textfield;
   appearance: textfield;
+}
+
+/* ตกแต่งโครงสร้างคอนเทนต์ภายใน Dialog */
+.fine-dialog-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 8px 0;
+  font-family: 'Sarabun', sans-serif;
+
+  .fine-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    label {
+      font-size: 0.9rem;
+      color: #cccccc;
+      font-weight: 500;
+    }
+
+    input {
+      background-color: #161616;
+      border: 1px solid #333333;
+      border-radius: 8px;
+      padding: 10px 14px;
+      color: #ffffff;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+      /* สไตล์เมื่อ input โดน Focus */
+      &:focus {
+        border-color: #ff7b00;
+        box-shadow: 0 0 0 2px rgba(255, 123, 0, 0.2);
+      }
+
+      /* สไตล์สำหรับ input Readonly (ค่าปรับต่อ g) */
+      &[readonly] {
+        background-color: #222222;
+        color: #888888;
+        border-color: #2a2a2a;
+        cursor: not-allowed;
+      }
+    }
+  }
+
+  /* ส่วนแสดงผลรวมค่าปรับ */
+  .fine-total-display {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #1a1a1a;
+    border: 1px solid #282828;
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-top: 6px;
+
+    span {
+      font-size: 1rem;
+      color: #aaaaaa;
+    }
+
+    .total-amount {
+      font-size: 1.3rem;
+      font-weight: bold;
+      color: #ff4757;
+      /* สีแดงสำหรับแสดงค่าปรับ */
+    }
+  }
+}
+
+/* ตกแต่งปุ่มยืนยัน / ยกเลิก บริเวณ Footer */
+p-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 10px;
+
+  .btn-confirm {
+    background-color: #ff7b00 !important;
+    border: none !important;
+    color: #ffffff !important;
+    border-radius: 8px !important;
+    padding: 8px 20px !important;
+    font-weight: bold !important;
+    transition: all 0.2s ease !important;
+
+    &:hover {
+      background-color: #e06c00 !important;
+      transform: translateY(-1px);
+    }
+  }
+
+  .btn-cancel {
+    background: transparent !important;
+    border: 1px solid #444444 !important;
+    color: #cccccc !important;
+    border-radius: 8px !important;
+    padding: 8px 18px !important;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.05) !important;
+      border-color: #666666 !important;
+      color: #ffffff !important;
+    }
+  }
+}
+
+/* ตกแต่งตัว Dialog ของ PrimeNG ให้เป็นธีมมืด */
+::ng-deep .p-dialog {
+  background: #0d0d0d !important;
+  border: 1px solid #222222 !important;
+  border-radius: 16px !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8) !important;
+
+  .p-dialog-header {
+    background: transparent !important;
+    color: #ffffff !important;
+    border-bottom: 1px solid #222222 !important;
+    padding: 16px 20px !important;
+
+    .p-dialog-title {
+      font-size: 1.15rem;
+      font-weight: bold;
+    }
+
+    .p-dialog-header-icon {
+      color: #888888 !important;
+
+      &:hover {
+        color: #ffffff !important;
+        background: rgba(255, 255, 255, 0.1) !important;
+      }
+    }
+  }
+
+  .p-dialog-content {
+    background: transparent !important;
+    color: #ffffff !important;
+    padding: 16px 20px !important;
+  }
+
+  .fine-footer {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+
+    .btn-confrim-fine {
+      width: 100%;
+      background-color: #ff7b00;
+      color: #ffffff;
+      border: none;
+      border-radius: 10px;
+      padding: 12px 20px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 12px rgba(255, 123, 0, 0.25);
+
+      &:hover {
+        background-color: #e06c00;
+        transform: translateY(-1px);
+        box-shadow: 0 6px 16px rgba(255, 123, 0, 0.35);
+      }
+
+      &:active {
+        transform: translateY(0);
+        box-shadow: 0 2px 8px rgba(255, 123, 0, 0.2);
+      }
+
+      &:disabled {
+        background-color: #444444;
+        color: #888888;
+        cursor: not-allowed;
+        box-shadow: none;
+        transform: none;
+      }
+    }
+  }
 }

@@ -25,7 +25,7 @@
               <th>ผู้ใหญ่</th>
               <th>เด็ก</th>
               <th>โปรโมชั่น</th>
-              <th>ปรับ (Kg)</th>
+              <th class="text-center">ปรับ (กรัม)</th>
               <th class="text-center">จัดการ</th>
             </tr>
           </thead>
@@ -40,7 +40,7 @@
               <td class="promo-text" [title]="getdiscountName(bill.discount_id)">
                 {{ getdiscountName(bill.discount_id) || '-' }}
               </td>
-              <td>{{ bill.fine_kg ? bill.fine_kg + ' กก.' : '-' }}</td>
+              <td class="text-center">{{ bill.fine ? bill.fine  : '-' }}</td>
               <td class="text-center">
                 <div class="action-buttons">
                   <button class="btn-pay" (click)="openPayment(bill)" title="ชำระเงิน">
