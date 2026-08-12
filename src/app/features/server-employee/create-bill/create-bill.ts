@@ -29,7 +29,7 @@ export class CreateBill implements OnInit, OnDestroy {
   totaltable: number = 0;
   adultCount: number = 0;
   childCount: number = 0;
-  fine_kg: number = 0;
+  fine: number = 0;
   changeTablemode: boolean = false;
   selectedDiscount: any = 0;
   showrecordModal: boolean = false;
@@ -80,7 +80,6 @@ export class CreateBill implements OnInit, OnDestroy {
       this.subscriptions.push(subBill);
     }
 
-    // 🟢 3. Real-time ข้อมูลลูกค้า (เมื่อมีการจัดการ/อัปเดตจำนวนลูกค้าหรือข้อมูลลูกค้าจากเครื่องอื่น)
     if (this.signalrService.customerUpdated$) {
       const subCustomer = this.signalrService.customerUpdated$.subscribe(() => {
         console.log('SignalR: ข้อมูลลูกค้ามีการอัปเดต โหลดบิลใหม่...');
@@ -91,7 +90,6 @@ export class CreateBill implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    // 🟢 เคลียร์ Subscriptions เมื่อเปลี่ยนหน้า ป้องกัน Memory Leak
     this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 
@@ -187,7 +185,7 @@ export class CreateBill implements OnInit, OnDestroy {
       numAdults: this.adultCount,
       numChildren: this.childCount,
       discount_id: Number(this.selectedDiscount) === 0 ? null : Number(this.selectedDiscount),
-      fine_kg: this.fine_kg
+      fine: this.fine
     };
 
     this.billService.updateBill(billId, payload).subscribe({
@@ -277,8 +275,23 @@ export class CreateBill implements OnInit, OnDestroy {
   togglerecordModal(show: boolean) {
     this.showrecordModal = show;
   }
+  preventNegative(event: KeyboardEvent): void {
+    if (event.key === '-' || event.key === 'e' || event.key === 'E') {
+      event.preventDefault();
+    }
+  }
+  onChildCountChange(): void {
+    if (this.childCount === null || this.childCount === undefined || this.childCount < 0) {
+      this.childCount = 0;
+    }
+  }
+  onAdultCountChange(): void {
+    if (this.adultCount === null || this.adultCount === undefined || this.adultCount < 0) {
+      this.adultCount = 0;
+    }
+  }
 
-  openEditModal(bill: any) {
+  openEditModal(bill: Bill) {
     this.currentEditTableGroupString = 'กำลังโหลดข้อมูลโต๊ะ...';
     this.selectedBillForEdit = bill;
     this.selectedBillForEdit.allTables = [];
@@ -286,7 +299,7 @@ export class CreateBill implements OnInit, OnDestroy {
     this.adultCount = bill.numAdults;
     this.childCount = bill.numChildren;
     this.selectedDiscount = bill.discount_id || 0;
-    this.fine_kg = bill.fine_kg;
+    this.fine = bill.fine;
     this.showeditModal = true;
 
     if (bill.bill_id) {

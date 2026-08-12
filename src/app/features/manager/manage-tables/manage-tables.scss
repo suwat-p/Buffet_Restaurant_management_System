@@ -100,6 +100,52 @@ $color-occupied: #c62828;
       }
     }
 
+    /* ปุ่มเลือกโต๊ะเพื่อลบ */
+    .btn-delete {
+      background-color: #8b0000;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 500;
+      transition: all 0.2s ease;
+
+      &:hover {
+        background-color: #a50000;
+      }
+
+      &.active-delete {
+        background-color: #d90429;
+        box-shadow: 0 0 10px rgba(217, 4, 41, 0.5);
+      }
+    }
+
+    /* คอนเทนเนอร์ปุ่มแอ็กชันสลับโหมด */
+    .header-btn-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+
+      .btn-cancel-delete {
+        background: #333;
+        color: white;
+        border: none;
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: bold;
+
+        &:hover {
+          background: #505050;
+        }
+      }
+    }
+
     .status-btn {
       background: #8b0000;
       color: white;
@@ -240,6 +286,10 @@ $color-occupied: #c62828;
   font-weight: bold;
   color: white;
   position: relative;
+  transition: all 0.2s ease-in-out;
+  user-select: none;
+  border: 2px solid transparent; // รักษาระดับขนาดเพื่อไม่ให้ปุ่มกระตุกเวลามีกรอบ
+
   &.status-free {
     background-color: $color-free;
     cursor: pointer;
@@ -252,6 +302,30 @@ $color-occupied: #c62828;
     background-color: $color-occupied;
     cursor: pointer;
   }
+
+  /* 🟢 แสดงกรอบสีขาวเฉพาะโต๊ะที่ยังไม่ได้เลือกลบ เมื่ออยู่ในโหมดจะลบ */
+  &:not(.status-free):not(.status-reserved):not(.status-occupied) {
+    background-color: #1a1a1a;
+    border: 2px solid #ffffff;
+    cursor: pointer;
+
+    &:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
+    }
+  }
+
+  /* 🟢 แสดงสถานะเมื่อคลิกเลือกโต๊ะเพื่อลบ (วงกลมสีแดง) */
+  &.selected-delete {
+    background-color: #d90429 !important;
+    color: white !important;
+    border: 2px solid #ffffff !important;
+    border-radius: 50% !important;
+    transform: scale(1.1);
+    box-shadow: 0 4px 15px rgba(217, 4, 41, 0.7);
+    z-index: 5;
+  }
+
   .tooltip-text {
     visibility: hidden;
     width: max-content;

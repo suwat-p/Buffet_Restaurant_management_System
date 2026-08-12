@@ -22,6 +22,8 @@ import { EditDeleteTables } from './features/manager/manage-tables/edit-delete-t
 import { ManageTables } from './features/manager/manage-tables/manage-tables';
 import { BookingStatus } from './features/member/booking-status/booking-status';
 import { Booking } from './features/member/booking/booking';
+import { PreOrder } from './features/member/pre-order/pre-order';
+import { ProfileEmployee } from './features/profile-employee/profile-employee';
 import { RegisterEmployee } from './features/register-employee/register-employee';
 import { RegisterMember } from './features/register-member/register-member';
 import { ResetPassword } from './features/reset-password/reset-password';
@@ -33,7 +35,6 @@ import { employeeGuard } from './guards/employee-guard';
 import { memberGuard } from './guards/member-guard';
 import { Index } from './index';
 import { StatusCustomerOrder } from './status/status-customer-order/status-customer-order';
-import { PreOrder } from './features/member/pre-order/pre-order';
 import { PreOrderCart } from './cart/pre-order-cart/pre-order-cart';
 
 export const routes: Routes = [
@@ -176,6 +177,12 @@ export const routes: Routes = [
     component: PreOrderCart,
     canActivate: [memberGuard],
     data: { role: ['Member'] },
+  },
+  {
+    path: 'Profile-Employee',
+    component: ProfileEmployee,
+    canActivate: [employeeGuard],
+    data: { roles: ['เจ้าของร้าน', 'พนักงานเสิร์ฟ', 'พนักงานแคชเชียร์', 'พนักงานครัว'] },
   },
   { path: '**', redirectTo: '' },
 ];

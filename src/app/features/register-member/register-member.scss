@@ -1,6 +1,6 @@
 $primary-teal: #14b8a6;
 $primary-blue: #3b82f6;
-$card-bg-dark: rgba(15, 23, 42, 0.85); // สีเทาเข้มโปร่งแสงสำหรับกระจกเบลอ
+$card-bg-dark: rgba(15, 23, 42, 0.85);
 $input-bg-dark: #000000;
 $border-dark: rgba(255, 255, 255, 0.15);
 $text-main: #f8fafc;
@@ -22,6 +22,7 @@ $danger-color: #ef4444;
 }
 
 .register-card {
+  position: relative;
   width: 100%;
   max-width: 480px;
   background: $card-bg-dark;
@@ -31,6 +32,35 @@ $danger-color: #ef4444;
   backdrop-filter: blur(12px);
   padding: 2.25rem 1.75rem;
   box-sizing: border-box;
+
+  /* Card Loading Overlay */
+  .card-loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(6px);
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    z-index: 20;
+    color: $text-main;
+    font-size: 0.9rem;
+
+    .spinner-lg {
+      width: 40px;
+      height: 40px;
+      border: 3px solid rgba(255, 255, 255, 0.2);
+      border-top-color: $danger-color;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+  }
 
   /* Header */
   .card-header {
@@ -79,7 +109,6 @@ $danger-color: #ef4444;
     gap: 1.1rem;
   }
 
-  /* Form Group Controls */
   .form-group {
     display: flex;
     flex-direction: column;
@@ -141,9 +170,13 @@ $danger-color: #ef4444;
           color-scheme: dark;
           cursor: pointer;
         }
+
+        &:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
       }
 
-      /* ปุ่มกดซ่อน/แสดงรหัสผ่าน */
       .toggle-eye {
         position: absolute;
         right: 0.75rem;
@@ -168,7 +201,6 @@ $danger-color: #ef4444;
         }
       }
 
-      /* แสดงสถานะเมื่อข้อมูลไม่ถูกต้อง */
       &.input-error input {
         border-color: $error-red !important;
       }
@@ -187,7 +219,6 @@ $danger-color: #ef4444;
     }
   }
 
-  /* Password Requirements Section */
   .password-requirements {
     display: flex;
     flex-direction: column;
@@ -213,17 +244,16 @@ $danger-color: #ef4444;
       }
 
       &.valid {
-        color: $success-green; /* สีเขียวเมื่อผ่าน */
+        color: $success-green;
         font-weight: 500;
       }
 
       &.invalid {
-        color: $error-red; /* สีแดงเมื่อไม่ผ่าน */
+        color: $error-red;
       }
     }
   }
 
-  /* Submit Button (สีแดงสำหรับลูกค้า) */
   .btn-submit {
     width: 100%;
     padding: 0.8rem;
@@ -236,6 +266,10 @@ $danger-color: #ef4444;
     cursor: pointer;
     transition: all 0.2s ease;
     margin-top: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
 
     &:hover:not(:disabled) {
       background: #b91c1c;
@@ -247,7 +281,6 @@ $danger-color: #ef4444;
     }
   }
 
-  /* Footer Links */
   .footer-links {
     display: flex;
     align-items: center;
@@ -281,7 +314,21 @@ $danger-color: #ef4444;
   }
 }
 
-/* Responsive Design */
+.spinner-sm {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 @media (max-width: 480px) {
   .register-container {
     padding: 1rem 0.5rem;
@@ -312,7 +359,6 @@ $danger-color: #ef4444;
   }
 }
 
-/* Toast override */
 :host ::ng-deep {
   @media (max-width: 768px) {
     .p-toast {

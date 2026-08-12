@@ -1,0 +1,222 @@
+<p-toast></p-toast>
+<div class="profile-container">
+  <!-- Header Back Button -->
+  <div class="top-nav">
+    <button class="btn-back" (click)="goBack()">
+      <mat-icon>chevron_left</mat-icon>
+      <span>Back</span>
+    </button>
+    <span class="nav-title">ข้อมูลพนักงาน</span>
+  </div>
+
+  <!-- Header Card Profile -->
+  <div class="profile-card">
+    <div class="profile-avatar">
+      <img *ngIf="employee.profileImg" [src]="employee.profileImg" alt="Profile" />
+      <mat-icon *ngIf="!employee.profileImg">account_circle</mat-icon>
+    </div>
+    <div class="profile-info-header">
+      <div class="emp-name">{{ employee.fullName }}</div>
+      <div class="emp-role">{{ employee.empCode }} | {{ employee.role }}</div>
+    </div>
+    <div class="work-time-badge">
+      <span>เวลาทำงาน</span>
+      <strong>{{ employee.workTime }}</strong>
+    </div>
+  </div>
+
+  <!-- Layout Grid Responsive -->
+  <div class="profile-content-grid">
+    <!-- ฝั่งซ้าย: ข้อมูลส่วนตัว + ข้อมูลการทำงาน -->
+    <div class="left-section">
+      <!-- Personal Info Card -->
+      <div class="info-card">
+        <div class="info-row">
+          <span class="label">รหัสพนักงาน :</span>
+          <span class="value">{{ employee.empCode }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">ชื่อ-นามสกุล :</span>
+          <span class="value">{{ employee.fullName }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">เบอร์โทรศัพท์ :</span>
+          <span class="value">{{ employee.phone }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">เพศ :</span>
+          <span class="value">{{ employee.gender }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">วันเกิด :</span>
+          <span class="value">{{ employee.birthDate }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">เลขบัตรประชาชน :</span>
+          <span class="value">{{ employee.idCard }}</span>
+        </div>
+        <div class="info-row align-start">
+          <span class="label">ที่อยู่ :</span>
+          <span class="value">{{ employee.address }}</span>
+        </div>
+      </div>
+
+      <!-- Work Info Card -->
+      <div class="info-card">
+        <h3 class="card-title">ข้อมูลการทำงาน</h3>
+        <div class="info-row">
+          <span class="label">แผนก :</span>
+          <span class="value">{{ employee.department }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">วันที่เริ่มงาน :</span>
+          <span class="value">{{ employee.startDate }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">รูปแบบการจ่ายเงิน :</span>
+          <span class="value highlight-blue">{{ employee.paymentType }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">ระยะเวลาการทำงาน :</span>
+          <span class="value">{{ employee.workDuration }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">สถานะ :</span>
+          <span class="status-badge active">{{ employee.status }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">ประเภทพนักงาน :</span>
+          <span class="value highlight-orange">{{ employee.empType }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ฝั่งขวา: จัดการพนักงาน -->
+    <div class="right-section">
+      <div class="info-card manage-card">
+        <h3 class="card-title">จัดการพนักงาน</h3>
+        <div class="info-row">
+          <span class="label">เวลาทำงาน :</span>
+          <span class="value highlight-gold font-lg">{{ employee.workTime }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">ค่าจ้างต่อวัน :</span>
+          <span class="value highlight-purple font-lg">{{ employee.dailyWage }}</span>
+        </div>
+
+        <button class="btn-edit" (click)="openEditModal()">แก้ไขข้อมูล</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Dialog แก้ไขข้อมูลโปรไฟล์ -->
+<p-dialog
+  header="แก้ไขข้อมูล"
+  [(visible)]="displayEditModal"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  styleClass="custom-dark-dialog"
+  [breakpoints]="{ '960px': '85vw', '640px': '95vw' }"
+  [style]="{ width: '440px' }"
+  appendTo="body"
+>
+  <div class="edit-modal-container">
+    <!-- Avatar Preview -->
+    <div class="avatar-edit-wrapper">
+      <img [src]="editData.image_Profile || 'assets/images/default-avatar.png'" alt="Avatar" />
+    </div>
+
+    <!-- ชื่อ - สกุล -->
+    <div class="form-group">
+      <label>ชื่อ - สกุล</label>
+      <input
+        type="text"
+        [(ngModel)]="editData.fullname"
+        (input)="validateFullname()"
+        placeholder="ชื่อ - นามสกุล"
+      />
+      <small class="error-text" *ngIf="fullnameError">{{ fullnameError }}</small>
+    </div>
+
+    <!-- Email -->
+    <div class="form-group">
+      <label>Email</label>
+      <input
+        type="email"
+        [(ngModel)]="editData.email"
+        (input)="clearEmailError()"
+        placeholder="Email"
+      />
+      <small class="info-text" *ngIf="isCheckingEmail">กำลังตรวจสอบความถูกต้องของอีเมล...</small>
+      <small class="error-text" *ngIf="emailError">{{ emailError }}</small>
+    </div>
+
+    <!-- เบอร์โทรศัพท์ -->
+    <div class="form-group">
+      <label>เบอร์โทรศัพท์</label>
+      <input
+        type="text"
+        [(ngModel)]="editData.phone"
+        (input)="validatePhone()"
+        placeholder="0123456789"
+        maxlength="10"
+      />
+      <small class="error-text" *ngIf="phoneError">{{ phoneError }}</small>
+    </div>
+
+    <!-- รหัสผ่าน -->
+    <div class="form-group">
+      <label>รหัสผ่านใหม่ (ระบุเมื่อต้องการเปลี่ยน)</label>
+      <div class="password-input-wrapper">
+        <input
+          [type]="showPassword ? 'text' : 'password'"
+          [(ngModel)]="editData.password"
+          (input)="validatePassword()"
+          placeholder="เว้นว่างไว้หากไม่ต้องการเปลี่ยน"
+        />
+        <mat-icon (click)="togglePasswordVisibility()">
+          {{ showPassword ? 'visibility_off' : 'visibility' }}
+        </mat-icon>
+      </div>
+      <small class="error-text" *ngIf="passwordError">{{ passwordError }}</small>
+
+      <!-- Password Requirements Indicator -->
+      <div class="password-hints" *ngIf="editData.password">
+        <div [class.valid]="hasMinLength">อย่างน้อย 8 ตัวอักษร</div>
+        <div [class.valid]="hasUpperCase">พิมพ์ใหญ่ (A-Z)</div>
+        <div [class.valid]="hasLowerCase">พิมพ์เล็ก (a-z)</div>
+        <div [class.valid]="hasNumeric">ตัวเลข (0-9)</div>
+        <div [class.valid]="hasSpecialChar">อักขระพิเศษ</div>
+      </div>
+    </div>
+
+    <!-- เลือกรูปพนักงาน -->
+    <div class="form-group">
+      <label>เลือกรูปพนักงาน</label>
+      <div class="file-input-wrapper">
+        <label for="file-upload" class="file-btn">เลือกไฟล์</label>
+        <input id="file-upload" type="file" (change)="onFileSelected($event)" accept="image/*" hidden />
+        <span class="file-name">{{ selectedFileName || 'เปลี่ยนรูปภาพ...' }}</span>
+      </div>
+      <small class="error-text" *ngIf="fileError">{{ fileError }}</small>
+    </div>
+
+    <!-- ที่อยู่ -->
+    <div class="form-group">
+      <label>ที่อยู่</label>
+      <textarea
+        rows="3"
+        [(ngModel)]="editData.address"
+        (input)="validateAddress()"
+        placeholder="ที่อยู่"
+      ></textarea>
+      <small class="error-text" *ngIf="addressError">{{ addressError }}</small>
+    </div>
+
+    <button class="btn-submit" (click)="saveProfile()" [disabled]="isLoading || isCheckingEmail">
+      {{ isLoading ? 'กำลังบันทึก...' : 'แก้ไขข้อมูล' }}
+    </button>
+  </div>
+</p-dialog>

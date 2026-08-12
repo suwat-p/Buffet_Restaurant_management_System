@@ -4,35 +4,38 @@ import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
+import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { ToastModule } from 'primeng/toast';
 import { Subscription } from 'rxjs';
 import { MenuCashier } from "../../../components/menu-bar/menu-cashier/menu-cashier";
+import { Bill } from '../../../models/bill.model';
 import { BillService } from '../../../service/api/bill.service';
 import { ConfigService } from '../../../service/api/config.service';
 import { DiscountService } from '../../../service/api/discount.service';
 import { OrderService } from '../../../service/api/order.service';
 import { PaymentService } from '../../../service/api/payment.service';
-import { PrintService } from '../../../service/api/print.service';
 import { SignalrService } from '../../../service/api/signalr.service';
 import { TableService } from '../../../service/api/table.service';
 
 @Component({
   selector: 'app-check-out',
+  standalone: true,
   imports: [
     CommonModule,
     FormsModule,
     MatIconModule,
     ToastModule,
     DialogModule,
-    MenuCashier
+    MenuCashier,
+    ButtonModule
   ],
   providers: [MessageService],
   templateUrl: './check-out.html',
   styleUrl: './check-out.scss',
 })
 export class CheckOut implements OnInit, OnDestroy {
-  currentBill: any = null;
+  currentBill?: Bill;
   orderItems: any[] = [];
   discounts: any[] = [];
   extraItemsTotalPrice: number = 0;
@@ -42,14 +45,16 @@ export class CheckOut implements OnInit, OnDestroy {
   resData: any = null;
   private subscriptions: Subscription[] = [];
 
-  fineKg: number = 0;
+  fine: number = 0; // จำนวน g ที่กรอกใน Modal
   selectedDiscount: any = null;
   showDiscountModal: boolean = false;
+  res_fine_g: number = 0; // ค่าปรับต่อ g จาก Config
 
   paymentMethod: 'cash' | 'qrcode' = 'cash';
   receivedAmount: number | null = null;
 
   transactionId: string = '';
+  showFineModal: boolean = false;
   private pollingTimer: any = null;
   private isPolling: boolean = false;
 
@@ -64,7 +69,6 @@ export class CheckOut implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private paymentService: PaymentService,
-    private printService: PrintService
   ) { }
 
   // Lifecycle Hooks
@@ -74,12 +78,16 @@ export class CheckOut implements OnInit, OnDestroy {
     this.ConfigService.getConfig().subscribe((res) => {
       if (res && res.length > 0) {
         this.resData = res[0];
+        this.res_fine_g = res[0].fine || 0;
       }
     });
 
     if (this.signalRService.resConfig$) {
       const sub = this.signalRService.resConfig$.subscribe((updatedConfig) => {
         this.resData = updatedConfig;
+        if (updatedConfig) {
+          this.res_fine_g = updatedConfig.fine || 0;
+        }
         this.sendToCustomerDisplay();
       });
       this.subscriptions.push(sub);
@@ -182,7 +190,7 @@ export class CheckOut implements OnInit, OnDestroy {
     this.billService.getBillById(this.billId).subscribe({
       next: (res: any) => {
         this.currentBill = res;
-        this.currentBill.tableNumbers = 'กำลังโหลด...';
+        this.currentBill!.tableNumbers = 'กำลังโหลด...';
 
         this.matchInitialDiscount();
 
@@ -193,15 +201,15 @@ export class CheckOut implements OnInit, OnDestroy {
                 const tableNames = tables
                   .map(t => t.table_Number || t.table_number || t.tableNo)
                   .filter(Boolean);
-                this.currentBill.tableNumbers = tableNames.join(', ');
+                this.currentBill!.tableNumbers = tableNames.join(', ');
               } else {
-                this.currentBill.tableNumbers = 'ไม่พบโต๊ะ';
+                this.currentBill!.tableNumbers = 'ไม่พบโต๊ะ';
               }
               this.sendToCustomerDisplay();
             },
             error: (err) => {
               console.error(`โหลดโต๊ะของบิล ${this.billId} ไม่สำเร็จ:`, err);
-              this.currentBill.tableNumbers = 'ข้อผิดพลาด';
+              this.currentBill!.tableNumbers = 'ข้อผิดพลาด';
               this.sendToCustomerDisplay();
             }
           });
@@ -209,6 +217,15 @@ export class CheckOut implements OnInit, OnDestroy {
       },
       error: (err) => {
         console.error('โหลดข้อมูลบิลไม่สำเร็จ:', err);
+      }
+    });
+  }
+
+  loadfine_res() {
+    this.ConfigService.getConfig().subscribe((res) => {
+      if (res && res.length > 0) {
+        this.res_fine_g = res[0].fine || 0;
+        console.log('ค่าปรับต่อกรัม:', this.res_fine_g);
       }
     });
   }
@@ -239,14 +256,20 @@ export class CheckOut implements OnInit, OnDestroy {
     });
   }
 
-  // Discount & Form Handlers
+  // Discount & Fine Modal Handlers
   matchInitialDiscount() {
     if (this.discounts.length > 0 && this.currentBill?.discount_id && !this.selectedDiscount) {
-      const found = this.discounts.find((d: any) => d.discount_id === this.currentBill.discount_id);
+      const found = this.discounts.find((d: any) => d.discount_id === this.currentBill!.discount_id);
       if (found) {
         this.selectedDiscount = found;
         this.sendToCustomerDisplay();
       }
+    }
+  }
+
+  preventNegative(event: KeyboardEvent): void {
+    if (event.key === '-' || event.key === 'e' || event.key === 'E') {
+      event.preventDefault();
     }
   }
 
@@ -266,6 +289,43 @@ export class CheckOut implements OnInit, OnDestroy {
     this.sendToCustomerDisplay();
   }
 
+  openFineModal() {
+    this.loadfine_res();
+    // ถ้าเคยมีค่าปรับใน DB ให้ย้อนคำนวณเป็นกรัมเพื่อแสดงในช่อง input
+    if (this.currentBill?.fine && this.res_fine_g > 0) {
+      this.fine = this.currentBill.fine / this.res_fine_g;
+    }
+    this.showFineModal = true;
+  }
+
+  confirmFine() {
+    this.showFineModal = false;
+
+    // คำนวณยอดเงินค่าปรับสุทธิ (บาท) = จำนวน g * ราคาต่อ g
+    const totalFineAmount = (this.fine || 0) * (this.res_fine_g || 0);
+
+    this.billService.updateFine(this.billId, totalFineAmount).subscribe({
+      next: (res) => {
+        console.log('อัปเดตค่าปรับสำเร็จ:', res);
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: 'อัปเดตค่าปรับเรียบร้อยแล้ว'
+        });
+        this.loadBillInfo(); // ดึงข้อมูลบิลเพื่ออัปเดต UI
+        this.sendToCustomerDisplay();
+      },
+      error: (err) => {
+        console.error('อัปเดตค่าปรับไม่สำเร็จ:', err);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'เกิดข้อผิดพลาดในการอัปเดตค่าปรับ'
+        });
+      }
+    });
+  }
+
   updateQuantity(item: any, change: number) {
     if (item.quantity + change >= 0) {
       item.quantity += change;
@@ -277,27 +337,24 @@ export class CheckOut implements OnInit, OnDestroy {
     if (!this.currentBill) return;
 
     if (type === 'adult') {
-      const currentAdults = this.currentBill.numAdults ?? this.currentBill.num_adults ?? 0;
+      const currentAdults = this.currentBill.numAdults ?? 0;
       if (currentAdults + change >= 0) {
         this.currentBill.numAdults = currentAdults + change;
-        this.currentBill.num_adults = currentAdults + change;
       }
     }
     else if (type === 'child') {
-      const currentChildren = this.currentBill.numChildren ?? this.currentBill.num_children ?? 0;
+      const currentChildren = this.currentBill.numChildren ?? 0;
       if (currentChildren + change >= 0) {
         this.currentBill.numChildren = currentChildren + change;
-        this.currentBill.num_children = currentChildren + change;
       }
     }
 
-    // อัปเดตหน้าจอลูกค้าแบบ Real-time
     this.sendToCustomerDisplay();
   }
 
   // Getters for Calculations
   get billDateDisplay(): Date | null {
-    const rawDate = this.currentBill?.created_at || this.currentBill?.createdAt;
+    const rawDate = this.currentBill?.created_at;
     if (!rawDate) return null;
 
     if (rawDate instanceof Date || typeof rawDate === 'number') {
@@ -332,11 +389,11 @@ export class CheckOut implements OnInit, OnDestroy {
   }
 
   get numAdults(): number {
-    return this.currentBill?.numAdults ?? this.currentBill?.num_adults ?? 0;
+    return this.currentBill?.numAdults ?? 0;
   }
 
   get numChildren(): number {
-    return this.currentBill?.numChildren ?? this.currentBill?.num_children ?? 0;
+    return this.currentBill?.numChildren ?? 0;
   }
 
   get finePerKg(): number {
@@ -344,8 +401,10 @@ export class CheckOut implements OnInit, OnDestroy {
   }
 
   get fineAmount(): number {
-    const kg = this.currentBill?.fine_kg || this.fineKg || 0;
-    return kg * this.finePerKg;
+    if (this.showFineModal && this.fine >= 0) {
+      return (this.fine || 0) * (this.res_fine_g || 0);
+    }
+    return this.currentBill?.fine || 0;
   }
 
   get buffetTotal(): number {
@@ -447,7 +506,7 @@ export class CheckOut implements OnInit, OnDestroy {
     }
 
     const payload = {
-      Fine_kg: this.currentBill?.fine_kg || this.fineKg,
+      Fine: this.fineAmount,
       Discount_id: this.selectedDiscount?.discount_id || null,
       Discount_amount: this.discountAmount,
       Total_amount: this.grandTotal,
@@ -520,15 +579,9 @@ export class CheckOut implements OnInit, OnDestroy {
       });
     }
   }
+
   goBack() {
     this.signalRService.clearCustomerDisplay();
     this.router.navigate(['/BillingList']);
   }
-
-  printReceipt() {
-    this.printService.printReceipt(this.currentBill.id);
-  }
 }
-
-
-

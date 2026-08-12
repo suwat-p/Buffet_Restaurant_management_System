@@ -55,13 +55,15 @@
               <div class="form-group">
                 <label>จำนวนผู้ใหญ่</label>
                 <div class="input-wrapper">
-                  <input type="number" [(ngModel)]="adultCount" min="0" />
+                  <input type="number" [(ngModel)]="adultCount" min="0" (keydown)="preventNegative($event)"
+                    (input)="onAdultCountChange()" />
                 </div>
               </div>
               <div class="form-group">
                 <label>จำนวนเด็ก</label>
                 <div class="input-wrapper">
-                  <input type="number" [(ngModel)]="childCount" min="0" />
+                  <input type="number" [(ngModel)]="childCount" min="0" (keydown)="preventNegative($event)"
+                    (input)="onChildCountChange()" />
                 </div>
               </div>
             </div>
@@ -132,7 +134,7 @@
             <div class="form-group">
               <label>ค่าปรับ(Kg)</label>
               <div class="input-wrapper">
-                <input type="number" [(ngModel)]="fine_kg" min="0.00" />
+                <input type="number" [(ngModel)]="fine" min="0.00" />
               </div>
             </div>
           </div>
@@ -176,7 +178,7 @@
             <td class="promo-text" [title]="getdiscountName(bill.discount_id)">
               {{ getdiscountName(bill.discount_id) }}
             </td>
-            <td>{{ bill.fine_kg }}</td>
+            <td>{{ bill.fine }}</td>
             <td>
               <div class="action-buttons">
                 <button class="btn-edit" (click)="openEditModal(bill)" title="แก้ไขข้อมูล">
@@ -198,17 +200,10 @@
   </div>
 </app-menu-server>
 
-<p-dialog
-  header="ยืนยันการลบ"
-  [(visible)]="displayconfirm"
-  [modal]="true"
-  [draggable]="false"
-  [resizable]="false"
-  styleClass="custom-dark-dialog"
-  [breakpoints]="{ '960px': '75vw', '640px': '90vw' }"
-  [style]="{ width: '400px' }"
-  appendTo="body"
-  ><div class="container">
+<p-dialog header="ยืนยันการลบ" [(visible)]="displayconfirm" [modal]="true" [draggable]="false" [resizable]="false"
+  styleClass="custom-dark-dialog" [breakpoints]="{ '960px': '75vw', '640px': '90vw' }" [style]="{ width: '400px' }"
+  appendTo="body">
+  <div class="container">
     <div class="content">
       <mat-icon class="warning-icon">report_problem</mat-icon>
       <h3>คุณแน่ใจหรือไม่?</h3>

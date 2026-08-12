@@ -1,0 +1,486 @@
+$bg-dark: #000000;
+$card-bg: #111111;
+$border-color: #222222;
+$text-white: #ffffff;
+$text-gray: #aaaaaa;
+
+/* Container หลักรองรับ Responsive */
+.profile-container {
+  background-color: $bg-dark;
+  min-height: calc(100vh - 60px);
+  padding: 20px;
+  color: $text-white;
+  font-family: 'Sarabun', sans-serif;
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+  box-sizing: border-box;
+
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  @media (max-width: 480px) {
+    padding: 12px;
+  }
+}
+
+/* Header Top Nav */
+.top-nav {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 20px;
+
+  .btn-back {
+    display: flex;
+    align-items: center;
+    background: transparent;
+    border: 1px solid #ff7b00;
+    color: #ff7b00;
+    padding: 6px 14px 6px 8px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+
+    mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+
+    &:hover {
+      background: rgba(255, 123, 0, 0.1);
+    }
+  }
+
+  .nav-title {
+    font-size: 1.2rem;
+    font-weight: 500;
+  }
+}
+
+/* Header Card Profile */
+.profile-card {
+  background-color: $card-bg;
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  border: 1px solid $border-color;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+
+  .profile-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: #222;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #ff7b00;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    mat-icon {
+      font-size: 50px;
+      width: 50px;
+      height: 50px;
+      color: #888;
+    }
+  }
+
+  .profile-info-header {
+    flex: 1;
+    margin-left: 18px;
+
+    .emp-name {
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+
+    .emp-role {
+      font-size: 0.9rem;
+      color: $text-gray;
+      margin-top: 2px;
+    }
+  }
+
+  .work-time-badge {
+    text-align: right;
+
+    span {
+      display: block;
+      color: $text-gray;
+      font-size: 0.85rem;
+    }
+
+    strong {
+      color: #ff9f43;
+      font-size: 1.1rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    padding: 15px;
+    .profile-avatar {
+      width: 48px;
+      height: 48px;
+    }
+    .profile-info-header {
+      margin-left: 12px;
+      .emp-name { font-size: 1rem; }
+      .emp-role { font-size: 0.8rem; }
+    }
+    .work-time-badge {
+      span { font-size: 0.75rem; }
+      strong { font-size: 0.95rem; }
+    }
+  }
+}
+
+/* Layout Grid บน Desktop */
+.profile-content-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+
+  @media (min-width: 768px) {
+    grid-template-columns: 1.2fr 0.8fr;
+  }
+}
+
+/* Card รายละเอียด */
+.info-card {
+  background-color: $card-bg;
+  border-radius: 16px;
+  padding: 22px;
+  margin-bottom: 20px;
+  border: 1px solid $border-color;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+
+  .card-title {
+    margin: 0 0 18px 0;
+    font-size: 1.15rem;
+    font-weight: bold;
+    border-bottom: 1px solid #222;
+    padding-bottom: 10px;
+  }
+
+  .info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+    font-size: 0.95rem;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    &.align-start {
+      align-items: flex-start;
+    }
+
+    .label {
+      color: $text-gray;
+      min-width: 140px;
+    }
+
+    .value {
+      color: $text-white;
+      text-align: right;
+      word-break: break-word;
+
+      &.highlight-blue { color: #00a8ff; font-weight: 500; }
+      &.highlight-orange { color: #ff7b00; font-weight: 500; }
+      &.highlight-gold { color: #ff9f43; }
+      &.highlight-purple { color: #e056fd; }
+      &.font-lg { font-size: 1.3rem; font-weight: bold; }
+    }
+
+    .status-badge {
+      background-color: #009432;
+      color: white;
+      padding: 4px 14px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+  }
+
+  @media (max-width: 480px) {
+    padding: 16px;
+    .info-row {
+      font-size: 0.88rem;
+      margin-bottom: 12px;
+      .label { min-width: 110px; }
+    }
+  }
+}
+
+.manage-card {
+  .btn-edit {
+    width: 100%;
+    background-color: #b35400;
+    color: white;
+    border: none;
+    padding: 14px;
+    border-radius: 10px;
+    font-size: 1.05rem;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 15px;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background-color: #d36400;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(211, 100, 0, 0.3);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
+}
+
+/* Custom PrimeNG Dialog Dark Theme */
+::ng-deep .custom-dark-dialog {
+  &.p-dialog {
+    background: #0d0d0d !important;
+    border-radius: 20px !important;
+    border: 1px solid #222 !important;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8) !important;
+
+    .p-dialog-header {
+      background: transparent !important;
+      color: white !important;
+      padding: 20px 24px 10px 24px !important;
+
+      .p-dialog-title {
+        font-size: 1.3rem;
+        font-weight: bold;
+      }
+
+      .p-dialog-header-icon {
+        color: white !important;
+        &:hover {
+          background: rgba(255, 255, 255, 0.1) !important;
+        }
+      }
+    }
+
+    /* ซ่อน Scrollbar ที่ตัว Container ของ PrimeNG Dialog */
+    .p-dialog-content {
+      background: transparent !important;
+      color: white !important;
+      padding: 10px 24px 24px 24px !important;
+      max-height: 80vh !important;
+      overflow-y: auto !important;
+
+      scrollbar-width: none !important; /* Firefox */
+      -ms-overflow-style: none !important; /* IE/Edge */
+
+      &::-webkit-scrollbar {
+        display: none !important; /* Chrome, Safari, Opera */
+        width: 0 !important;
+        height: 0 !important;
+      }
+    }
+  }
+}
+
+.edit-modal-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  .avatar-edit-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 5px;
+
+    img {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid #ff7b00;
+    }
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    label {
+      font-size: 0.9rem;
+      color: #ccc;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    textarea {
+      background-color: #161616;
+      border: 1px solid #333;
+      border-radius: 8px;
+      padding: 12px 14px;
+      color: white;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s;
+
+      &:focus {
+        border-color: #ff7b00;
+      }
+    }
+
+    /* 🟢 กรอบช่องกรอกรหัสผ่าน + ไอคอนดวงตาให้อยู่ในกรอบอย่างสวยงาม */
+    .password-input-wrapper {
+      display: flex;
+      align-items: center;
+      background-color: #161616;
+      border: 1px solid #333;
+      border-radius: 8px;
+      padding: 0 12px;
+      transition: border-color 0.2s;
+
+      &:focus-within {
+        border-color: #ff7b00;
+      }
+
+      input {
+        flex: 1;
+        background: transparent;
+        border: none;
+        padding: 12px 0;
+        color: white;
+        font-size: 0.95rem;
+        outline: none;
+
+        &::placeholder {
+          color: #666;
+        }
+      }
+
+      mat-icon {
+        color: #888;
+        cursor: pointer;
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+        user-select: none;
+        transition: color 0.2s ease;
+
+        &:hover {
+          color: #ff7b00;
+        }
+      }
+    }
+
+    /* 🟢 สไตล์เกณฑ์ความปลอดภัยของรหัสผ่าน */
+    .password-hints {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 12px;
+      margin-top: 4px;
+
+      div {
+        font-size: 0.78rem;
+        color: #666;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+
+        &::before {
+          content: '•';
+        }
+
+        &.valid {
+          color: #2ed573;
+
+          &::before {
+            content: '✓';
+          }
+        }
+      }
+    }
+
+    /* 🟢 สไตล์ข้อความแจ้งเตือนสีแดง (Inline Errors) */
+    .error-text {
+      color: #ff4757;
+      font-size: 0.8rem;
+      margin-top: 2px;
+    }
+
+    .info-text {
+      color: #eccc68;
+      font-size: 0.8rem;
+      margin-top: 2px;
+    }
+
+    .file-input-wrapper {
+      display: flex;
+      border: 1px solid #333;
+      border-radius: 8px;
+      overflow: hidden;
+
+      .file-btn {
+        background: #262626;
+        color: white;
+        padding: 12px 18px;
+        font-size: 0.88rem;
+        cursor: pointer;
+        border-right: 1px solid #333;
+
+        &:hover {
+          background: #333;
+        }
+      }
+
+      .file-name {
+        padding: 12px 14px;
+        color: #888;
+        font-size: 0.88rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+    }
+  }
+
+  .btn-submit {
+    background-color: #b35400;
+    color: white;
+    border: none;
+    padding: 14px;
+    border-radius: 10px;
+    font-size: 1.05rem;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background-color: #d36400;
+    }
+
+    &:disabled {
+      background-color: #555;
+      cursor: not-allowed;
+    }
+  }
+}
