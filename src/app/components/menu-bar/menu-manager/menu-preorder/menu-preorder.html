@@ -1,0 +1,94 @@
+<div class="preorder-layout">
+  <!-- 1. Sidebar ด้านซ้าย -->
+  <aside class="sidebar" [class.expanded]="isSidebarOpen">
+    <div class="sidebar-header">
+      <div class="brand-info">
+        <img src="assets/Images/Logo.png" alt="Logo" class="logo" />
+        <span class="brand-name" *ngIf="isSidebarOpen">BUFFET</span>
+      </div>
+    </div>
+
+    <div class="table-badge" *ngIf="isSidebarOpen">
+      <mat-icon>table_restaurant</mat-icon>
+      <span>โต๊ะ {{ tableNumber || 'A18,A19' }}</span>
+    </div>
+
+    <ul class="nav-menu">
+      <li class="menu-item active">
+        <mat-icon>format_list_bulleted</mat-icon>
+        <span *ngIf="isSidebarOpen">รายการเมนูอาหาร</span>
+      </li>
+      <li class="menu-item">
+        <mat-icon>shopping_cart</mat-icon>
+        <span *ngIf="isSidebarOpen">สั่งอาหาร/รถเข็นของคุณ</span>
+      </li>
+      <li class="menu-item">
+        <mat-icon>receipt_long</mat-icon>
+        <span *ngIf="isSidebarOpen">ติดตามสถานะออเดอร์</span>
+      </li>
+    </ul>
+  </aside>
+
+  <!-- 2. ส่วนเนื้อหาหลัก (Main Wrapper) -->
+  <main class="main-wrapper">
+    <!-- Header เครื่องมือด้านบนขวา (ลอยทับ Banner) -->
+    <div class="floating-header">
+      <div class="header-right">
+        <span class="table-text">โต๊ะ {{ tableNumber || 'A18,A19' }}</span>
+
+        <div class="user-info">
+          <mat-icon>account_circle</mat-icon>
+          <span>สมชาย</span>
+        </div>
+
+        <div class="icon-btn">
+          <mat-icon>notifications</mat-icon>
+          <span class="badge" *ngIf="notificationCount > 0">{{ notificationCount }}</span>
+        </div>
+
+        <!-- ปุ่มตะกร้าสีแดงสด -->
+        <div class="cart-btn" (click)="goToCart()">
+          <mat-icon>shopping_cart</mat-icon>
+          <span class="badge" *ngIf="cartCount > 0">{{ cartCount }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Banner Carousel -->
+    <section class="banner-container">
+      <img src="assets/Images/banner-buffet.jpg" alt="Buffet Banner" class="banner-img" />
+      <button class="arrow-btn left"><mat-icon>chevron_left</mat-icon></button>
+      <button class="arrow-btn right"><mat-icon>chevron_right</mat-icon></button>
+    </section>
+
+    <!-- Category Bar สีแดงเข้ม -->
+    <nav class="category-navbar">
+      <div class="category-list">
+        <button
+          *ngFor="let cat of categories"
+          class="cat-btn"
+          [class.active]="selectedCategory === cat"
+          (click)="selectCategory(cat)"
+        >
+          {{ cat }}
+        </button>
+      </div>
+    </nav>
+
+    <!-- Section รายการอาหาร Grid -->
+    <section class="menu-grid-section">
+      <h2 class="grid-title">{{ selectedCategory }}ของทางร้าน</h2>
+
+      <div class="food-grid">
+        <div class="food-card" *ngFor="let item of displayItems">
+          <div class="img-wrapper">
+            <img [src]="item.image" [alt]="item.name" />
+            <div class="title-bar">
+              <span>{{ item.name }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>

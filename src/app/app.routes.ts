@@ -34,6 +34,7 @@ import { memberGuard } from './guards/member-guard';
 import { Index } from './index';
 import { StatusCustomerOrder } from './status/status-customer-order/status-customer-order';
 import { PreOrder } from './features/member/pre-order/pre-order';
+import { PreOrderCart } from './cart/pre-order-cart/pre-order-cart';
 
 export const routes: Routes = [
   { path: '', component: Index },
@@ -167,6 +168,12 @@ export const routes: Routes = [
   {
     path: 'PreOrder',
     component: PreOrder,
+    canActivate: [memberGuard],
+    data: { role: ['Member'] },
+  },
+  {
+    path: 'PreOrderCart',
+    component: PreOrderCart,
     canActivate: [memberGuard],
     data: { role: ['Member'] },
   },

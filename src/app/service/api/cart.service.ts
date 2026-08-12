@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Constants } from '../../config/contants'; // ตรวจสอบ path ให้ตรงกับเครื่องคุณ
 
 @Injectable({
@@ -27,23 +27,21 @@ export class CartService {
     return response;
   }
 
-  // 2. ดึงรายการในตะกร้า (ตาม Table ID)
+  // 2. ดึงรายการในตะกร้า
+  // - ถ้ามี bookingId (สั่งล่วงหน้า) -> ยิงไปที่ endpoint get-items-by-booking/{bookingId}
+  // - ถ้าไม่มี bookingId (สั่งหน้าร้าน) -> ยิงไปที่ endpoint get-items/{tableId} ตามเดิม
   public getCartItems(tableId?: number, bookingId?: number) {
-    // กำหนด URL พื้นฐาน
-    let url = this.constants.API_ENDPOINT + `/Cart/get-items/${tableId ?? 0}`;
     const token = localStorage.getItem('token') || sessionStorage.getItem('token');
 
-    let params = new HttpParams();
-    if (bookingId) {
-      params = params.set('bookingId', bookingId.toString());
-    }
+    const url = bookingId
+      ? this.constants.API_ENDPOINT + `/Cart/get-items-by-booking/${bookingId}`
+      : this.constants.API_ENDPOINT + `/Cart/get-items/${tableId ?? 0}`;
 
     const httpOptions = {
       headers: new HttpHeaders({
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
       }),
-      params: params,
     };
 
     return this.http.get<any>(url, httpOptions);

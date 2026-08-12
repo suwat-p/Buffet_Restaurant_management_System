@@ -1,0 +1,374 @@
+$theme-bg: #000000;
+$card-bg: #141414;
+$primary-red: #8b0000;
+$bright-red: #d32f2f;
+$primary-gold: #ffca28;
+$text-white: #ffffff;
+$text-gray: #a0a0a0;
+$bar-bg: linear-gradient(to bottom, #3d0000, #1a0000);
+$nav-bg: linear-gradient(to right, #4a0000, #1f0000);
+$active-red: #b30000;
+$text-inactive: #e0e0e0;
+
+:host {
+  display: block;
+  width: 100%;
+}
+
+/* ── Top Bar สีแดงคงเดิมแบบ Fixed ── */
+.preorder-navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  z-index: 1001;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 18px;
+  background: $nav-bg;
+  border-bottom: 2px solid $bright-red;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+
+  .nav-left {
+    display: flex;
+    align-items: center;
+
+    .nav-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-family: 'Kanit', sans-serif;
+      transition: all 0.2s ease;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.2);
+        color: $primary-gold;
+        border-color: $primary-gold;
+      }
+    }
+  }
+
+  .nav-title {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: #ffffff;
+
+    small {
+      font-size: 0.8rem;
+      color: #ff9100;
+      font-weight: 400;
+    }
+  }
+
+  .nav-right {
+    .cart-custom-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: linear-gradient(135deg, #e53935 0%, #b71c1c 100%);
+      border: 1px solid #ff5252;
+      color: #fff;
+      padding: 6px 14px 6px 10px;
+      border-radius: 25px;
+      cursor: pointer;
+      box-shadow: 0 3px 10px rgba(229, 57, 53, 0.4);
+      transition: all 0.25s ease;
+
+      &:hover {
+        transform: translateY(-1px) scale(1.03);
+        background: linear-gradient(135deg, #f44336 0%, #c62828 100%);
+      }
+
+      .cart-icon-box {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        .cart-badge {
+          position: absolute;
+          top: -8px;
+          right: -10px;
+          background: $primary-gold;
+          color: #000;
+          font-size: 0.75rem;
+          font-weight: 800;
+          min-width: 18px;
+          height: 18px;
+          padding: 0 4px;
+          border-radius: 10px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border: 1.5px solid #b71c1c;
+        }
+      }
+
+      .cart-label {
+        font-family: 'Kanit', sans-serif;
+        font-size: 0.85rem;
+        font-weight: 500;
+      }
+    }
+  }
+}
+
+.preorder-container {
+  padding-top: 60px; /* เว้นระยะไม่ให้โดน Navbar บัง */
+}
+
+/* Category Navbar Sticky ต่อจาก Navbar สีแดง */
+.category-navbar {
+  position: sticky;
+  top: 60px;
+  z-index: 100;
+  width: 100%;
+  background: $bar-bg;
+  border-bottom: 1px solid #333;
+  padding: 10px 0;
+
+  .category-scroll {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    overflow-x: auto;
+    padding: 0 15px;
+
+    &::-webkit-scrollbar { display: none; }
+
+    .nav-item {
+      background: transparent;
+      color: $text-inactive;
+      border: none;
+      padding: 6px 20px;
+      font-size: 0.95rem;
+      font-family: 'Kanit', sans-serif;
+      cursor: pointer;
+      white-space: nowrap;
+      border-radius: 50px;
+      transition: all 0.3s ease;
+
+      &:hover:not(.active) {
+        color: #fff;
+        background: rgba(255, 255, 255, 0.1);
+      }
+
+      &.active {
+        background-color: $bright-red;
+        color: $text-white;
+        font-weight: 600;
+        box-shadow: 0 2px 8px rgba(211, 47, 47, 0.4);
+      }
+    }
+  }
+}
+
+.background-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+
+  .bg-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .bg-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.65);
+  }
+}
+
+.page-container {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  color: $text-white;
+  padding-bottom: 80px;
+  font-family: 'Kanit', sans-serif;
+}
+
+.hero-banner-wrapper {
+  width: 100%;
+  background: #000;
+
+  .banner-item {
+    position: relative;
+    width: 100%;
+    height: 320px;
+    overflow: hidden;
+
+    .banner-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .banner-overlay {
+      position: absolute;
+      bottom: 0; left: 0; width: 100%; height: 80px;
+      background: linear-gradient(to top, #000, transparent);
+    }
+  }
+}
+
+.banner-thumbnails {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  padding: 12px;
+  background: #000;
+
+  .banner-thumb-box {
+    width: 70px;
+    height: 40px;
+    border-radius: 6px;
+    overflow: hidden;
+    cursor: pointer;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    opacity: 0.6;
+    transition: all 0.3s ease;
+
+    img { width: 100%; height: 100%; object-fit: cover; }
+
+    &.active, &:hover {
+      border-color: $primary-gold;
+      opacity: 1;
+      transform: scale(1.05);
+    }
+  }
+}
+
+.preorder-header-info {
+  background: rgba(26, 26, 26, 0.85);
+  border-left: 4px solid $bright-red;
+  padding: 12px 20px;
+  margin: 15px 20px;
+  border-radius: 4px;
+
+  h3 {
+    margin: 0;
+    font-size: 1.05rem;
+    color: #ff9100;
+  }
+}
+
+/* Grid เมนูอาหาร */
+.menu-content {
+  padding: 20px 30px;
+
+  .section-header {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+
+  .food-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+
+    @media (max-width: 1024px) {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    @media (max-width: 768px) {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .food-card {
+      background: $card-bg;
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+      border: 1px solid #282828;
+      transition: transform 0.2s ease;
+
+      &:hover {
+        transform: translateY(-3px);
+      }
+
+      .card-img-wrapper {
+        width: 100%;
+        aspect-ratio: 4/3;
+        overflow: hidden;
+        
+        img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+      }
+
+      .card-body {
+        padding: 12px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        gap: 10px;
+
+        .food-name {
+          font-size: 0.95rem;
+          color: #fff;
+          margin: 0;
+          font-weight: 500;
+        }
+
+        .card-action-row {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          gap: 8px;
+
+          .add-cart-btn {
+            flex: 1;
+            background: $bright-red;
+            color: #fff;
+            border: none;
+            padding: 7px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: background 0.2s;
+
+            &:hover { background: #b71c1c; }
+          }
+
+          .price {
+            font-size: 1.05rem;
+            font-weight: bold;
+            color: $primary-gold;
+            white-space: nowrap;
+          }
+        }
+      }
+    }
+  }
+}

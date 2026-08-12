@@ -273,7 +273,7 @@ export class BookingStatus implements OnInit {
   }
 
   goBack() {
-    window.history.back();
+    this.router.navigate(['/Booking']);
   }
 
   goPreOrder(booking: BookingDetail) {

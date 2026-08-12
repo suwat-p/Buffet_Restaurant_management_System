@@ -1,20 +1,29 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
-import { BadgeModule } from 'primeng/badge';
 import { ButtonModule } from 'primeng/button';
 import { CarouselModule } from 'primeng/carousel';
 import { DialogModule } from 'primeng/dialog';
 import { RippleModule } from 'primeng/ripple';
 import { ToastModule } from 'primeng/toast';
+import { TooltipModule } from 'primeng/tooltip';
+import { MatIconModule } from '@angular/material/icon';
+
 import { Menu, MenuService } from '../../../service/api/menu.service';
 import { CartService } from '../../../service/api/cart.service';
-import { CustomerNavbar } from '../../../components/menu-bar/customer-navbar/customer-navbar';
+import { OrderService } from '../../../service/api/order.service';
 
-interface CartItem extends Menu {
+interface CartItem {
+  id: number;
+  menuId: number;
+  name: string;
+  price: number;
   quantity: number;
+  image?: string;
+  selected: boolean;
 }
 
 @Component({
@@ -23,19 +32,21 @@ interface CartItem extends Menu {
   imports: [
     CommonModule,
     HttpClientModule,
-    CustomerNavbar, // เปลี่ยนตรงนี้
+    FormsModule,
     CarouselModule,
     ButtonModule,
     RippleModule,
-    DialogModule,
-    BadgeModule,
     ToastModule,
+    TooltipModule,
+    DialogModule,
+    MatIconModule,
   ],
   providers: [MessageService],
   templateUrl: './pre-order.html',
   styleUrl: './pre-order.scss',
 })
 export class PreOrder implements OnInit {
+  isSidebarOpen: boolean = true;
   currentBannerIndex: number = 0;
   slideInterval: number = 5000;
   slideTimer: any;
@@ -46,7 +57,6 @@ export class PreOrder implements OnInit {
     { image: 'assets/Images/Banner3.png' },
   ];
 
-  isCartVisible: boolean = false;
   bookingId: number | null = null;
 
   allFoodItems: Menu[] = [];
@@ -55,12 +65,23 @@ export class PreOrder implements OnInit {
   categories: string[] = ['ทั้งหมด'];
   currentCategory: string = 'ทั้งหมด';
 
-  cart: CartItem[] = [];
+  cartBadgeCount: number = 0;
+
+  // State ตะกร้าและ Modal
+  displayCartDialog: boolean = false;
+  cartItems: CartItem[] = [];
+  currentCartId: number = 0;
+
+  // State สำหรับ Dialog ยืนยันการลบ
+  displayConfirmDelete: boolean = false;
+  itemToDelete: CartItem | null = null;
+  pendingChange: number = 0;
 
   constructor(
     private messageService: MessageService,
     private menuService: MenuService,
     private cartService: CartService,
+    private orderService: OrderService,
     private route: ActivatedRoute,
     private router: Router,
   ) {}
@@ -71,7 +92,198 @@ export class PreOrder implements OnInit {
     this.route.queryParams.subscribe((params) => {
       if (params['bookingId']) {
         this.bookingId = Number(params['bookingId']);
+        this.loadCart();
       }
+    });
+  }
+
+  // โหลดรายการสินค้าในตะกร้าจาก DB และอัปเดต Badge
+  loadCart() {
+    if (!this.bookingId) return;
+
+    this.cartService.getCartItems(0, this.bookingId).subscribe({
+      next: (res: any) => {
+        console.log('Cart Response from DB:', res);
+
+        if (res && (res.cartId || res.cart_id)) {
+          this.currentCartId = res.cartId || res.cart_id;
+
+          // ดึงข้อมูลรายการสินค้า (รองรับทั้ง items, cart_items, cartItems)
+          const rawItems = res.items || res.cart_items || res.cartItems || [];
+
+          this.cartItems = rawItems.map((item: any) => ({
+            id: item.id || item.cart_item_id || item.cartItemId,
+            menuId: item.menuId || item.menu_id,
+            name: item.name || item.menu_Name || item.menuName,
+            price: item.price ?? item.priceAtOrderTime ?? 0,
+            quantity: item.quantity || item.qty || 0,
+            image: item.image || item.menu_Image,
+            selected: true,
+          }));
+
+          // คำนวณจำนวนชิ้นรวมสำหรับ Badge
+          this.cartBadgeCount = this.cartItems.reduce((sum, item) => sum + item.quantity, 0);
+        } else {
+          this.cartItems = [];
+          this.currentCartId = 0;
+          this.cartBadgeCount = 0;
+        }
+      },
+      error: (err) => {
+        console.error('Load cart error:', err);
+        this.cartItems = [];
+        this.currentCartId = 0;
+        this.cartBadgeCount = 0;
+      },
+    });
+  }
+
+  // เปิด-ปิด Modal ตะกร้า
+  toggleCartModal() {
+    this.displayCartDialog = !this.displayCartDialog;
+    if (this.displayCartDialog) {
+      this.loadCart();
+    }
+  }
+
+  // คำนวณจำนวนรายการที่เลือก
+  get totalSelectedItems(): number {
+    return this.cartItems.filter((item) => item.selected).length;
+  }
+
+  // คำนวณราคารวมทั้งหมด
+  get totalPrice(): number {
+    return this.cartItems
+      .filter((item) => item.selected)
+      .reduce((sum, item) => sum + item.price * item.quantity, 0);
+  }
+
+  // เพิ่มจำนวนสินค้า
+  increaseQty(item: CartItem) {
+    this.updateCartQuantity(item, 1);
+  }
+
+  // ลดจำนวนสินค้า
+  decreaseQty(item: CartItem) {
+    this.updateCartQuantity(item, -1);
+  }
+
+  updateCartQuantity(item: CartItem, change: number) {
+    const newQuantity = item.quantity + change;
+
+    if (newQuantity <= 0) {
+      this.itemToDelete = item;
+      this.pendingChange = change;
+      this.displayConfirmDelete = true;
+    } else {
+      this.processUpdate(item, change);
+    }
+  }
+
+  confirmDelete() {
+    if (this.itemToDelete) {
+      this.processUpdate(this.itemToDelete, this.pendingChange);
+      this.displayConfirmDelete = false;
+      this.itemToDelete = null;
+    }
+  }
+
+  private processUpdate(item: CartItem, change: number) {
+    const previousQuantity = item.quantity;
+    const previousItems = [...this.cartItems];
+
+    item.quantity += change;
+
+    if (item.quantity <= 0) {
+      this.cartItems = this.cartItems.filter((x) => x.menuId !== item.menuId);
+    }
+
+    const payload = {
+      TableId: null,
+      BookingId: this.bookingId,
+      MenuId: item.menuId,
+      Quantity: change,
+    };
+
+    this.cartService.addToCart(payload).subscribe({
+      next: () => {
+        this.loadCart();
+      },
+      error: (err) => {
+        item.quantity = previousQuantity;
+        this.cartItems = previousItems;
+
+        this.messageService.add({
+          severity: 'error',
+          summary: 'ไม่สามารถอัปเดตได้',
+          detail: 'กรุณาลองใหม่อีกครั้ง',
+        });
+        this.loadCart();
+      },
+    });
+  }
+
+  addToCart(item: Menu) {
+    const payload = {
+      TableId: null,
+      BookingId: this.bookingId,
+      MenuId: item.menu_id,
+      Quantity: 1,
+    };
+
+    this.cartService.addToCart(payload).subscribe({
+      next: () => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'เพิ่มลงตะกร้าสั่งล่วงหน้า',
+          detail: item.menu_Name,
+          life: 1000,
+        });
+        this.loadCart();
+      },
+      error: (err) => {
+        console.error(err);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'ผิดพลาด',
+          detail: 'ไม่สามารถเพิ่มรายการล่วงหน้าได้',
+        });
+      },
+    });
+  }
+
+  // ส่งรายการสั่งล่วงหน้า
+  async placeOrder() {
+    if (this.currentCartId === 0 || this.cartItems.length === 0) return;
+
+    const payload = {
+      cartId: this.currentCartId,
+      bookingId: this.bookingId,
+      orderType: 'สั่งล่วงหน้า',
+    };
+
+    this.orderService.PlaceOrder(payload).subscribe({
+      next: (response: any) => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'บันทึกการสั่งล่วงหน้าเรียบร้อย',
+          detail: response?.message || 'รายการจะถูกจัดเตรียมตามรอบเวลาการจอง',
+        });
+
+        this.cartItems = [];
+        this.currentCartId = 0;
+        this.cartBadgeCount = 0;
+        this.displayCartDialog = false;
+      },
+      error: (error: any) => {
+        console.error('Error placing order:', error);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'เกิดข้อผิดพลาด',
+          detail: error?.error?.message || 'ไม่สามารถส่งรายการสั่งล่วงหน้าได้',
+        });
+        this.loadCart();
+      },
     });
   }
 
@@ -94,6 +306,16 @@ export class PreOrder implements OnInit {
     });
   }
 
+  goToBookingStatus() {
+    if (this.bookingId) {
+      this.router.navigate(['/BookingStatus'], {
+        queryParams: { bookingId: this.bookingId },
+      });
+    } else {
+      this.router.navigate(['/BookingStatus']);
+    }
+  }
+
   onClicksmailPictures(index: number) {
     if (this.slideTimer) {
       clearInterval(this.slideTimer);
@@ -113,74 +335,5 @@ export class PreOrder implements OnInit {
     } else {
       this.displayItems = this.allFoodItems.filter((item) => item.category === category);
     }
-  }
-
-  addToCart(item: Menu) {
-    const payload = {
-      TableId: null,
-      Booking_id: this.bookingId,
-      MenuId: item.menu_id,
-      Quantity: 1,
-    };
-
-    const existingIndex = this.cart.findIndex((c) => c.menu_id === item.menu_id);
-    if (existingIndex > -1) {
-      this.cart[existingIndex].quantity += 1;
-    } else {
-      this.cart.push({ ...item, quantity: 1 });
-    }
-
-    this.cartService.addToCart(payload).subscribe({
-      next: () => {
-        this.messageService.add({
-          severity: 'success',
-          summary: 'เพิ่มลงตะกร้าสั่งล่วงหน้า',
-          detail: item.menu_Name,
-          life: 1000,
-        });
-      },
-      error: (err) => {
-        console.error(err);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'ผิดพลาด',
-          detail: 'ไม่สามารถเพิ่มรายการล่วงหน้าได้',
-        });
-      },
-    });
-  }
-
-  updateQuantity(item: CartItem, change: number) {
-    const index = this.cart.indexOf(item);
-    if (index === -1) return;
-    item.quantity += change;
-    if (item.quantity <= 0) {
-      this.cart.splice(index, 1);
-    }
-  }
-
-  removeItem(item: CartItem) {
-    const index = this.cart.indexOf(item);
-    if (index > -1) this.cart.splice(index, 1);
-  }
-
-  get cartTotalItems() {
-    return this.cart.reduce((sum, item) => sum + item.quantity, 0);
-  }
-
-  get cartTotalPrice() {
-    return this.cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  }
-
-  confirmOrder() {
-    if (this.cart.length === 0) return;
-
-    this.isCartVisible = false;
-    this.messageService.add({
-      severity: 'success',
-      summary: 'บันทึกการสั่งล่วงหน้าเรียบร้อย',
-      detail: 'รายการจะถูกจัดเตรียมตามรอบเวลาการจอง',
-    });
-    this.cart = [];
   }
 }

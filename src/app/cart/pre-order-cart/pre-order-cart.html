@@ -19,61 +19,58 @@
           <span *ngIf="bookingId">(หมายเลขการจอง #{{ bookingId }})</span>
         </div>
 
-        <div class="cart-list">
+        <div class="cart-table">
           <ng-container *ngIf="cartItems && cartItems.length > 0; else emptyCart">
-            <div class="cart-item" *ngFor="let item of cartItems">
-              <img
-                [src]="item.image ? item.image : 'assets/Images/product/' + item.image"
-                class="cart-thumb"
-                alt="{{ item.name }}"
-                (error)="$event.target.src = 'assets/Images/no-image.png'"
-              />
+            <!-- หัวตาราง -->
+            <div class="table-head">
+              <div class="col-num center">#</div>
+              <div class="col-name">สินค้า</div>
+              <div class="col-price center">ราคาต่อชิ้น</div>
+              <div class="col-qty center">จำนวน</div>
+            </div>
 
-              <div class="cart-details">
-                <div class="row-top">
-                  <span class="item-name">{{ item.name }}</span>
-                  <span class="item-price">
-                    <ng-container *ngIf="item.price > 0; else noPrice">
-                      {{ item.price * item.quantity | number }} ฿
-                    </ng-container>
-                    <ng-template #noPrice>-</ng-template>
-                  </span>
-                </div>
+            <!-- แถวรายการสินค้า -->
+            <div class="table-row" *ngFor="let item of cartItems; let i = index">
+              <div class="col-num center">{{ i + 1 }}</div>
+              <div class="col-name">{{ item.name }}</div>
 
-                <div class="row-actions">
-                  <div class="qty-ctrl">
-                    <button class="minus" (click)="decreaseQty(item)">
-                      <i class="pi pi-minus"></i>
-                    </button>
-                    <span class="qty">{{ item.quantity }}</span>
-                    <button class="plus" (click)="increaseQty(item)">
-                      <i class="pi pi-plus"></i>
-                    </button>
-                  </div>
+              <div class="col-price center">
+                <ng-container *ngIf="item.price > 0; else noPrice">
+                  {{ item.price }} ฿
+                </ng-container>
+                <ng-template #noPrice>-</ng-template>
+              </div>
 
-                  <button class="del-btn" (click)="confirmDeleteItem(item)">
-                    <i class="pi pi-trash"></i>
+              <div class="col-qty center">
+                <div class="qty-control">
+                  <button class="qty-btn" (click)="decreaseQty(item)">
+                    <mat-icon>remove_circle</mat-icon>
+                  </button>
+                  <span class="qty-value">{{ item.quantity }}</span>
+                  <button class="qty-btn" (click)="increaseQty(item)">
+                    <mat-icon>add_circle</mat-icon>
                   </button>
                 </div>
               </div>
             </div>
 
-            <!-- ส่วนสรุปยอดและปุ่มยืนยันด้านล่าง -->
-            <div class="cart-summary">
-              <div class="total-line">
-                <span>รวมทั้งหมด ({{ totalSelectedItems }} รายการ)</span>
-                <span class="highlight-price">{{ totalPrice | number }} ฿</span>
+            <!-- ส่วนสรุปยอดและปุ่มสั่งอาหาร -->
+            <div class="table-footer">
+              <div class="footer-left">
+                <span class="summary-text">
+                  รวม ({{ totalSelectedItems }} รายการ)
+                  <span class="price" *ngIf="totalPrice > 0">{{ totalPrice }} ฿</span>
+                </span>
               </div>
-              <button class="confirm-btn" pRipple (click)="placeOrder()">สั่งอาหารล่วงหน้า</button>
+              <div class="footer-right">
+                <button class="order-btn" pRipple (click)="placeOrder()">สั่งอาหารล่วงหน้า</button>
+              </div>
             </div>
           </ng-container>
 
           <ng-template #emptyCart>
-            <div class="empty-state">
-              <i
-                class="pi pi-shopping-cart"
-                style="font-size: 2.5rem; margin-bottom: 12px; color: #666"
-              ></i>
+            <div class="empty-cart-container">
+              <mat-icon>shopping_basket</mat-icon>
               <p>ยังไม่มีรายการอาหารสั่งล่วงหน้าในตะกร้า</p>
               <span class="sub-text">กรุณาเลือกอาหารจากเมนูสั่งล่วงหน้า</span>
             </div>

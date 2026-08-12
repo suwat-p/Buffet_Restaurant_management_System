@@ -9,9 +9,9 @@ import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { RippleModule } from 'primeng/ripple';
 import { ToastModule } from 'primeng/toast';
-import { MenuPreorder } from '../../components/menu-bar/menu-preorder/menu-preorder';
 import { CartService } from '../../service/api/cart.service';
 import { OrderService } from '../../service/api/order.service';
+import { MenuPreorder } from '../../components/menu-bar/menu-manager/menu-preorder/menu-preorder';
 
 interface CartItem {
   id: number;
@@ -96,42 +96,42 @@ export class PreOrderCart implements OnInit {
     });
   }
 
+  // คำนวณจำนวนรายการที่เลือก
   get totalSelectedItems(): number {
     return this.cartItems.filter((item) => item.selected).length;
   }
 
+  // คำนวณราคารวมทั้งหมด
   get totalPrice(): number {
     return this.cartItems
       .filter((item) => item.selected)
       .reduce((sum, item) => sum + item.price * item.quantity, 0);
   }
 
+  // เพิ่มจำนวนสินค้า (+1)
   increaseQty(item: CartItem) {
     this.updateCartQuantity(item, 1);
   }
 
+  // ลดจำนวนสินค้า (-1)
   decreaseQty(item: CartItem) {
     this.updateCartQuantity(item, -1);
   }
 
-  confirmDeleteItem(item: CartItem) {
-    this.itemToDelete = item;
-    this.pendingChange = -item.quantity; // ลบออกตามจำนวนที่มีอยู่จริง
-    this.displayConfirm = true;
-  }
-
+  // ตรวจสอบจำนวนก่อนอัปเดต หรือเปิด Dialog ยืนยันการลบ
   updateCartQuantity(item: CartItem, change: number) {
     const newQuantity = item.quantity + change;
 
     if (newQuantity <= 0) {
       this.itemToDelete = item;
       this.pendingChange = change;
-      this.displayConfirm = true;
+      this.displayConfirm = true; // เปิด Dialog แจ้งเตือนเมื่อลดจำนวนจนเหลือ 0
     } else {
       this.processUpdate(item, change);
     }
   }
 
+  // ยืนยันการลบจาก Dialog
   confirmDelete() {
     if (this.itemToDelete) {
       this.processUpdate(this.itemToDelete, this.pendingChange);
@@ -140,6 +140,7 @@ export class PreOrderCart implements OnInit {
     }
   }
 
+  // ยิง API อัปเดตข้อมูลตะกร้า
   private processUpdate(item: CartItem, change: number) {
     const previousQuantity = item.quantity;
     const previousItems = [...this.cartItems];
@@ -160,6 +161,7 @@ export class PreOrderCart implements OnInit {
     this.cartService.addToCart(payload).subscribe({
       next: () => {},
       error: (err) => {
+        // Rollback ค่าเดิมหากเกิด Error
         item.quantity = previousQuantity;
         this.cartItems = previousItems;
 
@@ -174,6 +176,7 @@ export class PreOrderCart implements OnInit {
     });
   }
 
+  // ยืนยันการสั่งอาหารล่วงหน้า
   async placeOrder() {
     if (this.currentCartId === 0 || this.cartItems.length === 0) return;
 
@@ -195,7 +198,7 @@ export class PreOrderCart implements OnInit {
         this.currentCartId = 0;
 
         setTimeout(() => {
-          this.router.navigate(['/pre-order-menu'], {
+          this.router.navigate(['/PreOrder'], {
             queryParams: { bookingId: this.bookingId },
           });
         }, 1500);
@@ -213,7 +216,7 @@ export class PreOrderCart implements OnInit {
   }
 
   goToPreOrderMenu() {
-    this.router.navigate(['/pre-order-menu'], {
+    this.router.navigate(['/PreOrder'], {
       queryParams: { bookingId: this.bookingId },
     });
   }
