@@ -9,67 +9,117 @@
 <!-- เนื้อหาหลักของหน้าเสิร์ฟ -->
 <ng-template #mainContent>
   <div class="serve-container">
-    <!-- กรณีไม่ได้เข้าสู่ระบบ -->
-    <div class="card error-card" *ngIf="!isLoggedIn">
-      <mat-icon>lock</mat-icon>
-      <p>กรุณาเข้าสู่ระบบก่อนดำเนินการเสิร์ฟอาหาร</p>
-      <button class="btn-login-redirect" (click)="goToLogin()">เข้าสู่ระบบพนักงาน</button>
-    </div>
-
-    <!-- กรณีไม่มีสิทธิ์ -->
-    <div class="card error-card" *ngIf="isLoggedIn && !isServerRole">
-      <mat-icon>error_outline</mat-icon>
-      <p>คุณไม่มีสิทธิ์เข้าถึงหน้านี้ (เฉพาะพนักงานเสิร์ฟเท่านั้น)</p>
-    </div>
-
-    <!-- โหลดข้อมูล -->
-    <div class="card loading-card" *ngIf="isLoggedIn && isServerRole && loading">
-      <div class="spinner"></div>
-      <p>กำลังโหลดข้อมูลออเดอร์...</p>
-    </div>
-
-    <!-- การ์ดรายการนำเสิร์ฟ -->
-    <div
-      class="card serve-card"
-      *ngIf="isLoggedIn && isServerRole && !loading && !error && orderInfo"
-    >
-      <div class="card-header">
-        <span class="status-badge delivering">
-          <mat-icon>local_shipping</mat-icon> กำลังนำเสิร์ฟ
-        </span>
-        <h2>ออเดอร์ #{{ orderInfo.orderId }}</h2>
-        <div class="table-badge">โต๊ะ {{ orderInfo.tableNumber }}</div>
+    <div class="main-content">
+      <!-- กรณีไม่ได้เข้าสู่ระบบ -->
+      <div class="card error-card" *ngIf="!isLoggedIn">
+        <mat-icon>lock</mat-icon>
+        <p>กรุณาเข้าสู่ระบบก่อนดำเนินการเสิร์ฟอาหาร</p>
+        <button class="btn-login-redirect" (click)="goToLogin()">เข้าสู่ระบบพนักงาน</button>
       </div>
 
-      <div class="card-body">
-        <h3>รายการอาหาร</h3>
-        <div class="items-list">
-          <div class="item-row" *ngFor="let item of orderInfo.items">
-            <span class="qty">{{ item.quantity }}x</span>
-            <span class="name">{{ item.menuName }}</span>
+      <!-- กรณีไม่มีสิทธิ์ -->
+      <div class="card error-card" *ngIf="isLoggedIn && !isServerRole">
+        <mat-icon>error_outline</mat-icon>
+        <p>คุณไม่มีสิทธิ์เข้าถึงหน้านี้ (เฉพาะพนักงานเสิร์ฟเท่านั้น)</p>
+      </div>
+
+      <ng-container *ngIf="isLoggedIn && isServerRole">
+        <!-- Header -->
+        <div class="page-title-bar">
+          <button class="btn-back" (click)="goBack()">
+            <mat-icon>arrow_back_ios_new</mat-icon>
+          </button>
+          <h2>สแกน QR เพื่อนำเสิร์ฟ</h2>
+        </div>
+
+        <!-- 1. ส่วนกล้องสแกน (แสดงเมื่อยังไม่มีข้อมูลออเดอร์ และไม่มี error/สำเร็จ) -->
+        <div class="scanner-wrapper" *ngIf="!orderInfo && !loading && !isServed && !error">
+          <div class="scanner-box">
+            <!-- เส้นขอบสแกน 4 มุม -->
+            <div class="corner top-left"></div>
+            <div class="corner top-right"></div>
+            <div class="corner bottom-left"></div>
+            <div class="corner bottom-right"></div>
+
+            <!-- เลเซอร์วิ่งเมื่อกล้องเปิด -->
+            <div class="scan-laser" *ngIf="isCameraActive"></div>
+
+            <!-- ตัวสแกน QR Code จริง -->
+            <zxing-scanner
+              *ngIf="isCameraActive"
+              [formats]="allowedFormats"
+              (scanSuccess)="onCodeResult($event)"
+              (permissionResponse)="onHasPermission($event)"
+            >
+            </zxing-scanner>
+
+            <!-- Placeholder แสดงตอนยังไม่เปิดกล้อง -->
+            <div class="camera-placeholder" *ngIf="!isCameraActive">
+              <mat-icon class="camera-icon">qr_code_scanner</mat-icon>
+              <p>กดปุ่มด้านล่างเพื่อเปิดกล้องสแกน</p>
+            </div>
+          </div>
+
+          <!-- Action Section ปุ่มกดเปิด/ปิดกล้อง -->
+          <div class="action-section">
+            <button class="btn-scan" (click)="toggleCamera()" [disabled]="loading">
+              <mat-icon>{{ isCameraActive ? 'no_photography' : 'qr_code_scanner' }}</mat-icon>
+              <span>{{ isCameraActive ? 'ปิดกล้อง' : 'เปิดกล้องสแกน QR Code' }}</span>
+            </button>
           </div>
         </div>
-      </div>
 
-      <!-- ปุ่มยืนยันเสิร์ฟ -->
-      <div class="card-footer" *ngIf="!isServed">
-        <button class="btn-complete-serve" (click)="completeServe()" [disabled]="submitting">
-          <mat-icon>check_circle</mat-icon>
-          <span>{{ submitting ? 'กำลังบันทึก...' : 'เสิร์ฟเสร็จแล้ว (ถึงโต๊ะแล้ว)' }}</span>
-        </button>
-      </div>
+        <!-- 2. สถานะ Loading -->
+        <div class="state-box loading-box" *ngIf="loading">
+          <mat-icon class="spin-icon">sync</mat-icon>
+          <p>กำลังโหลดข้อมูลออเดอร์...</p>
+        </div>
 
-      <!-- เสิร์ฟเสร็จแล้ว -->
-      <div class="success-banner" *ngIf="isServed">
-        <mat-icon>task_alt</mat-icon>
-        <p>เสิร์ฟอาหารเรียบร้อยแล้ว</p>
-      </div>
-    </div>
+        <!-- 3. สถานะ Error -->
+        <div class="state-box error-box" *ngIf="error && !loading">
+          <mat-icon>error_outline</mat-icon>
+          <p>{{ error }}</p>
+          <button class="btn-retry" (click)="resetScanner()">สแกนใหม่อีกครั้ง</button>
+        </div>
 
-    <!-- กรณีเกิดข้อผิดพลาดในการโหลดออเดอร์ -->
-    <div class="card error-card" *ngIf="isLoggedIn && isServerRole && error">
-      <mat-icon>error_outline</mat-icon>
-      <p>{{ error }}</p>
+        <!-- 4. สถานะสำเร็จ (เสิร์ฟเสร็จแล้ว) -->
+        <div class="state-box success-box" *ngIf="isServed">
+          <mat-icon class="success-icon">check_circle_outline</mat-icon>
+          <h3>เสิร์ฟอาหารเรียบร้อยแล้ว</h3>
+          <p>ทำรายการสำเร็จเรียบร้อยแล้ว</p>
+          <button class="btn-scan-again" (click)="resetScanner()">สแกนออเดอร์ถัดไป</button>
+        </div>
+
+        <!-- 5. การ์ดรายละเอียดออเดอร์ (แสดงเมื่อสแกนพบข้อมูล) -->
+        <div class="card serve-card" *ngIf="orderInfo && !loading && !isServed">
+          <div class="card-header">
+            <span class="status-badge delivering">
+              <mat-icon>local_shipping</mat-icon> กำลังนำเสิร์ฟ
+            </span>
+            <h2>ออเดอร์ #{{ orderInfo.orderId }}</h2>
+            <div class="table-badge">โต๊ะ {{ orderInfo.tableNumber }}</div>
+          </div>
+
+          <div class="card-body">
+            <h3>รายการอาหาร</h3>
+            <div class="items-list">
+              <div class="item-row" *ngFor="let item of orderInfo.items">
+                <span class="qty">{{ item.quantity }}x</span>
+                <span class="name">{{ item.menuName }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- ปุ่มยืนยันเสิร์ฟ (logic เดิม) -->
+          <div class="card-footer">
+            <button class="btn-complete-serve" (click)="completeServe()" [disabled]="submitting">
+              <mat-icon>check_circle</mat-icon>
+              <span>{{ submitting ? 'กำลังบันทึก...' : 'เสิร์ฟเสร็จแล้ว (ถึงโต๊ะแล้ว)' }}</span>
+            </button>
+            <button class="btn-cancel" (click)="resetScanner()">ยกเลิก / สแกนใหม่</button>
+          </div>
+        </div>
+      </ng-container>
     </div>
   </div>
 </ng-template>
