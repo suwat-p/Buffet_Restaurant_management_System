@@ -329,7 +329,7 @@ export class Booking implements OnInit, OnDestroy {
       next: (res: any) => {
         this.pendingBookingId = res.booking_id;
         this.bookedTableNames = res.tables || this.selectedTables.map((t) => t.table_Number);
-        this.depositAmount = res.amount_pay;
+        this.depositAmount = res.deposit_amount;
 
         //  เมื่อจองเร็จ เรียกเจน QR Pay ทันที
         this.generatePaymentQr(res.booking_id);

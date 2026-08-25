@@ -106,67 +106,75 @@
       </div>
     </div>
 
-    <!-- ── Modal ชำระเงิน ── -->
+    <!-- ── Modal ชำระเงิน (ดีไซน์ QR Card ชุดเดียวกับหน้า Display) ── -->
     <div class="modal-overlay pay-overlay" *ngIf="showPaymentModal">
-      <div class="pay-sheet">
+      <div class="pay-sheet qr-card">
         <div class="drag-handle"></div>
 
-        <div class="pay-header">
+        <!-- Header สีน้ำเงินมาตรฐาน Thai QR (เหมือนหน้า Display) -->
+        <div class="qr-header">
           <button class="pay-close" (click)="closePaymentModal()">✕</button>
-          <div class="pay-header-brand">
-            <span class="brand-sub">THAI QR PAYMENT</span>
-            <span class="brand-main">PromptPay</span>
-          </div>
-          <div class="pay-logo-pp">
-            <svg width="32" height="32" viewBox="0 0 40 40" fill="none">
-              <circle cx="20" cy="20" r="20" fill="white" fill-opacity="0.15" />
-              <text
-                x="50%"
-                y="55%"
-                dominant-baseline="middle"
-                text-anchor="middle"
-                fill="white"
-                font-size="18"
-                font-weight="bold"
-              >
-                PP
+          <svg viewBox="0 0 200 45" class="qr-header-logo">
+            <g fill="#ffffff">
+              <path d="M25 10 h 20 v 20 h -20 z M30 15 v 10 h 10 v -10 z" />
+              <path
+                d="M20 5 h 15 v 5 h -15 z M40 5 h 5 v 15 h -5 z M15 20 h 5 v 15 h -5 z M20 35 h 15 v 5 h -15 z"
+              />
+              <text x="60" y="24" font-family="Arial, sans-serif" font-weight="bold" font-size="16">
+                THAI QR
               </text>
-            </svg>
-          </div>
+              <text
+                x="60"
+                y="38"
+                font-family="Arial, sans-serif"
+                font-weight="bold"
+                font-size="14"
+                letter-spacing="1"
+              >
+                PAYMENT
+              </text>
+            </g>
+          </svg>
         </div>
 
-        <!-- ยอดชำระ -->
-        <div class="pay-amount-block">
-          <span class="pay-amount-label">ยอดชำระค่ามัดจำ</span>
-          <span class="pay-amount-value">฿{{ depositAmount | number: '1.2-2' }}</span>
-          <div class="pay-table-chips">
-            <span class="pay-chip" *ngFor="let t of bookedTableNames">โต๊ะ {{ t }}</span>
+        <!-- Body สีขาว -->
+        <div class="qr-body">
+          <!-- โลโก้ PromptPay ล้อมกรอบ -->
+          <div class="promptpay-logo-wrapper">
+            <div class="promptpay-badge">
+              <span class="pp-sub">พร้อมเพย์</span>
+              <span class="pp-main">PromptPay</span>
+            </div>
           </div>
-        </div>
 
-        <!-- QR Code -->
-        <div class="pay-qr-wrap">
-          <div class="pay-qr-inner">
+          <!-- ยอดชำระ + โต๊ะที่จอง -->
+          <div class="qr-deposit-info">
+            <span class="pay-amount-label">ยอดชำระค่ามัดจำ</span>
+            <span class="pay-amount-value">฿{{ depositAmount | number: '1.2-2' }}</span>
+            <div class="pay-table-chips">
+              <span class="pay-chip" *ngFor="let t of bookedTableNames">โต๊ะ {{ t }}</span>
+            </div>
+          </div>
+
+          <!-- ตัว QR Code -->
+          <div class="qr-image-wrapper">
             <ng-container *ngIf="promptPayQrUrl; else qrLoading">
-              <img [src]="promptPayQrUrl" alt="QR PromptPay" class="pay-qr-img" />
-
-              <div class="auto-check-badge">
-                <div class="dot-pulse"></div>
-                <span>กำลังรอการชำระเงิน...</span>
-              </div>
+              <img [src]="promptPayQrUrl" alt="QR PromptPay" class="qr-image" />
             </ng-container>
 
             <ng-template #qrLoading>
               <div class="pay-qr-skeleton">
-                <div class="skeleton-spinner"></div>
+                <div class="pay-qr-spin"></div>
                 <span>กำลังสร้าง QR...</span>
               </div>
             </ng-template>
           </div>
 
-          <div class="pay-status-toast">
-            <div class="loader-line"></div>
-            <p class="pay-scan-label">กรุณาสแกน QR และรอระบบยืนยันสักครู่</p>
+          <p class="qr-instruction" *ngIf="promptPayQrUrl">กรุณาสแกน QR เพื่อชำระเงิน</p>
+
+          <div class="auto-check-badge" *ngIf="promptPayQrUrl">
+            <div class="dot-pulse"></div>
+            <span>กำลังรอการชำระเงิน...</span>
           </div>
         </div>
 
