@@ -37,6 +37,7 @@ export class StatusCustomerOrder implements OnInit, OnDestroy {
   overallStatusText = '';
 
   private statusSub?: Subscription;
+  private paramSub?: Subscription;
 
   constructor(
     private route: ActivatedRoute,
@@ -44,18 +45,35 @@ export class StatusCustomerOrder implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    const idParam = this.route.snapshot.paramMap.get('orderId');
-    if (!idParam) {
-      console.error('ไม่พบ orderId ใน route');
-      return;
-    }
-    this.orderId = Number(idParam);
+    // 🔄 ใช้ paramMap แบบ subscribe แทน snapshot เพราะ Angular Router จะ reuse component เดิม
+    // ถ้า route เดิมแค่เปลี่ยน param (เช่นสั่งออเดอร์ใหม่แล้วพาไปหน้าเดิมด้วย orderId ใหม่)
+    // ทำให้ ngOnInit ไม่ถูกเรียกซ้ำ ถ้าใช้ snapshot ตัวแปร orderId จะค้างเป็นออเดอร์เก่าตลอด
+    this.paramSub = this.route.paramMap.subscribe((params) => {
+      const idParam = params.get('orderId');
+      if (!idParam) {
+        console.error('ไม่พบ orderId ใน route');
+        return;
+      }
 
-    this.loadInitialStatus();
-    this.listenForRealtimeUpdates();
+      const newOrderId = Number(idParam);
+      if (newOrderId === this.orderId) return; // orderId ไม่เปลี่ยนจริง ข้ามไป
+
+      // เคลียร์ state ของออเดอร์เก่าทิ้งก่อน ไม่งั้นจะเห็นสถานะ/รายการอาหารเก่าค้างแวบนึงระหว่างรอโหลดของใหม่
+      this.orderId = newOrderId;
+      this.currentStep = 0;
+      this.overallStatusText = '';
+      this.orderItems = [];
+
+      // ยกเลิก SignalR listener เดิมที่ผูกกับ orderId เก่า ก่อนต่อฟังของใหม่
+      this.statusSub?.unsubscribe();
+
+      this.loadInitialStatus();
+      this.listenForRealtimeUpdates();
+    });
   }
 
   ngOnDestroy() {
+    this.paramSub?.unsubscribe();
     this.statusSub?.unsubscribe();
     this.orderService.disconnect();
   }
@@ -87,7 +105,6 @@ export class StatusCustomerOrder implements OnInit, OnDestroy {
     });
   }
 
-  // แปลงข้อความสถานะ (จาก backend) เป็นลำดับ step บน stepper
   private updateTracker(statusText: string) {
     const index = STATUS_STEP_MAP[statusText];
     if (index !== undefined) {
