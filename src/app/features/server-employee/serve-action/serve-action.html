@@ -116,7 +116,10 @@
               <mat-icon>check_circle</mat-icon>
               <span>{{ submitting ? 'กำลังบันทึก...' : 'เสิร์ฟเสร็จแล้ว (ถึงโต๊ะแล้ว)' }}</span>
             </button>
-            <button class="btn-cancel" (click)="resetScanner()">ยกเลิก / สแกนใหม่</button>
+            <button class="btn-cancel" (click)="resetScanner()" [disabled]="submitting">
+              <mat-icon>qr_code_scanner</mat-icon>
+              <span>สแกนออเดอร์ใหม่</span>
+            </button>
           </div>
         </div>
       </ng-container>

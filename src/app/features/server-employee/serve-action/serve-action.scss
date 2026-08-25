@@ -456,7 +456,25 @@ $text-gray: #aaaaaa;
     }
   }
 
-  .card-footer { margin-top: 24px; }
+  .card-footer {
+    margin-top: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    // จอกว้างขึ้น (แท็บเล็ต/เดสก์ท็อป) วางปุ่มเรียงแนวนอน ให้ปุ่มหลักเด่นกว่าปุ่มรอง
+    @media (min-width: 400px) {
+      flex-direction: row;
+
+      .btn-complete-serve {
+        flex: 2;
+      }
+
+      .btn-cancel {
+        flex: 1;
+      }
+    }
+  }
 
   .btn-complete-serve {
     width: 100%;
@@ -483,6 +501,39 @@ $text-gray: #aaaaaa;
 
     &:disabled {
       opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    &:not(:disabled):active { transform: scale(0.98); }
+  }
+
+  .btn-cancel {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px;
+    border: 1px solid #3a3a3a;
+    border-radius: 8px;
+    background: transparent;
+    color: $text-gray;
+    font-size: 0.95rem;
+    font-weight: 600;
+    font-family: 'Sarabun', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+
+    mat-icon { font-size: 18px; width: 18px; height: 18px; }
+
+    &:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: #5a5a5a;
+      color: $text-white;
+    }
+
+    &:disabled {
+      opacity: 0.4;
       cursor: not-allowed;
     }
 

@@ -43,7 +43,7 @@ export class MenuServer {
       route: '/ConfirmCheckin',
       active: false,
     },
-    { label: 'นำเสิร์ฟอาหาร', icon: 'room_service', route: '/ManageTable', active: false }, // หรือ grid_view
+    { label: 'นำเสิร์ฟอาหาร', icon: 'room_service', route: '/serve-action', active: false }, // หรือ grid_view
     { label: 'ลงเวลาเข้างาน', icon: 'history', route: '/Employeecheckin', active: false },
     {
       label: 'เช็คเงินที่ทำงาน',
@@ -57,7 +57,7 @@ export class MenuServer {
     this.isExpanded = !this.isExpanded;
   }
 
-  navigateToProfile(){
+  navigateToProfile() {
     this.router.navigate(['/Profile-Employee']);
   }
   closeSidebar() {
