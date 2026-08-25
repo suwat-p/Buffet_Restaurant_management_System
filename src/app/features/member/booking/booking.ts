@@ -97,9 +97,17 @@ export class Booking implements OnInit, OnDestroy {
     this.isPolling = false;
   }
 
+  // แปลง Date เป็น yyyy-MM-dd ตามเวลาท้องถิ่น ห้ามใช้ toISOString() (แปลงเป็น UTC ทำให้วันที่ถอยผิดได้ในโซนไทย)
+  private toLocalDateStr(d: Date): string {
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+  }
+
   setMinDate() {
     const now = new Date();
-    this.minDate = now.toISOString().split('T')[0];
+    this.minDate = this.toLocalDateStr(now);
     const later = new Date(now.getTime() + 30 * 60 * 1000);
     const hh = String(later.getHours()).padStart(2, '0');
     const mm = String(later.getMinutes()).padStart(2, '0');
@@ -108,7 +116,7 @@ export class Booking implements OnInit, OnDestroy {
   }
 
   updateCurrentMinTime() {
-    const today = new Date().toISOString().split('T')[0];
+    const today = this.toLocalDateStr(new Date());
     if (!this.bookingForm.BookingDate || this.bookingForm.BookingDate === today) {
       this.currentMinTime = this.minTime;
     } else {
@@ -118,7 +126,7 @@ export class Booking implements OnInit, OnDestroy {
 
   onDateChange() {
     this.updateCurrentMinTime();
-    const today = new Date().toISOString().split('T')[0];
+    const today = this.toLocalDateStr(new Date());
     if (
       this.bookingForm.BookingDate === today &&
       this.bookingForm.BookingTime &&
@@ -140,7 +148,7 @@ export class Booking implements OnInit, OnDestroy {
   }
 
   isSlotDisabled(slot: string): boolean {
-    const today = new Date().toISOString().split('T')[0];
+    const today = this.toLocalDateStr(new Date());
     if (!this.bookingForm.BookingDate || this.bookingForm.BookingDate > today) return false;
     if (this.bookingForm.BookingDate === today) return slot < this.minTime;
     return true;

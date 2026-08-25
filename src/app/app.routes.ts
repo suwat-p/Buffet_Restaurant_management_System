@@ -54,7 +54,7 @@ export const routes: Routes = [
 
   { path: 'Customer', component: CustomerOrder },
   { path: 'Cart', component: Cart },
-  { path: 'StatusCustomer', component: StatusCustomerOrder },
+  { path: 'StatusCustomer/:orderId', component: StatusCustomerOrder },
   { path: 'Employeecheckin', component: EmployeeAttendance },
   { path: 'EmployeeIncome', component: EmployeeIncome },
   { path: 'KitchenDashboard', component: KitchenDashboard },

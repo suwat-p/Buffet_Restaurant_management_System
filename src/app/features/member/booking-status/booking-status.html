@@ -99,34 +99,27 @@
 
 <!-- Edit Modal -->
 <div class="modal-overlay" *ngIf="showEditModal">
-  <div class="modal-content">
-    <div class="modal-header-qr">
+  <div class="modal-content form-modal">
+    <div class="modal-header">
       <h3>แก้ไขข้อมูลการจอง</h3>
-      <button class="close-icon" (click)="closeEditModal()">✕</button>
+      <button class="close-btn" (click)="closeEditModal()">✕</button>
     </div>
 
-    <div class="modal-body edit-form">
-      <div class="row-group">
-        <div class="form-group">
-          <label>จำนวนผู้ใหญ่</label>
-          <div class="input-with-icon">
-            <span class="icon">🧑</span>
-            <input type="number" [(ngModel)]="editFormData.adultCount" min="1" class="form-input" />
-          </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group half">
+          <label>จำนวนผู้ใหญ่ <span class="required">*</span></label>
+          <input type="number" [(ngModel)]="editFormData.adultCount" min="1" />
         </div>
-
-        <div class="form-group">
+        <div class="form-group half">
           <label>จำนวนเด็ก</label>
-          <div class="input-with-icon">
-            <span class="icon">👦</span>
-            <input type="number" [(ngModel)]="editFormData.childCount" min="0" class="form-input" />
-          </div>
+          <input type="number" [(ngModel)]="editFormData.childCount" min="0" />
         </div>
       </div>
 
       <div class="form-group">
         <label
-          >เวลาที่มาถึง
+          >เลือกเวลาที่มาถึง <span class="required">*</span>
           <span class="selected-time-text" *ngIf="editFormData.time"
             >({{ editFormData.time }})</span
           >
@@ -134,20 +127,27 @@
         <div class="time-grid">
           <button
             *ngFor="let slot of availableTimeSlots"
+            type="button"
             class="time-slot-btn"
             [class.active]="editFormData.time === slot"
+            [class.disabled]="isEditSlotDisabled(slot)"
+            [disabled]="isEditSlotDisabled(slot)"
             (click)="selectTime(slot)"
           >
             {{ slot }}
           </button>
         </div>
-        <small class="hint-text">* หากเลื่อนเวลา ระบบจะตรวจสอบโต๊ะว่างอีกครั้ง</small>
+        <small class="time-hint"
+          >* ไม่สามารถเลือกเวลาที่ผ่านไปแล้วได้ ระบบจะปิดปุ่มให้อัตโนมัติ</small
+        >
+        <br />
+        <small class="time-hint">* หากเลื่อนเวลา ระบบจะตรวจสอบโต๊ะว่างอีกครั้ง</small>
       </div>
     </div>
 
-    <div class="modal-footer-qr" style="gap: 10px; display: flex">
-      <button class="close-btn-red" style="flex: 1" (click)="closeEditModal()">ยกเลิก</button>
-      <button class="save-btn" style="flex: 1" [disabled]="isEditing" (click)="saveEditBooking()">
+    <div class="modal-footer edit-footer">
+      <button class="cancel-btn-outline" (click)="closeEditModal()">ยกเลิก</button>
+      <button class="confirm-btn" [disabled]="isEditing" (click)="saveEditBooking()">
         {{ isEditing ? 'กำลังบันทึก...' : 'บันทึก' }}
       </button>
     </div>

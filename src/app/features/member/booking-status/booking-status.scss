@@ -357,131 +357,224 @@ $color-red-danger: #b71c1c;
   to { transform: scale(1); opacity: 1; }
 }
 
-.edit-form {
-  padding: 10px 20px 20px;
+// --- Edit Modal (จับคู่ดีไซน์กับ booking.html/booking.scss ให้เหมือนกัน) ---
+.modal-content.form-modal {
+  background: #141414;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  width: 100%;
+  max-width: 480px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+  overflow: hidden;
   text-align: left;
 
-  .row-group {
-    display: flex;
-    gap: 15px;
-    margin-bottom: 20px;
-
-    .form-group {
-      flex: 1;
-      margin-bottom: 0;
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.02);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 10px;
+    &:hover {
+      background: rgba(255, 255, 255, 0.3);
     }
   }
 
-  .form-group {
-    margin-bottom: 20px;
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    background: #141414;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 
-    label {
+    h3 {
+      margin: 0;
+      color: #ffffff;
+      font-size: 1.25rem;
+      font-weight: 600;
+      letter-spacing: -0.3px;
+    }
+
+    .close-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: none;
+      color: #888;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      font-size: 1.2rem;
       display: flex;
-      justify-content: space-between;
-      color: #aaa;
-      margin-bottom: 8px;
-      font-size: 0.95rem;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
 
-      .selected-time-text {
-        color: #ff9100;
-        font-weight: bold;
+      &:hover {
+        background: rgba(255, 255, 255, 0.15);
+        color: #fff;
+      }
+    }
+  }
+
+  .modal-body {
+    padding: 24px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+
+    .form-row {
+      display: flex;
+      gap: 12px;
+      .half {
+        flex: 1;
       }
     }
 
-    .input-with-icon {
-      position: relative;
+    .form-group {
       display: flex;
-      align-items: center;
+      flex-direction: column;
+      gap: 8px;
+      margin: 0;
 
-      .icon {
-        position: absolute;
-        left: 12px;
-        font-size: 1.1rem;
-        pointer-events: none;
+      label {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: #9ca3af;
+        font-size: 0.85rem;
+        font-weight: 500;
+
+        .required {
+          color: #ef4444;
+        }
+
+        .selected-time-text {
+          color: #3b82f6;
+          font-weight: 700;
+        }
       }
 
-      .form-input {
+      input[type='number'] {
         width: 100%;
-        padding: 12px 12px 12px 40px;
-        border-radius: 8px;
-        background: #1a1a1a;
-        border: 1px solid #333;
+        padding: 12px 14px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 10px;
         color: #fff;
         font-family: inherit;
-        font-size: 1rem;
+        font-size: 0.95rem;
         box-sizing: border-box;
-        transition: border-color 0.3s ease;
-        
+        transition: all 0.2s;
+
         &:focus {
+          border-color: #3b82f6;
+          background: rgba(255, 255, 255, 0.07);
           outline: none;
-          border-color: #ff9100;
+          box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
         }
       }
     }
 
-    .hint-text {
-      display: block;
-      color: #ff9100;
-      font-size: 0.75rem;
-      margin-top: 10px;
-      opacity: 0.8;
+    .time-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+      gap: 8px;
+      max-height: 200px;
+      overflow-y: auto;
+      padding-right: 4px;
+
+      .time-slot-btn {
+        padding: 10px 4px;
+        background: rgba(255, 255, 255, 0.04);
+        color: #d1d5db;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 8px;
+        font-size: 0.88rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+
+        &:hover:not(.disabled) {
+          background: rgba(255, 255, 255, 0.1);
+          border-color: rgba(255, 255, 255, 0.2);
+          color: #fff;
+        }
+
+        &.active {
+          background: #2563eb;
+          border-color: #3b82f6;
+          color: #ffffff;
+          font-weight: 700;
+          box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+        }
+
+        &.disabled,
+        &:disabled {
+          opacity: 0.2;
+          cursor: not-allowed;
+          pointer-events: none;
+        }
+      }
+    }
+
+    .time-hint {
+      color: #6b7280;
+      font-size: 0.78rem;
     }
   }
 
-  .time-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+  .modal-footer.edit-footer {
+    display: flex;
     gap: 10px;
-    max-height: 200px;
-    overflow-y: auto;
-    padding-right: 5px;
+    padding: 16px 24px 24px;
+    background: #141414;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
 
-    &::-webkit-scrollbar {
-      width: 4px;
-    }
-    &::-webkit-scrollbar-thumb {
-      background: #444;
-      border-radius: 4px;
-    }
-
-    .time-slot-btn {
-      padding: 10px 4px;
-      background: #1e1e1e;
-      color: #ccc;
-      border: 1px solid #333;
-      border-radius: 8px;
-      font-size: 0.9rem;
+    .cancel-btn-outline,
+    .confirm-btn {
+      flex: 1;
+      padding: 14px;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 600;
       cursor: pointer;
-      transition: all 0.2s ease-in-out;
+      transition: all 0.2s;
+    }
+
+    .cancel-btn-outline {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #d1d5db;
 
       &:hover {
-        background: #2a2a2a;
-        border-color: #555;
-        color: white;
-      }
-
-      &.active {
-        background: rgba(255, 145, 0, 0.1);
-        border-color: #ff9100;
-        color: #ff9100;
-        font-weight: bold;
-        transform: scale(1.05);
-        box-shadow: 0 4px 10px rgba(255, 145, 0, 0.2);
+        background: rgba(255, 255, 255, 0.1);
+        color: #fff;
       }
     }
-  }
-}
 
-.save-btn {
-  background-color: #e65100;
-  color: white;
-  border: none;
-  padding: 12px;
-  border-radius: 6px;
-  font-size: 1rem;
-  cursor: pointer;
+    .confirm-btn {
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      color: white;
+      border: none;
+      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
 
-  &:hover {
-    background-color: #ef6c00;
+      &:hover:not(:disabled) {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 20px rgba(37, 99, 235, 0.45);
+        filter: brightness(1.1);
+      }
+
+      &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+    }
   }
 }

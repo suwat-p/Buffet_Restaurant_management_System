@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { MatIconModule } from '@angular/material/icon';
 import { ActivatedRoute, Router } from '@angular/router';
 import { OrderService } from '../../../service/api/order.service';
@@ -64,7 +65,8 @@ export class ServeAction implements OnInit {
           this.isServed = true;
         }
       },
-      error: () => {
+      error: (err: HttpErrorResponse) => {
+        console.error('โหลดข้อมูลออเดอร์ไม่สำเร็จ', err);
         this.error = 'ไม่พบข้อมูลออเดอร์นี้ หรือออเดอร์ถูกยกเลิกแล้ว';
         this.loading = false;
       },
@@ -86,7 +88,7 @@ export class ServeAction implements OnInit {
         this.submitting = false;
         this.isServed = true;
       },
-      error: (err) => {
+      error: (err: HttpErrorResponse) => {
         console.error('อัปเดตสถานะเสิร์ฟไม่สำเร็จ', err);
         this.submitting = false;
         alert('เกิดข้อผิดพลาดในการอัปเดตสถานะ');

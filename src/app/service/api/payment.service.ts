@@ -10,7 +10,7 @@ export class PaymentService {
   constructor(
     private http: HttpClient,
     private constants: Constants,
-  ) { }
+  ) {}
 
   CreateQr(bookingId: number): Observable<any> {
     const url = `${this.constants.API_ENDPOINT}/Payment/generate-qr`;
@@ -30,7 +30,7 @@ export class PaymentService {
     const url = `${this.constants.API_ENDPOINT}/Payment/verify-payment`;
     const payload = {
       billId: billId,
-      transactionId: transactionId
+      transactionId: transactionId,
     };
 
     return this.http.post(url, payload);

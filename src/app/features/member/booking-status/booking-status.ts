@@ -17,6 +17,7 @@ interface BookingDetail {
   time: string;
   status: string;
   qrUrl: SafeUrl | string;
+  rawDateTime: string;
 }
 
 @Component({
@@ -43,6 +44,9 @@ export class BookingStatus implements OnInit {
     childCount: 0,
     time: '',
   };
+
+  // วันที่ของ booking ที่กำลังแก้ไข (yyyy-MM-dd) ใช้เช็คว่าเวลาที่เลือกเป็นอดีตหรือไม่
+  editBookingDate: string = '';
 
   availableTimeSlots: string[] = [];
 
@@ -83,7 +87,39 @@ export class BookingStatus implements OnInit {
     this.availableTimeSlots = slots;
   }
 
+  // แปลง Date เป็น yyyy-MM-dd ตามเวลา "ท้องถิ่น" ห้ามใช้ toISOString()
+  // เพราะ toISOString() แปลงเป็น UTC ก่อน ถ้าเวลาปัจจุบัน/เวลาจองเป็นช่วงเช้ามืด (00:00-06:59 ในโซนไทย UTC+7)
+  // จะถอยวันที่ผิดไป 1 วัน ทำให้ logic เทียบ "วันนี้" พังและปิดปุ่มเวลาทั้งหมดโดยไม่ตั้งใจ
+  private toLocalDateStr(d: Date): string {
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+  }
+
+  private getTodayStr(): string {
+    return this.toLocalDateStr(new Date());
+  }
+
+  // เวลาที่เร็วที่สุดที่จองได้ (ตอนนี้ + 30 นาที) ให้ตรงกับ logic หน้าจอง (booking.ts)
+  private getMinTimeStr(): string {
+    const later = new Date(Date.now() + 30 * 60 * 1000);
+    const hh = String(later.getHours()).padStart(2, '0');
+    const mm = String(later.getMinutes()).padStart(2, '0');
+    return `${hh}:${mm}`;
+  }
+
+  // ห้ามแก้ไปเวลาที่ผ่านไปแล้ว: ใช้วันที่ของ booking เดิมเทียบกับวันนี้ + เวลาขั้นต่ำแบบเดียวกับหน้าจอง
+  isEditSlotDisabled(slot: string): boolean {
+    const today = this.getTodayStr();
+    const bookingDate = this.editBookingDate || today;
+    if (bookingDate < today) return true;
+    if (bookingDate === today) return slot < this.getMinTimeStr();
+    return false;
+  }
+
   selectTime(slot: string) {
+    if (this.isEditSlotDisabled(slot)) return;
     this.editFormData.time = slot;
   }
 
@@ -125,17 +161,28 @@ export class BookingStatus implements OnInit {
         }
 
         this.errorMessage = '';
-        this.bookingList = activeBookings.map((b: any) => ({
-          booking_id: b.booking_id || 0,
-          tableNumbers: b.tables_Booked || [],
-          childCount: b.child_Count || 0,
-          adultCount: b.adult_Count || 0,
-          date: this.formatDate(b.booking_DateTime),
-          time: this.formatTime(b.booking_DateTime),
-          status: this.mapStatus(b.booking_Status),
-          qrUrl: b.qR_Url || b.qr_Url || b.QR_Url || this.loadQrFromStorage(b.booking_id),
-          ConsoleLog: `Booking ID: ${b.booking_id}, QR URL: ${b.qR_Url || b.qr_Url || b.QR_Url}`,
-        }));
+        this.bookingList = activeBookings.map((b: any) => {
+          // backend อาจส่งชื่อ field มาไม่ตรง casing เป๊ะ ๆ เช่น booking_datetime (ตัวเล็ก)
+          // ถ้าไม่กันไว้ วันเวลาจะกลายเป็น undefined แล้วขึ้น "-" ทุกครั้ง
+          const rawDateTime =
+            b.booking_DateTime ||
+            b.booking_datetime ||
+            b.Booking_DateTime ||
+            b.BookingDateTime ||
+            '';
+
+          return {
+            booking_id: b.booking_id || 0,
+            tableNumbers: b.tables_Booked || [],
+            childCount: b.child_Count || 0,
+            adultCount: b.adult_Count || 0,
+            date: this.formatDate(rawDateTime),
+            time: this.formatTime(rawDateTime),
+            status: this.mapStatus(b.booking_Status),
+            qrUrl: b.qR_Url || b.qr_Url || b.QR_Url || this.loadQrFromStorage(b.booking_id),
+            rawDateTime,
+          };
+        });
       },
       error: (err: any) => {
         this.loading = false;
@@ -213,10 +260,14 @@ export class BookingStatus implements OnInit {
 
   onEditBooking(booking: BookingDetail) {
     this.editingBookingId = booking.booking_id;
+
+    const dateObj = booking.rawDateTime ? new Date(booking.rawDateTime) : null;
+    this.editBookingDate = dateObj && !isNaN(dateObj.getTime()) ? this.toLocalDateStr(dateObj) : '';
+
     this.editFormData = {
       adultCount: booking.adultCount,
       childCount: booking.childCount,
-      time: booking.time ? booking.time.substring(0, 5) : '',
+      time: booking.time && booking.time !== '-' ? booking.time.substring(0, 5) : '',
     };
     this.showEditModal = true;
   }
@@ -224,15 +275,36 @@ export class BookingStatus implements OnInit {
   closeEditModal() {
     this.showEditModal = false;
     this.editingBookingId = null;
+    this.editBookingDate = '';
   }
 
   saveEditBooking() {
     if (!this.editingBookingId) return;
 
+    const adults = Number(this.editFormData.adultCount) || 0;
+    const children = Number(this.editFormData.childCount) || 0;
+
+    if (adults < 1) {
+      alert('ต้องมีผู้ใหญ่อย่างน้อย 1 คน');
+      return;
+    }
+    if (children < 0) {
+      alert('จำนวนเด็กต้องไม่ติดลบ');
+      return;
+    }
+    if (!this.editFormData.time) {
+      alert('กรุณาเลือกเวลาที่ต้องการแก้ไข');
+      return;
+    }
+    if (this.isEditSlotDisabled(this.editFormData.time)) {
+      alert('ไม่สามารถแก้ไขไปยังเวลาที่ผ่านไปแล้วได้ กรุณาเลือกเวลาที่ยังไม่ถึง');
+      return;
+    }
+
     this.isEditing = true;
     const payload = {
-      adultCount: this.editFormData.adultCount,
-      childCount: this.editFormData.childCount,
+      adultCount: adults,
+      childCount: children,
       time: this.editFormData.time,
     };
 

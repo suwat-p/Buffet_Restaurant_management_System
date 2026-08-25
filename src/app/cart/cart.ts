@@ -38,7 +38,7 @@ interface CartItem {
     HttpClientModule,
     ToastModule,
     CustomerNavbar,
-    DialogModule
+    DialogModule,
   ],
   providers: [MessageService],
   templateUrl: './cart.html',
@@ -59,8 +59,8 @@ export class Cart implements OnInit {
     private messageService: MessageService,
     private tableService: TableService,
     private orderService: OrderService,
-    private billService: BillService
-  ) { }
+    private billService: BillService,
+  ) {}
 
   ngOnInit() {
     this.tableNumber = this.tableService.getTable();
@@ -72,7 +72,7 @@ export class Cart implements OnInit {
       this.messageService.add({
         severity: 'warn',
         summary: 'เตือน',
-        detail: 'ไม่พบหมายเลขโต๊ะ'
+        detail: 'ไม่พบหมายเลขโต๊ะ',
       });
     }
   }
@@ -89,7 +89,7 @@ export class Cart implements OnInit {
       },
       error: (err) => {
         console.error('หา ID โต๊ะไม่เจอ:', err);
-      }
+      },
     });
   }
 
@@ -138,7 +138,7 @@ export class Cart implements OnInit {
       error: (err) => {
         console.error('Error getting bill:', err);
         this.showBillErrorToast();
-      }
+      },
     });
   }
 
@@ -146,7 +146,7 @@ export class Cart implements OnInit {
     this.messageService.add({
       severity: 'error',
       summary: 'เกิดข้อผิดพลาด',
-      detail: 'กรุณาแจ้งพนักงานเพื่อเปิดบิลสำหรับโต๊ะนี้'
+      detail: 'กรุณาแจ้งพนักงานเพื่อเปิดบิลสำหรับโต๊ะนี้',
     });
   }
 
@@ -217,7 +217,7 @@ export class Cart implements OnInit {
     };
 
     this.cartService.addToCart(payload).subscribe({
-      next: () => { },
+      next: () => {},
       error: (err) => {
         item.quantity = previousQuantity;
         this.cartItems = previousItems;
@@ -225,7 +225,7 @@ export class Cart implements OnInit {
         this.messageService.add({
           severity: 'error',
           summary: 'ไม่สามารถอัปเดตได้',
-          detail: 'กรุณาลองใหม่อีกครั้ง'
+          detail: 'กรุณาลองใหม่อีกครั้ง',
         });
 
         this.loadCart();
@@ -254,7 +254,7 @@ export class Cart implements OnInit {
       this.messageService.add({
         severity: 'error',
         summary: 'ไม่พบบิล',
-        detail: 'ไม่พบข้อมูลบิล กรุณาแจ้งพนักงานเปิดบิลก่อนสั่งอาหาร'
+        detail: 'ไม่พบข้อมูลบิล กรุณาแจ้งพนักงานเปิดบิลก่อนสั่งอาหาร',
       });
       return;
     }
@@ -262,7 +262,7 @@ export class Cart implements OnInit {
     const payload = {
       cartId: this.currentCartId,
       billId: this.billId,
-      orderType: 'สั่งหน้าร้าน'
+      orderType: 'สั่งหน้าร้าน',
     };
 
     this.orderService.PlaceOrder(payload).subscribe({
@@ -272,6 +272,12 @@ export class Cart implements OnInit {
           summary: 'สั่งอาหารเรียบร้อย',
           detail: response?.message || 'รายการถูกส่งเข้าครัวแล้ว',
         });
+
+        // 🟢 เซฟ orderId ไว้ให้เมนู "ติดตามสถานะออเดอร์" ใช้ต่อ
+        // ⚠️ backend คืนมาเป็น "order_id" (ตัว O ใหญ่ตัวเดียวที่ camelCase แปลงให้) ไม่ใช่ "orderId"
+        if (response?.order_id) {
+          localStorage.setItem('currentOrderId', String(response.order_id));
+        }
 
         // เคลียร์ตะกร้าฝั่ง Frontend
         this.cartItems = [];
@@ -283,11 +289,11 @@ export class Cart implements OnInit {
         this.messageService.add({
           severity: 'error',
           summary: 'เกิดข้อผิดพลาด',
-          detail: error?.error?.message || 'ไม่สามารถส่งออเดอร์ได้ กรุณาลองใหม่อีกครั้ง'
+          detail: error?.error?.message || 'ไม่สามารถส่งออเดอร์ได้ กรุณาลองใหม่อีกครั้ง',
         });
 
         this.loadCart();
-      }
+      },
     });
   }
 }

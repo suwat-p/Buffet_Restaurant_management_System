@@ -27,12 +27,12 @@
         <li *ngFor="let item of menuItems">
           <a
             pRipple
-            [routerLink]="item.route"
+            [routerLink]="getItemRoute(item)"
             routerLinkActive="active"
             [routerLinkActiveOptions]="{ exact: true }"
             class="menu-item"
             [title]="!isExpanded ? item.label : ''"
-            (click)="closeSidebar()"
+            (click)="onMenuItemClick(item, $event)"
           >
             <mat-icon class="menu-icon">{{ item.icon }}</mat-icon>
             <span class="menu-label" *ngIf="isExpanded">{{ item.label }}</span>

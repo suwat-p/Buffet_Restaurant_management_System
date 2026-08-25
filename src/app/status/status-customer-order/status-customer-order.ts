@@ -1,8 +1,19 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
-import { RouterModule } from '@angular/router';
+import { ActivatedRoute, RouterModule } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { CustomerNavbar } from '../../components/menu-bar/customer-navbar/customer-navbar';
+import { OrderService, OrderStatusItem } from '../../service/api/order.service';
+
+// แม็ปสถานะจาก backend (Order_Status ใน DB) ไปเป็นลำดับ step บน stepper
+// ⚠️ ต้องตรงกับ string ที่ backend ใช้จริงเป๊ะ ๆ (ดูจาก OrderController.cs)
+const STATUS_STEP_MAP: Record<string, number> = {
+  รับออเดอร์: 0,
+  กำลังจัดเตรียมอาหาร: 1,
+  กำลังนำเสิร์ฟ: 2,
+  เสร็จสิ้น: 3,
+};
 
 @Component({
   selector: 'app-status-customer-order',
@@ -11,8 +22,9 @@ import { CustomerNavbar } from '../../components/menu-bar/customer-navbar/custom
   templateUrl: './status-customer-order.html',
   styleUrl: './status-customer-order.scss',
 })
-export class StatusCustomerOrder implements OnInit {
+export class StatusCustomerOrder implements OnInit, OnDestroy {
   currentStep = 0;
+  orderId!: number;
 
   steps = [
     { label: 'รับออเดอร์' }, // index 0
@@ -21,30 +33,67 @@ export class StatusCustomerOrder implements OnInit {
     { label: 'ดำเนินการเสร็จสิ้น' }, // index 3
   ];
 
-  orderItems = [
-    { name: 'หมูหมักพริกไทยดำ', quantity: 2 },
-    { name: 'หมูสไลด์สามชั้น', quantity: 6 },
-    { name: 'หมูสไลด์สามชั้นแผ่น', quantity: 5 },
-    { name: 'ผักกระหล่ำ', quantity: 2 },
-    { name: 'สาหร่ายวากาเมะ', quantity: 3 },
-    { name: 'เบียร์สิงห์', quantity: 1 },
-  ];
+  orderItems: { name: string; quantity: number }[] = [];
+  overallStatusText = '';
 
-  overallStatusText = 'กำลังนำเสริฟ';
+  private statusSub?: Subscription;
 
-  // ฟังก์ชันคำนวณสถานะเมื่อเปิดหน้าเว็บ
+  constructor(
+    private route: ActivatedRoute,
+    private orderService: OrderService,
+  ) {}
+
   ngOnInit() {
-    this.updateTracker();
+    const idParam = this.route.snapshot.paramMap.get('orderId');
+    if (!idParam) {
+      console.error('ไม่พบ orderId ใน route');
+      return;
+    }
+    this.orderId = Number(idParam);
+
+    this.loadInitialStatus();
+    this.listenForRealtimeUpdates();
   }
 
-  // ฟังก์ชันเทียบข้อความเพื่อหาลำดับตัวเลข
-  updateTracker() {
-    // ค้นหาว่า overallStatusText ตรงกับ steps ตัวไหน
-    const index = this.steps.findIndex((step) => step.label === this.overallStatusText);
+  ngOnDestroy() {
+    this.statusSub?.unsubscribe();
+    this.orderService.disconnect();
+  }
 
-    // ถ้าเจอข้อมูล ให้เซ็ต currentStep เป็นเลขนั้น
-    if (index !== -1) {
+  // โหลดสถานะ + รายการสินค้าปัจจุบันตอนเปิดหน้าครั้งแรก
+  private loadInitialStatus() {
+    this.orderService.GetOrderStatus(this.orderId).subscribe({
+      next: (res) => {
+        this.overallStatusText = res.orderStatus;
+        this.orderItems = res.items.map((item: OrderStatusItem) => ({
+          name: item.menuName,
+          quantity: item.quantity,
+        }));
+        this.updateTracker(res.orderStatus);
+      },
+      error: (err) => {
+        console.error('โหลดสถานะออเดอร์ไม่สำเร็จ:', err);
+      },
+    });
+  }
+
+  // ต่อ SignalR รอฟัง event "OrderStatusUpdated" แบบ real-time
+  private listenForRealtimeUpdates() {
+    this.statusSub = this.orderService.connect().subscribe((event) => {
+      if (event.orderId !== this.orderId) return; // ไม่ใช่ออเดอร์ของเรา ข้ามไป
+
+      this.overallStatusText = event.status;
+      this.updateTracker(event.status);
+    });
+  }
+
+  // แปลงข้อความสถานะ (จาก backend) เป็นลำดับ step บน stepper
+  private updateTracker(statusText: string) {
+    const index = STATUS_STEP_MAP[statusText];
+    if (index !== undefined) {
       this.currentStep = index;
+    } else {
+      console.warn('ไม่รู้จักสถานะนี้ ตรวจสอบ STATUS_STEP_MAP:', statusText);
     }
   }
 }
