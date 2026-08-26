@@ -294,6 +294,30 @@ export class Booking implements OnInit, OnDestroy {
     this.bookedTableNames = [];
   }
 
+  sendToCustomerDisplay(qrCodeUrl: string | null = null) {
+    const payload = {
+      tableNumbers: this.getSelectedTableString(),
+      items: [
+        {
+          name: `มัดจำการจอง (ผู้ใหญ่ ${this.bookingForm.NumAdults} / เด็ก ${this.bookingForm.NumChildren})`,
+          quantity: 1,
+          subTotal: this.depositAmount,
+        },
+      ],
+      fineAmount: 0,
+      discountName: 'ไม่มีโปรโมชั่น',
+      grandTotal: this.depositAmount,
+      qrData: qrCodeUrl,
+      isPaidSuccess: false,
+    };
+
+    if (this.signalrService.sendToCustomerDisplay) {
+      this.signalrService.sendToCustomerDisplay(payload).catch((err: any) => {
+        console.warn('ไม่สามารถส่งข้อมูลไปยัง Display ได้:', err);
+      });
+    }
+  }
+
   proceedToPayment() {
     // การันตีความถูกต้องอีกชั้น แม้ปุ่มจะถูกปิดไว้แล้วเมื่อฟอร์มไม่ผ่าน
     if (this.guestError) {
@@ -324,14 +348,14 @@ export class Booking implements OnInit, OnDestroy {
       child_count: children,
     };
 
-    //  สร้างการจองก่อน
+    // สร้างการจองก่อน
     this.bookingService.createBooking(createPayload).subscribe({
       next: (res: any) => {
         this.pendingBookingId = res.booking_id;
         this.bookedTableNames = res.tables || this.selectedTables.map((t) => t.table_Number);
         this.depositAmount = res.deposit_amount;
 
-        //  เมื่อจองเร็จ เรียกเจน QR Pay ทันที
+        // เมื่อจองสำเร็จ เรียกเจน QR Pay ทันที
         this.generatePaymentQr(res.booking_id);
       },
       error: (err) => {
@@ -340,21 +364,43 @@ export class Booking implements OnInit, OnDestroy {
       },
     });
   }
-  // ฟังก์ชันสำหรับเจน QR
+
+  // ฟังก์ชันสำหรับเจน QR (ปรับแก้รองรับ Response Data Format ทุกรูปแบบ)
   generatePaymentQr(bookingId: number) {
     this.paymentService.CreateQr(bookingId).subscribe({
       next: (res: any) => {
-        // ตรวจสอบว่ามีข้อมูลส่งมาไหม
         if (res && res.qr_data) {
           try {
-            //  แปลง String ใน qr_data ให้เป็น Object
-            const parsedData = JSON.parse(res.qr_data);
-            this.promptPayQrUrl = parsedData.data?.qr_url || '';
-            this.transactionId = res.transaction_id;
-            this.depositAmount = res.amount_pay;
+            let rawQr = res.qr_data;
+
+            // ถ้ารับข้อมูลมาเป็น JSON String ให้ Parse ออกมาก่อน
+            if (typeof rawQr === 'string' && (rawQr.startsWith('{') || rawQr.startsWith('['))) {
+              const parsedData = JSON.parse(rawQr);
+              rawQr =
+                parsedData.data?.qr_url || parsedData.data?.qrImage || parsedData.qr_data || rawQr;
+            }
+
+            // จัดการใส่ Prefix base64 หากไม่ใช่อยู่ในรูปแบบ Image URL
+            if (
+              rawQr &&
+              typeof rawQr === 'string' &&
+              !rawQr.startsWith('http') &&
+              !rawQr.startsWith('data:image')
+            ) {
+              this.promptPayQrUrl = `data:image/png;base64,${rawQr}`;
+            } else {
+              this.promptPayQrUrl = rawQr;
+            }
+
+            this.transactionId = res.transaction_id || '';
+            this.depositAmount = Number(res.amount_pay) || this.depositAmount;
+
             this.isLoading = false;
             this.showBookingModal = false;
             this.showPaymentModal = true;
+
+            // สั่งส่งข้อมูล QR ขึ้น Customer Display
+            this.sendToCustomerDisplay(this.promptPayQrUrl);
 
             this.startAutoCheckStatus();
           } catch (e) {
@@ -366,7 +412,7 @@ export class Booking implements OnInit, OnDestroy {
       },
       error: (err) => {
         this.isLoading = false;
-        alert('ไม่สามารถสร้าง QR Code ได้');
+        alert('ไม่สามารถสร้าง QR Code ได้: ' + (err.error?.message || 'โปรดลองอีกครั้ง'));
       },
     });
   }
@@ -435,7 +481,6 @@ export class Booking implements OnInit, OnDestroy {
         if (result.status === 'pending') {
           alert('ยังไม่ได้ชำระเงิน กรุณาชำระเงินก่อน');
         } else if (result.status === 'success') {
-          // this.bookingId = this.pendingBookingId;
           this.stopPolling();
           this.handlePaymentSuccess();
         }
