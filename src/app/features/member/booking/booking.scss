@@ -20,8 +20,9 @@ $color-selected-text: #000000;
     padding: 10px;
   }
 }
+
 /* ════════════════════════════════════════════
-   MODAL BOOKING FORM (ดีไซน์ทันสมัย + ซ่อน/ปรับแต่ง Scrollbar)
+   MODAL BOOKING FORM
    ════════════════════════════════════════════ */
 
 .modal-overlay {
@@ -50,7 +51,6 @@ $color-selected-text: #000000;
   animation: modalPopIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   overflow: hidden;
 
-  /* Custom Scrollbar ให้กลมกลืน ไม่รกสายตา */
   ::-webkit-scrollbar {
     width: 6px;
   }
@@ -65,7 +65,6 @@ $color-selected-text: #000000;
     }
   }
 
-  // Header
   .modal-header {
     display: flex;
     justify-content: space-between;
@@ -103,7 +102,6 @@ $color-selected-text: #000000;
     }
   }
 
-  // Body
   .modal-body {
     padding: 24px;
     overflow-y: auto;
@@ -170,7 +168,7 @@ $color-selected-text: #000000;
         border-radius: 10px;
         color: #fff;
         font-size: 0.95rem;
-        box-sizing: border-radius;
+        box-sizing: border-box;
         transition: all 0.2s;
 
         &:focus {
@@ -243,7 +241,6 @@ $color-selected-text: #000000;
     }
   }
 
-  // Footer
   .modal-footer {
     padding: 16px 24px 24px;
     background: #141414;
@@ -285,7 +282,7 @@ $color-selected-text: #000000;
     transform: scale(1) translateY(0);
   }
 }
-/* --- Auto Check UI --- */
+
 .auto-check-badge {
   background: #e3f2fd;
   color: #1976d2;
@@ -296,12 +293,11 @@ $color-selected-text: #000000;
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 12px;
+  margin-top: 6px;
   box-shadow: 0 4px 10px rgba(25, 118, 210, 0.15);
   border: 1px solid #bbdefb;
 }
 
-/* จุดกระพริบ Pulse */
 .dot-pulse {
   width: 8px;
   height: 8px;
@@ -314,38 +310,6 @@ $color-selected-text: #000000;
   0% { transform: scale(0.8); opacity: 0.5; }
   50% { transform: scale(1.2); opacity: 1; }
   100% { transform: scale(0.8); opacity: 0.5; }
-}
-
-/* ข้อมูลแจ้งเตือน */
-.auto-verify-info {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  color: #4caf50;
-  background: #f1f8e9;
-  padding: 10px;
-  border-radius: 8px;
-  margin-bottom: 12px;
-  font-size: 0.9rem;
-  
-  .info-icon {
-    width: 18px;
-    height: 18px;
-  }
-}
-
-/* ปรับปุ่มตรวจสอบเองให้เด่นน้อยลง */
-.pay-btn.secondary {
-  background: #f5f5f5;
-  color: #666;
-  border: 1px solid #ddd;
-  box-shadow: none;
-  font-size: 0.9rem;
-  
-  &:hover {
-    background: #eeeeee;
-  }
 }
 
 .page-header {
@@ -412,28 +376,24 @@ $color-selected-text: #000000;
   position: relative; 
   user-select: none;
 
-  // ว่าง (เขียว)
   &.status-free {
     background-color: $color-free;
     cursor: pointer;
     &:hover { transform: scale(1.05); z-index: 2;}
   }
 
-  //  ติดจอง (ส้ม)
   &.status-reserved {
     background-color: $color-reserved;
     opacity: 0.9;
     cursor: not-allowed;
   }
 
-  // มีคนนั่ง (แดง)
   &.status-occupied {
     background-color: $color-occupied;
     cursor: not-allowed;
     .occupied-icon { font-size: 1.2rem; }
   }
 
-  // สถานะถูกเลือก
   &.selected {
     background-color: #0800f7;
     color: white;
@@ -457,7 +417,6 @@ $color-selected-text: #000000;
     padding: 6px 10px;
     font-size: 0.8rem;
     font-weight: normal;
-    
     position: absolute;
     bottom: 115%; 
     left: 50%;
@@ -527,377 +486,26 @@ $color-selected-text: #000000;
   }
 }
 
-.modal-overlay {
-  position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  background: rgba(0, 0, 0, 0.85);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  backdrop-filter: blur(3px);
-  transition: opacity 0.3s ease;
-}
-
-.modal-content {
-  background: #000000;
-  border-radius: 10px;
-  width: 90%;
-  max-width: 450px;
-  max-height: 90vh;
-  overflow-y: auto;
-  animation: modalFadeIn 0.3s ease-out;
-
-  .modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px 20px;
-    border-bottom: 1px solid #333;
-    h3 { margin: 0; color: white; }
-    .blue-text { color: #42a5f5; }
-    .close-btn { background: none; border: none; color: #aaa; font-size: 1.5rem; cursor: pointer; }
-  }
-
-  .modal-body { padding: 20px; &.text-center{text-align:center;} }
-  .modal-footer { padding: 15px 20px; background: #000000; }
-}
-
-@keyframes modalFadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.warning-box {
-  text-align: center; margin-bottom: 20px; color: #fbfbfb; font-size: 1rem;
-  .warning-icon { font-size: 1.9rem; margin-bottom: 5px; color: #f1a80c; }
-  .highlight-red { color: #ff5252; font-weight: bold; }
-}
-.selected-display { color: #0084f0; font-size: 1.7rem; font-weight: bold; margin-bottom: 15px; }
-.form-row { display: flex; gap: 10px; .half { flex: 1; } }
-.form-group {
-  margin-bottom: 15px;
-  label { display: block; margin-bottom: 6px; color: #bbb; font-size: 0.9rem;}
-  input {
-    width: 100%; padding: 10px; background: transparent;
-    border: 1px solid #444; border-radius: 4px; color: white; box-sizing: border-box;
-    &:focus { border-color: #42a5f5; outline: none; }
-    &::-webkit-calendar-picker-indicator {
-      filter: invert(1);
-      cursor: pointer;  
-      opacity: 0.8;     
-      
-      &:hover {
-        opacity: 1;    
-      }
-  }}
-  
-  .required { color: red; }
-}
-.confirm-btn {
-  background-color: #006deb; color: white; border: none; width: 100%;
-  padding: 12px; border-radius: 6px; font-size: 1rem; cursor: pointer;
-  transition: background-color 0.2s;
-  &:hover { background-color: #1976d2; }
-}
-
-.qr-scan-box {
-  background: #333; padding: 10px 15px; border-radius: 6px;
-  display: flex; justify-content: space-between; align-items: center;
-  margin-bottom: 20px; color: #ddd;
-  .check-circle { color: white; background: #ff5722; border-radius: 50%; width: 24px; height: 24px; display:flex; align-items:center; justify-content:center; }
-}
-.qr-image-container {
-  background: white; color: black; padding: 20px; border-radius: 8px; display: inline-block; width: 220px;
-  .thai-qr-header { font-weight: bold; color: #1a237e; font-size: 0.9rem; margin-bottom: 5px; }
-  .prompt-pay { color: #004d40; font-weight: 800; font-style: italic; margin-bottom: 10px; }
-  .qr-code-img { width: 100%; height: auto; display: block; margin: 0 auto 10px; }
-  .ref-name { font-weight: bold; }
-}
-
-.time-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-  gap: 10px;
-}
-
-.time-radio {
-  display: none;
-}
-
-.time-label {
-  display: block;
-  text-align: center;
-  padding: 10px 5px;
-  background-color: #333;
-  color: #aaa;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s;
-  border: 1px solid transparent;
-  
-  &:hover {
-      background-color: #444;
-  }
-}
-
-.time-radio:checked + .time-label {
-  background-color: #2e7d32; 
-  color: white;
-  border-color: #4caf50;
-  font-weight: 500;
-}
-
-.modal-box {
-  background-color: white;
-  color: #333;
-  width: 90%;
-  max-width: 400px;
-  padding: 40px 20px;
-  border-radius: 16px;
-  text-align: center;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-  animation: modalScaleIn 0.3s ease-out;
-
-  .modal-title {
-      font-size: 24px;
-      font-weight: 500;
-      margin: 0 0 10px 0;
-      color: #000;
-  }
-
-  .modal-desc {
-      font-size: 16px;
-      color: #666;
-      margin: 0;
-      line-height: 1.5;
-  }
-}
-
-.icon-circle {
-  width: 80px;
-  height: 80px;
-  border: 4px solid #00bfa5;
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 0 auto 20px auto;
-}
-
-.icon-check {
-  width: 40px;
-  height: 20px;
-  border-bottom: 5px solid #00bfa5;
-  border-left: 5px solid #00bfa5;
-  transform: rotate(-45deg) translate(2px, -2px);
-}
-
-@keyframes modalScaleIn {
-  from { transform: scale(0.8); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
-}.time-label.disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
-  pointer-events: none;
-}// เพิ่มลงท้าย booking.scss
-
-// Hybrid Time Picker
-.time-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
-  gap: 8px;
-  margin-bottom: 12px;
-}
-
-.time-slot-btn {
-  padding: 8px 4px;
-  background: #1e1e1e;
-  color: #ccc;
-  border: 1px solid #333;
-  border-radius: 6px;
-  font-size: 0.85rem;
-  cursor: pointer;
-  transition: all 0.2s;
-
-  &:hover:not(.disabled) {
-    background: #2a2a2a;
-    border-color: #555;
-    color: white;
-  }
-
-  &.active {
-    background: #2e7d32;
-    border-color: #4caf50;
-    color: white;
-    font-weight: bold;
-  }
-
-  &.disabled {
-    opacity: 0.25;
-    cursor: not-allowed;
-    pointer-events: none;
-  }
-}
-
-.time-manual {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-top: 4px;
-
-  .or-divider {
-    color: #666;
-    font-size: 0.8rem;
-    white-space: nowrap;
-  }
-
-  .time-input-manual {
-    flex: 1;
-    padding: 8px 10px;
-    background: transparent;
-    border: 1px solid #444;
-    border-radius: 4px;
-    color: white;
-    font-size: 0.95rem;
-
-    &:focus {
-      border-color: #42a5f5;
-      outline: none;
-    }
-
-    &::-webkit-calendar-picker-indicator {
-      filter: invert(1);
-      cursor: pointer;
-      opacity: 0.7;
-    }
-  }
-}
-
-.time-hint {
-  display: block;
-  margin-top: 6px;
-  color: #666;
-  font-size: 0.8rem;
-}// เพิ่มลงท้าย booking.scss
-
-// Hybrid Time Picker
-.time-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
-  gap: 8px;
-  margin-bottom: 12px;
-}
-
-.time-slot-btn {
-  padding: 8px 4px;
-  background: #1e1e1e;
-  color: #ccc;
-  border: 1px solid #333;
-  border-radius: 6px;
-  font-size: 0.85rem;
-  cursor: pointer;
-  transition: all 0.2s;
-
-  &:hover:not(.disabled) {
-    background: #2a2a2a;
-    border-color: #555;
-    color: white;
-  }
-
-  &.active {
-    background: #2e7d32;
-    border-color: #4caf50;
-    color: white;
-    font-weight: bold;
-  }
-
-  &.disabled {
-    opacity: 0.25;
-    cursor: not-allowed;
-    pointer-events: none;
-  }
-}
-
-.time-manual {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-top: 4px;
-
-  .or-divider {
-    color: #666;
-    font-size: 0.8rem;
-    white-space: nowrap;
-  }
-
-  .time-input-manual {
-    flex: 1;
-    padding: 8px 10px;
-    background: transparent;
-    border: 1px solid #444;
-    border-radius: 4px;
-    color: white;
-    font-size: 0.95rem;
-
-    &:focus {
-      border-color: #42a5f5;
-      outline: none;
-    }
-
-    &::-webkit-calendar-picker-indicator {
-      filter: invert(1);
-      cursor: pointer;
-      opacity: 0.7;
-    }
-  }
-}
-
-.time-hint {
-  display: block;
-  margin-top: 6px;
-  color: #666;
-  font-size: 0.8rem;
-}
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.3; }
-}
 // ════════════════════════════════════════════
-// PAYMENT SHEET — New UI
+// PAYMENT SHEET — Fixed Display UI (ไม่มี Scrollbar)
 // ════════════════════════════════════════════
 
 .pay-overlay {
-  align-items: flex-end;
-  padding: 0;
-
-  @media (min-width: 600px) {
-    align-items: center;
-    padding: 16px;
-  }
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
 }
 
 .pay-sheet {
   background: #fff;
   width: 100%;
-  max-width: 480px;
-  border-radius: 24px 24px 0 0;
-  overflow: hidden;
-  animation: sheetUp 0.38s cubic-bezier(0.32, 1.2, 0.6, 1);
-  box-shadow: 0 -8px 40px rgba(0,0,0,0.35);
-
-  @media (min-width: 600px) {
-    border-radius: 20px;
-    animation: fadeScaleIn 0.3s ease-out;
-    max-height: 92vh;
-    overflow-y: auto;
-  }
-}
-
-@keyframes sheetUp {
-  from { transform: translateY(110%); }
-  to   { transform: translateY(0); }
+  max-width: 380px;
+  border-radius: 20px;
+  overflow: hidden; /* 🟢 ปิด Scrollbar ถาวร */
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+  animation: fadeScaleIn 0.3s ease-out;
+  display: flex;
+  flex-direction: column;
 }
 
 @keyframes fadeScaleIn {
@@ -905,71 +513,59 @@ $color-selected-text: #000000;
   to   { opacity: 1; transform: scale(1) translateY(0); }
 }
 
-.drag-handle {
-  width: 40px; height: 4px;
-  background: #ddd;
-  border-radius: 2px;
-  margin: 10px auto 0;
-
-  @media (min-width: 600px) { display: none; }
-}
-
-// ── Header: Thai QR Payment (สีน้ำเงิน ชุดเดียวกับหน้า Display) ──
 .qr-header {
   background-color: #003B7A;
-  padding: 14px 20px;
+  padding: 12px 16px;
   display: flex;
   justify-content: center;
   align-items: center;
   position: relative;
 
   .qr-header-logo {
-    height: 34px;
+    height: 30px;
     width: auto;
   }
 
   .pay-close {
     position: absolute;
-    right: 16px; top: 50%;
+    right: 14px; top: 50%;
     transform: translateY(-50%);
-    width: 28px; height: 28px;
-    background: rgba(255,255,255,0.18);
+    width: 26px; height: 26px;
+    background: rgba(255, 255, 255, 0.18);
     border: none; border-radius: 50%;
     color: #fff; font-size: 12px;
     cursor: pointer; display: flex;
     align-items: center; justify-content: center;
-    flex-shrink: 0;
     transition: background 0.2s;
-    &:hover { background: rgba(255,255,255,0.3); }
+    &:hover { background: rgba(255, 255, 255, 0.3); }
   }
 }
 
-// ── Body: การ์ดขาว เหมือน .qr-card ของหน้า Display ──
 .qr-body {
   background: #fff;
-  padding: 22px 20px 10px;
+  padding: 16px 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
 
   .promptpay-logo-wrapper {
-    margin-bottom: 16px;
+    margin-bottom: 10px;
 
     .promptpay-badge {
       border: 1.5px solid #003B7A;
       border-radius: 4px;
-      padding: 2px 14px 4px 14px;
+      padding: 2px 12px;
       display: inline-flex;
       flex-direction: column;
       align-items: center;
       background: #fff;
 
       .pp-sub {
-        font-size: 0.65rem; color: #003B7A;
+        font-size: 0.6rem; color: #003B7A;
         line-height: 1; margin-bottom: 1px;
       }
       .pp-main {
-        font-size: 1.1rem; font-weight: 800;
+        font-size: 1rem; font-weight: 800;
         color: #003B7A; letter-spacing: -0.5px;
         font-family: Arial, sans-serif; line-height: 1;
       }
@@ -979,28 +575,27 @@ $color-selected-text: #000000;
   .qr-deposit-info {
     text-align: center;
     color: #003B7A;
-    margin-bottom: 16px;
+    margin-bottom: 10px;
 
     .pay-amount-label {
-      font-size: 0.72rem; opacity: 0.75;
+      font-size: 0.7rem; opacity: 0.75;
       letter-spacing: 0.5px; display: block;
-      margin-bottom: 2px;
     }
     .pay-amount-value {
       display: block;
-      font-size: clamp(1.8rem, 8vw, 2.4rem);
-      font-weight: 900; line-height: 1;
-      margin-bottom: 10px;
+      font-size: 1.8rem;
+      font-weight: 900; line-height: 1.1;
+      margin-bottom: 6px;
     }
     .pay-table-chips {
-      display: flex; gap: 6px;
+      display: flex; gap: 4px;
       justify-content: center; flex-wrap: wrap;
 
       .pay-chip {
         background: #eef4fc;
         border: 1px solid #cfe0f5;
-        color: #003B7A; font-size: 0.75rem;
-        font-weight: 600; padding: 3px 12px;
+        color: #003B7A; font-size: 0.72rem;
+        font-weight: 600; padding: 2px 10px;
         border-radius: 20px;
       }
     }
@@ -1013,23 +608,23 @@ $color-selected-text: #000000;
     margin-bottom: 8px;
 
     .qr-image {
-      width: clamp(170px, 52vw, 215px);
-      height: clamp(170px, 52vw, 215px);
+      width: 180px;
+      height: 180px;
       object-fit: contain;
       display: block;
     }
 
     .pay-qr-skeleton {
-      width: clamp(170px, 52vw, 215px);
-      height: clamp(170px, 52vw, 215px);
+      width: 180px;
+      height: 180px;
       display: flex; flex-direction: column;
       align-items: center; justify-content: center;
-      gap: 10px; color: #aaa; font-size: 0.85rem;
+      gap: 8px; color: #aaa; font-size: 0.8rem;
       border: 2px dashed #dde;
       border-radius: 8px;
 
       .pay-qr-spin {
-        width: 32px; height: 32px;
+        width: 28px; height: 28px;
         border: 3px solid #eee;
         border-top-color: #003B7A;
         border-radius: 50%;
@@ -1039,102 +634,17 @@ $color-selected-text: #000000;
   }
 
   .qr-instruction {
-    margin: 0 0 12px;
-    font-size: 0.85rem;
+    margin: 0 0 4px;
+    font-size: 0.8rem;
     color: #555;
   }
 }
 
 @keyframes spin360 { to { transform: rotate(360deg); } }
 
-// ── Steps ───────────────────────────────────
-.pay-steps {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0;
-  padding: 14px 16px;
-  background: #f8f9fc;
-  border-top: 1px solid #eef0f5;
-
-  .pay-step {
-    display: flex; flex-direction: column;
-    align-items: center; gap: 4px;
-    font-size: 0.68rem; color: #666;
-    min-width: 68px; text-align: center;
-
-    .step-circle {
-      width: 24px; height: 24px;
-      background: #0057cc; color: #fff;
-      border-radius: 50%; font-size: 0.72rem;
-      font-weight: 800;
-      display: flex; align-items: center; justify-content: center;
-    }
-  }
-
-  .step-line {
-    flex: 1; height: 2px;
-    background: linear-gradient(90deg, #0057cc, #90b8f8);
-    margin-bottom: 18px;
-    max-width: 28px;
-  }
-}
-
-// ── Action ──────────────────────────────────
-.pay-action {
-  padding: 14px 16px 18px;
-
-  .pay-btn {
-    width: 100%; padding: 15px;
-    background: linear-gradient(135deg, #00a651, #007a3d);
-    color: #fff; border: none;
-    border-radius: 14px; font-size: 1rem;
-    font-weight: 700; cursor: pointer;
-    display: flex; align-items: center;
-    justify-content: center; gap: 8px;
-    box-shadow: 0 4px 16px rgba(0,166,81,0.35);
-    transition: transform 0.18s, box-shadow 0.18s, filter 0.18s;
-    font-family: 'Sarabun', sans-serif;
-
-    &:hover:not(:disabled) {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 22px rgba(0,166,81,0.45);
-      filter: brightness(1.05);
-    }
-    &:active:not(:disabled) { transform: translateY(0); }
-    &:disabled { cursor: not-allowed; opacity: 0.72; }
-
-    &.pay-btn--loading {
-      background: linear-gradient(135deg, #444, #2a2a2a);
-      box-shadow: none;
-    }
-
-    .pay-btn-icon {
-      width: 24px; height: 24px;
-      background: rgba(255,255,255,0.22);
-      border-radius: 50%; font-size: 0.9rem;
-      display: flex; align-items: center; justify-content: center;
-    }
-
-    .pay-btn-spinner {
-      width: 20px; height: 20px;
-      border: 2.5px solid rgba(255,255,255,0.3);
-      border-top-color: #fff;
-      border-radius: 50%;
-      animation: spin360 0.65s linear infinite;
-    }
-  }
-
-  .pay-note {
-    text-align: center; color: #aaa;
-    font-size: 0.68rem; margin: 8px 0 0;
-    line-height: 1.5;
-  }
-}
-
-// ════════════════════════════════════════════
-// SUCCESS MODAL
-// ════════════════════════════════════════════
+/* ════════════════════════════════════════════
+   SUCCESS MODAL
+   ════════════════════════════════════════════ */
 
 .success-modal {
   .success-pill {
@@ -1160,9 +670,10 @@ $color-selected-text: #000000;
   .red-btn { background: #c0392b; &:hover { background: #a93226; } }
 }
 
-// ════════════════════════════════════════════
-// GLOBAL LOADER
-// ════════════════════════════════════════════
+/* ════════════════════════════════════════════
+   GLOBAL LOADER
+   ════════════════════════════════════════════ */
+
 .global-loader {
   position: fixed; inset: 0;
   background: rgba(0,0,0,0.65);

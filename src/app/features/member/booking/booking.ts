@@ -47,7 +47,7 @@ export class Booking implements OnInit, OnDestroy {
   qrUrl: string = '';
 
   promptPayQrUrl: string = '';
-  depositAmount: number = 1.0; // 🟢 ล็อคยอดมัดจำทดสอบเป็น 1.00 บาท
+  depositAmount: number = 0; // 🟢 รอรับค่ายอดจริงจาก API Gateway (เช่น 1.02)
   transactionId: string = '';
 
   minDate: string = '';
@@ -55,7 +55,6 @@ export class Booking implements OnInit, OnDestroy {
   currentMinTime: string = '';
   timeSlots: string[] = [];
 
-  // ── ช่วงเวลา (Period tabs) ──
   periods: { key: string; label: string; range: string; start: string; end: string }[] = [
     { key: 'morning', label: 'เช้า', range: '10:00-12:00', start: '10:00', end: '12:00' },
     { key: 'afternoon', label: 'บ่าย', range: '12:30-16:30', start: '12:30', end: '16:30' },
@@ -89,6 +88,7 @@ export class Booking implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.stopPolling();
   }
+
   stopPolling() {
     if (this.pollingTimer) {
       clearInterval(this.pollingTimer);
@@ -97,7 +97,6 @@ export class Booking implements OnInit, OnDestroy {
     this.isPolling = false;
   }
 
-  // แปลง Date เป็น yyyy-MM-dd ตามเวลาท้องถิ่น
   private toLocalDateStr(d: Date): string {
     const yyyy = d.getFullYear();
     const mm = String(d.getMonth() + 1).padStart(2, '0');
@@ -159,7 +158,6 @@ export class Booking implements OnInit, OnDestroy {
     this.bookingForm.BookingTime = this.bookingForm.BookingTime === slot ? '' : slot;
   }
 
-  // ── ช่วงเวลา (Period tabs) ──
   selectPeriod(key: string) {
     this.activePeriod = key;
   }
@@ -182,7 +180,6 @@ export class Booking implements OnInit, OnDestroy {
     if (match) this.activePeriod = match.key;
   }
 
-  // ── นับจำนวนคน ──
   onGuestCountChange() {
     const a = Number(this.bookingForm.NumAdults);
     const c = Number(this.bookingForm.NumChildren);
@@ -291,20 +288,20 @@ export class Booking implements OnInit, OnDestroy {
     this.bookedTableNames = [];
   }
 
-  // 🟢 ส่งข้อมูลขึ้น Customer Display (บังคับยอดทดสอบ 1.00 บาท)
-  sendToCustomerDisplay(qrCodeUrl: string | null = null) {
+  // 🟢 ส่งยอดจริง (เช่น 1.02) เข้า Display
+  sendToCustomerDisplay(qrCodeUrl: string | null = null, actualAmount: number = 1.0) {
     const payload = {
       tableNumbers: this.getSelectedTableString(),
       items: [
         {
           name: `มัดจำการจอง (ผู้ใหญ่ ${this.bookingForm.NumAdults} / เด็ก ${this.bookingForm.NumChildren})`,
           quantity: 1,
-          subTotal: 1.0, // 🟢 บังคับราคาทดสอบ 1.00 บาท
+          subTotal: actualAmount,
         },
       ],
       fineAmount: 0,
       discountName: 'ไม่มีโปรโมชั่น',
-      grandTotal: 1.0, // 🟢 บังคับราคาทดสอบ 1.00 บาท
+      grandTotal: actualAmount, // 🟢 ยอดตรงตาม QR (เช่น 1.02)
       qrData: qrCodeUrl,
       isPaidSuccess: false,
     };
@@ -349,10 +346,6 @@ export class Booking implements OnInit, OnDestroy {
       next: (res: any) => {
         this.pendingBookingId = res.booking_id;
         this.bookedTableNames = res.tables || this.selectedTables.map((t) => t.table_Number);
-
-        // 🟢 override ยอดมัดจำฝั่ง frontend เป็น 1.00 บาทสำหรับทดสอบ
-        this.depositAmount = 1.0;
-
         this.generatePaymentQr(res.booking_id);
       },
       error: (err) => {
@@ -388,15 +381,16 @@ export class Booking implements OnInit, OnDestroy {
 
             this.transactionId = res.transaction_id || '';
 
-            // 🟢 ล็อคยอดมัดจำที่แสดงผลให้เป็น 1.00 บาท
-            this.depositAmount = 1.0;
+            // 🟢 ดึงยอดเงินจริงที่ตอบกลับจาก API Backend (เช่น 1.02)
+            const realAmount = parseFloat(res.amount_pay) || 1.0;
+            this.depositAmount = realAmount;
 
             this.isLoading = false;
             this.showBookingModal = false;
             this.showPaymentModal = true;
 
-            // สั่งส่งข้อมูล QR ขึ้น Customer Display
-            this.sendToCustomerDisplay(this.promptPayQrUrl);
+            // 🟢 ส่งยอด 1.02 เข้า Display
+            this.sendToCustomerDisplay(this.promptPayQrUrl, realAmount);
 
             this.startAutoCheckStatus();
           } catch (e) {

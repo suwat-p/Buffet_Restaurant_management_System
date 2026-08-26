@@ -106,12 +106,10 @@
       </div>
     </div>
 
-    <!-- ── Modal ชำระเงิน (ดีไซน์ QR Card ชุดเดียวกับหน้า Display) ── -->
+    <!-- ── Modal ชำระเงิน (ไม่มี Scrollbar แบบหน้า Display) ── -->
     <div class="modal-overlay pay-overlay" *ngIf="showPaymentModal">
       <div class="pay-sheet qr-card">
-        <div class="drag-handle"></div>
-
-        <!-- Header สีน้ำเงินมาตรฐาน Thai QR (เหมือนหน้า Display) -->
+        <!-- Header สีน้ำเงินมาตรฐาน Thai QR -->
         <div class="qr-header">
           <button class="pay-close" (click)="closePaymentModal()">✕</button>
           <svg viewBox="0 0 200 45" class="qr-header-logo">
@@ -137,9 +135,8 @@
           </svg>
         </div>
 
-        <!-- Body สีขาว -->
+        <!-- Body สีขาว แสดงข้อมูล QR -->
         <div class="qr-body">
-          <!-- โลโก้ PromptPay ล้อมกรอบ -->
           <div class="promptpay-logo-wrapper">
             <div class="promptpay-badge">
               <span class="pp-sub">พร้อมเพย์</span>
@@ -147,7 +144,6 @@
             </div>
           </div>
 
-          <!-- ยอดชำระ + โต๊ะที่จอง -->
           <div class="qr-deposit-info">
             <span class="pay-amount-label">ยอดชำระค่ามัดจำ</span>
             <span class="pay-amount-value">฿{{ depositAmount | number: '1.2-2' }}</span>
@@ -156,7 +152,6 @@
             </div>
           </div>
 
-          <!-- ตัว QR Code -->
           <div class="qr-image-wrapper">
             <ng-container *ngIf="promptPayQrUrl; else qrLoading">
               <img [src]="promptPayQrUrl" alt="QR PromptPay" class="qr-image" />
@@ -176,28 +171,6 @@
             <div class="dot-pulse"></div>
             <span>กำลังรอการชำระเงิน...</span>
           </div>
-        </div>
-
-        <div class="pay-action">
-          <div class="auto-verify-info">
-            <svg viewBox="0 0 24 24" class="info-icon">
-              <path
-                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"
-                fill="currentColor"
-              />
-            </svg>
-            <span>ระบบจะพาคุณไปยังหน้าถัดไปอัตโนมัติเมื่อโอนสำเร็จ</span>
-          </div>
-
-          <button
-            class="pay-btn secondary"
-            [class.pay-btn--loading]="isVerifying"
-            [disabled]="isVerifying"
-            (click)="confirmPayment()"
-          >
-            <span *ngIf="!isVerifying">ตรวจสอบยอดเงินด้วยตนเอง</span>
-            <span *ngIf="isVerifying" class="pay-btn-spinner"></span>
-          </button>
         </div>
       </div>
     </div>
