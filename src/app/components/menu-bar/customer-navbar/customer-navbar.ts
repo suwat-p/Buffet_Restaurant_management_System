@@ -1,16 +1,17 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
+import { BillService } from '../../../service/api/bill.service';
 import { TableService } from '../../../service/api/table.service';
 
 interface NavMenuItem {
   label: string;
   icon: string;
   route: string;
-  dynamic?: boolean; // true = ต้องต่อ orderId ท้าย route ตอน runtime
+  dynamic?: boolean;
 }
 
 @Component({
@@ -24,6 +25,8 @@ export class CustomerNavbar implements OnInit {
   isExpanded: boolean = false;
 
   tableNumber: string | null = null;
+  tableId: number = 0;
+  billId: number = 0;
   notificationCount: number = 2;
   cartCount: number = 3;
 
@@ -33,10 +36,32 @@ export class CustomerNavbar implements OnInit {
     { label: 'ติดตามสถานะออเดอร์', icon: 'receipt_long', route: '/StatusCustomer', dynamic: true },
   ];
 
-  constructor(private tableService: TableService) {}
+  constructor(
+    private tableService: TableService,
+    private billService: BillService,
+    private router: Router,
+  ) {}
 
   ngOnInit(): void {
     this.tableNumber = this.tableService.getTable();
+    if (this.tableNumber) {
+      this.getBillInfo(this.tableNumber);
+    }
+  }
+
+  getBillInfo(tableNum: string) {
+    this.tableService.getTableid(tableNum).subscribe({
+      next: (id: number) => {
+        this.tableId = id;
+        this.billService.getBillByTableId(this.tableId).subscribe({
+          next: (res: any) => {
+            if (res && res.bill_id) {
+              this.billId = res.bill_id;
+            }
+          },
+        });
+      },
+    });
   }
 
   toggleSidebar() {
@@ -49,25 +74,26 @@ export class CustomerNavbar implements OnInit {
     }
   }
 
-  // ⚠️ ตอนนี้อ่าน orderId จาก localStorage key 'currentOrderId'
-  // ต้องไปเพิ่มโค้ดที่หน้า checkout/place-order ให้เซฟค่านี้ไว้ตอนสั่งอาหารสำเร็จ:
-  //   localStorage.setItem('currentOrderId', response.orderId);
-  // ถ้ายังไม่มีการเซฟ ลิงก์นี้จะยังกดไม่ได้ (แจ้งเตือนแทน) จนกว่าจะเพิ่มจุดนั้น
   getItemRoute(item: NavMenuItem): any[] {
     if (!item.dynamic) return [item.route];
 
-    const orderId = localStorage.getItem('currentOrderId');
-    if (!orderId) return []; // ป้องกัน routerLink พังถ้ายังไม่มี orderId
+    if (this.billId) {
+      return [item.route, this.billId];
+    }
 
-    return [item.route, orderId];
+    return [];
   }
 
   onMenuItemClick(item: NavMenuItem, event: Event) {
     this.closeSidebar();
 
-    if (item.dynamic && !localStorage.getItem('currentOrderId')) {
+    if (item.dynamic) {
       event.preventDefault();
-      alert('ยังไม่มีออเดอร์ที่กำลังดำเนินการ กรุณาสั่งอาหารก่อน');
+      if (this.billId) {
+        this.router.navigate(['/StatusCustomer', this.billId]);
+      } else {
+        alert('ยังไม่มีข้อมูลบิลสำหรับโต๊ะนี้ กรุณาแจ้งพนักงานเพื่อเปิดบิล');
+      }
     }
   }
 }

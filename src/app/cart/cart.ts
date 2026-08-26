@@ -3,7 +3,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
@@ -60,12 +60,12 @@ export class Cart implements OnInit {
     private tableService: TableService,
     private orderService: OrderService,
     private billService: BillService,
+    private router: Router,
   ) {}
 
   ngOnInit() {
     this.tableNumber = this.tableService.getTable();
     if (this.tableNumber) {
-      // 🔹 ดึง tableid ก่อน แล้วค่อยดึง Cart และ Bill ต่อกันเป็นลำดับ
       this.gettableid(this.tableNumber);
     } else {
       console.warn('ไม่พบข้อมูลโต๊ะ');
@@ -81,19 +81,13 @@ export class Cart implements OnInit {
     this.tableService.getTableid(tableNumber).subscribe({
       next: (id: number) => {
         this.tableid = id;
-        console.log('ได้รหัสโต๊ะแล้ว:', this.tableid);
-
-        // 🔹 โหลดตะกร้า และ Bill หลังจากได้ tableid แน่นอนแล้ว
         this.loadCart();
         this.getbillbytableid(this.tableid);
       },
-      error: (err) => {
-        console.error('หา ID โต๊ะไม่เจอ:', err);
-      },
+      error: (err) => console.error('หา ID โต๊ะไม่เจอ:', err),
     });
   }
 
-  // 1. โหลดข้อมูลตะกร้าจาก DB
   loadCart() {
     if (this.tableid === 0) return;
     this.cartService.getCartItems(this.tableid).subscribe({
@@ -112,7 +106,6 @@ export class Cart implements OnInit {
             }));
           }
         } else {
-          // ถ้าไม่มีตะกร้าค้างอยู่ ให้รีเซ็ตฝั่ง UI
           this.cartItems = [];
           this.currentCartId = 0;
         }
@@ -150,7 +143,6 @@ export class Cart implements OnInit {
     });
   }
 
-  // Logic เลือกทั้งหมด
   get isAllSelected(): boolean {
     return this.cartItems.length > 0 && this.cartItems.every((item) => item.selected);
   }
@@ -159,12 +151,10 @@ export class Cart implements OnInit {
     this.cartItems.forEach((item) => (item.selected = value));
   }
 
-  // คำนวณจำนวนรายการที่เลือก
   get totalSelectedItems(): number {
     return this.cartItems.filter((item) => item.selected).length;
   }
 
-  // คำนวณราคารวม
   get totalPrice(): number {
     return this.cartItems
       .filter((item) => item.selected)
@@ -185,7 +175,7 @@ export class Cart implements OnInit {
     if (newQuantity <= 0) {
       this.itemToDelete = item;
       this.pendingChange = change;
-      this.displayConfirm = true; // เปิด dialog ยืนยันการลบ
+      this.displayConfirm = true;
     } else {
       this.processUpdate(item, change);
     }
@@ -218,16 +208,14 @@ export class Cart implements OnInit {
 
     this.cartService.addToCart(payload).subscribe({
       next: () => {},
-      error: (err) => {
+      error: () => {
         item.quantity = previousQuantity;
         this.cartItems = previousItems;
-
         this.messageService.add({
           severity: 'error',
           summary: 'ไม่สามารถอัปเดตได้',
           detail: 'กรุณาลองใหม่อีกครั้ง',
         });
-
         this.loadCart();
       },
     });
@@ -238,7 +226,6 @@ export class Cart implements OnInit {
       next: () => {
         this.cartItems = this.cartItems.filter((item) => item.id !== id);
         this.messageService.add({ severity: 'success', summary: 'ลบสำเร็จ' });
-
         if (this.cartItems.length === 0) this.currentCartId = 0;
       },
       error: () => {
@@ -273,25 +260,24 @@ export class Cart implements OnInit {
           detail: response?.message || 'รายการถูกส่งเข้าครัวแล้ว',
         });
 
-        // 🟢 เซฟ orderId ไว้ให้เมนู "ติดตามสถานะออเดอร์" ใช้ต่อ
-        // ⚠️ backend คืนมาเป็น "order_id" (ตัว O ใหญ่ตัวเดียวที่ camelCase แปลงให้) ไม่ใช่ "orderId"
         if (response?.order_id) {
           localStorage.setItem('currentOrderId', String(response.order_id));
         }
 
-        // เคลียร์ตะกร้าฝั่ง Frontend
         this.cartItems = [];
         this.currentCartId = 0;
+
+        setTimeout(() => {
+          this.router.navigate(['/StatusCustomer', this.billId]);
+        }, 1000);
       },
       error: (error: any) => {
         console.error('Error placing order:', error);
-
         this.messageService.add({
           severity: 'error',
           summary: 'เกิดข้อผิดพลาด',
           detail: error?.error?.message || 'ไม่สามารถส่งออเดอร์ได้ กรุณาลองใหม่อีกครั้ง',
         });
-
         this.loadCart();
       },
     });
