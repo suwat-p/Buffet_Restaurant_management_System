@@ -37,7 +37,7 @@ export class ConfrimCheckin implements OnInit, OnDestroy {
   bookingId: number | null = null;
   empId: number | null = this.getempIdFromToken();
   configId: number | null = null;
-
+  tableId: number | null = null;
   // Scanner Config
   isCameraActive = false;
   allowedFormats = [BarcodeFormat.QR_CODE];
@@ -68,10 +68,11 @@ export class ConfrimCheckin implements OnInit, OnDestroy {
 
     this.getconfig();
 
-    // 🎯 อ่านเฉพาะ bookingId จาก URL Query Params
-    const bId = this.route.snapshot.queryParamMap.get('bookingId');
-    if (bId) {
+     const bId = this.route.snapshot.queryParamMap.get('bookingId');
+    const tId = this.route.snapshot.queryParamMap.get('tableId');
+    if (bId && tId) {
       this.bookingId = Number(bId);
+      this.tableId = Number(tId);
       this.fetchCheckinInfo();
     }
   }
@@ -95,21 +96,19 @@ export class ConfrimCheckin implements OnInit, OnDestroy {
     this.parseQrCodeAndFetch(resultString);
   }
 
-  // 🎯 ปรับปรุงการแกะ QR Code ให้รับเฉพาะ bookingId ได้
   parseQrCodeAndFetch(qrData: string): void {
     try {
-      if (qrData.includes('bookingId=')) {
+      if (qrData.includes('bookingId=') && qrData.includes('tableId=')) {
         const url = new URL(qrData);
         this.bookingId = Number(url.searchParams.get('bookingId'));
-      } else if (!isNaN(Number(qrData))) {
-        // กรณี QR Code มีแค่ตัวเลข BookingId เพียวๆ
-        this.bookingId = Number(qrData);
+        this.tableId = Number(url.searchParams.get('tableId'));
       } else {
         const parsed = JSON.parse(qrData);
-        this.bookingId = parsed.bookingId ?? parsed.booking_id;
+        this.bookingId = parsed.bookingId;
+        this.tableId = parsed.tableId;
       }
 
-      if (this.bookingId) {
+      if (this.bookingId && this.tableId) {
         this.fetchCheckinInfo();
       } else {
         this.errorMessage = 'รูปแบบข้อมูลใน QR Code ไม่ถูกต้อง';
@@ -118,6 +117,7 @@ export class ConfrimCheckin implements OnInit, OnDestroy {
       this.errorMessage = 'ไม่สามารถอ่านข้อมูลจาก QR Code นี้ได้';
     }
   }
+
 
   getempIdFromToken(): number | null {
     const token = localStorage.getItem('token') ?? sessionStorage.getItem('token');
@@ -130,16 +130,13 @@ export class ConfrimCheckin implements OnInit, OnDestroy {
     }
   }
 
-  // 🎯 ดึงข้อมูลเช็คอินโดยส่งแค่ bookingId
-  fetchCheckinInfo(): void {
-    if (!this.bookingId) return;
+   fetchCheckinInfo(): void {
+    if (!this.bookingId || !this.tableId) return;
 
     this.loading = true;
     this.errorMessage = '';
-    this.successMessage = '';
-
-    // เรียก API GetCheckinInfo (ส่งแค่ bookingId)
-    this.bookingService.getCheckinInfo(this.bookingId, 0).subscribe({
+    console.log(this.tableId)
+    this.bookingService.getCheckinInfo(this.bookingId, this.tableId).subscribe({
       next: (data: CheckinInfo) => {
         console.log('📌 ข้อมูลที่ได้จาก API Checkin:', data);
         this.checkinInfo = data;
