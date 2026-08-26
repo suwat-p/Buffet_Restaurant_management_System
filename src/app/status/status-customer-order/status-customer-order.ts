@@ -6,12 +6,36 @@ import { Subscription } from 'rxjs';
 import { CustomerNavbar } from '../../components/menu-bar/customer-navbar/customer-navbar';
 import { OrderService, OrderStatusItem } from '../../service/api/order.service';
 
-// แม็ปสถานะจาก backend (Order_Status ใน DB) ไปเป็นลำดับ step บน stepper
-// ⚠️ ต้องตรงกับ string ที่ backend ใช้จริงเป๊ะ ๆ (ดูจาก OrderController.cs)
-const STATUS_STEP_MAP: Record<string, number> = {
+// 1. Steps สำหรับออเดอร์สั่งปกติที่ร้าน
+const NORMAL_STEPS = [
+  { label: 'รับออเดอร์' },
+  { label: 'กำลังจัดเตรียมอาหาร' },
+  { label: 'กำลังนำเสริฟ' },
+  { label: 'ดำเนินการเสร็จสิ้น' },
+];
+
+// 2. Steps สำหรับออเดอร์สั่งล่วงหน้า (Pre-order)
+const PREORDER_STEPS = [
+  { label: 'รับออเดอร์สั่งล่วงหน้า' },
+  { label: 'รอเช็คอินเข้าร้าน' },
+  { label: 'กำลังจัดเตรียมอาหาร' },
+  { label: 'ดำเนินการเสร็จสิ้น' },
+];
+
+// 3. Map สถานะ DB เป็น Index (ปกติ)
+const NORMAL_STATUS_MAP: Record<string, number> = {
   รับออเดอร์: 0,
   กำลังจัดเตรียมอาหาร: 1,
   กำลังนำเสิร์ฟ: 2,
+  เสร็จสิ้น: 3,
+};
+
+// 4. Map สถานะ DB เป็น Index (สั่งล่วงหน้า)
+const PREORDER_STATUS_MAP: Record<string, number> = {
+  รับออเดอร์: 0,
+  สั่งล่วงหน้าสำเร็จ: 0,
+  รอเช็คอิน: 1,
+  กำลังจัดเตรียมอาหาร: 2,
   เสร็จสิ้น: 3,
 };
 
@@ -25,13 +49,12 @@ const STATUS_STEP_MAP: Record<string, number> = {
 export class StatusCustomerOrder implements OnInit, OnDestroy {
   currentStep = 0;
   orderId!: number;
+  bookingId: number | null = null;
+  isPreorder = false;
 
-  steps = [
-    { label: 'รับออเดอร์' }, // index 0
-    { label: 'กำลังจัดเตรียมอาหาร' }, // index 1
-    { label: 'กำลังนำเสริฟ' }, // index 2
-    { label: 'ดำเนินการเสร็จสิ้น' }, // index 3
-  ];
+  // กำหนด Dynamic Steps และ Status Map
+  steps = NORMAL_STEPS;
+  private currentStatusMap = NORMAL_STATUS_MAP;
 
   orderItems: { name: string; quantity: number }[] = [];
   overallStatusText = '';
@@ -45,30 +68,36 @@ export class StatusCustomerOrder implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    // 🔄 ใช้ paramMap แบบ subscribe แทน snapshot เพราะ Angular Router จะ reuse component เดิม
-    // ถ้า route เดิมแค่เปลี่ยน param (เช่นสั่งออเดอร์ใหม่แล้วพาไปหน้าเดิมด้วย orderId ใหม่)
-    // ทำให้ ngOnInit ไม่ถูกเรียกซ้ำ ถ้าใช้ snapshot ตัวแปร orderId จะค้างเป็นออเดอร์เก่าตลอด
+    // เช็ค Query Params สำหรับกรณี Pre-order (สั่งล่วงหน้า)
+    this.route.queryParams.subscribe((queryParams) => {
+      if (queryParams['bookingId']) {
+        this.isPreorder = true;
+        this.bookingId = Number(queryParams['bookingId']);
+        this.steps = PREORDER_STEPS;
+        this.currentStatusMap = PREORDER_STATUS_MAP;
+
+        this.loadPreorderStatus();
+      }
+    });
+
+    // เช็ค Route Param สำหรับกรณี สั่งปกติที่ร้าน
     this.paramSub = this.route.paramMap.subscribe((params) => {
       const idParam = params.get('orderId');
-      if (!idParam) {
-        console.error('ไม่พบ orderId ใน route');
-        return;
+      if (idParam && !this.isPreorder) {
+        const newOrderId = Number(idParam);
+        if (newOrderId === this.orderId) return;
+
+        this.orderId = newOrderId;
+        this.isPreorder = false;
+        this.steps = NORMAL_STEPS;
+        this.currentStatusMap = NORMAL_STATUS_MAP;
+
+        this.resetState();
+        this.statusSub?.unsubscribe();
+
+        this.loadInitialStatus();
+        this.listenForRealtimeUpdates();
       }
-
-      const newOrderId = Number(idParam);
-      if (newOrderId === this.orderId) return; // orderId ไม่เปลี่ยนจริง ข้ามไป
-
-      // เคลียร์ state ของออเดอร์เก่าทิ้งก่อน ไม่งั้นจะเห็นสถานะ/รายการอาหารเก่าค้างแวบนึงระหว่างรอโหลดของใหม่
-      this.orderId = newOrderId;
-      this.currentStep = 0;
-      this.overallStatusText = '';
-      this.orderItems = [];
-
-      // ยกเลิก SignalR listener เดิมที่ผูกกับ orderId เก่า ก่อนต่อฟังของใหม่
-      this.statusSub?.unsubscribe();
-
-      this.loadInitialStatus();
-      this.listenForRealtimeUpdates();
     });
   }
 
@@ -78,7 +107,13 @@ export class StatusCustomerOrder implements OnInit, OnDestroy {
     this.orderService.disconnect();
   }
 
-  // โหลดสถานะ + รายการสินค้าปัจจุบันตอนเปิดหน้าครั้งแรก
+  private resetState() {
+    this.currentStep = 0;
+    this.overallStatusText = '';
+    this.orderItems = [];
+  }
+
+  // โหลดออเดอร์ปกติ
   private loadInitialStatus() {
     this.orderService.GetOrderStatus(this.orderId).subscribe({
       next: (res) => {
@@ -89,28 +124,43 @@ export class StatusCustomerOrder implements OnInit, OnDestroy {
         }));
         this.updateTracker(res.orderStatus);
       },
-      error: (err) => {
-        console.error('โหลดสถานะออเดอร์ไม่สำเร็จ:', err);
-      },
+      error: (err) => console.error('โหลดสถานะออเดอร์ไม่สำเร็จ:', err),
     });
   }
 
-  // ต่อ SignalR รอฟัง event "OrderStatusUpdated" แบบ real-time
+  // โหลดออเดอร์สั่งล่วงหน้า (Pre-order)
+  private loadPreorderStatus() {
+    if (!this.bookingId) return;
+    this.resetState();
+
+    // ตัวอย่างการรับ/แม็ปข้อมูลสั่งล่วงหน้า
+    this.orderService.GetOrderStatus(this.bookingId).subscribe({
+      next: (res) => {
+        this.overallStatusText = res.orderStatus || 'รับออเดอร์';
+        this.orderItems = res.items.map((item: OrderStatusItem) => ({
+          name: item.menuName,
+          quantity: item.quantity,
+        }));
+        this.updateTracker(this.overallStatusText);
+      },
+      error: (err) => console.error('โหลดสถานะ Pre-order ไม่สำเร็จ:', err),
+    });
+  }
+
   private listenForRealtimeUpdates() {
     this.statusSub = this.orderService.connect().subscribe((event) => {
-      if (event.orderId !== this.orderId) return; // ไม่ใช่ออเดอร์ของเรา ข้ามไป
-
+      if (event.orderId !== this.orderId) return;
       this.overallStatusText = event.status;
       this.updateTracker(event.status);
     });
   }
 
   private updateTracker(statusText: string) {
-    const index = STATUS_STEP_MAP[statusText];
+    const index = this.currentStatusMap[statusText];
     if (index !== undefined) {
       this.currentStep = index;
     } else {
-      console.warn('ไม่รู้จักสถานะนี้ ตรวจสอบ STATUS_STEP_MAP:', statusText);
+      console.warn('ไม่รู้จักสถานะนี้ ตรวจสอบ Map:', statusText);
     }
   }
 }

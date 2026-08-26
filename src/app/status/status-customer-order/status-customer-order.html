@@ -6,13 +6,18 @@
     </div>
 
     <div class="container">
+      <!-- Dynamic Header -->
       <div class="page-header">
-        <h1>ติดตามสถานะออเดอร์คุณ</h1>
+        <h1 *ngIf="!isPreorder">ติดตามสถานะออเดอร์คุณ</h1>
+        <h1 *ngIf="isPreorder">ติดตามสถานะสั่งล่วงหน้า (การจอง #{{ bookingId }})</h1>
         <mat-icon class="header-icon">description</mat-icon>
       </div>
 
+      <!-- Stepper Box -->
       <div class="order-tracker-box">
-        <div class="tracker-header">สถานะออเดอร์</div>
+        <div class="tracker-header">
+          {{ isPreorder ? 'สถานะการสั่งอาหารล่วงหน้า' : 'สถานะออเดอร์' }}
+        </div>
 
         <div class="stepper-wrapper">
           <div class="stepper-line-background"></div>
@@ -34,6 +39,7 @@
         </div>
       </div>
 
+      <!-- Content Box / Table -->
       <div class="content-box">
         <div class="cart-table">
           <div class="table-head">

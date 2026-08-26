@@ -1,4 +1,3 @@
-// --- Variables ---
 $tracker-bg: #EAEAEA;        
 $tracker-purple: #3F51B5;    
 $tracker-line-dim: #C5CAE9;  
@@ -20,7 +19,6 @@ $status-orange: #ff8c00;
   box-sizing: border-box;
 }
 
-// Background Image
 .background-wrapper {
   position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0;
   .bg-img { width: 100%; height: 100%; object-fit: cover; }
@@ -35,7 +33,6 @@ $status-orange: #ff8c00;
   margin: 0 auto; 
 }
 
-// --- Page Header ---
 .page-header {
   background-color: $table-header-red;
   padding: 18px 25px;
@@ -55,7 +52,6 @@ $status-orange: #ff8c00;
     width: 28px; height: 28px;
   }
 }
-
 
 .order-tracker-box {
   background-color: $tracker-bg;
@@ -78,18 +74,15 @@ $status-orange: #ff8c00;
     align-items: flex-start;
     padding: 0 5px; 
 
-
     $circle-size: 26px;
     $line-height: 4px;
     $line-top: 11px; 
 
-    // เส้น Background
     .stepper-line-background {
       position: absolute; top: $line-top; left: 0; right: 0; height: $line-height;
       background-color: $tracker-line-dim; z-index: 0; border-radius: 2px;
     }
 
-    // เส้น Progress
     .stepper-line-progress {
       position: absolute; top: $line-top; left: 0; height: $line-height;
       background-color: $tracker-purple; z-index: 0; border-radius: 2px;
@@ -117,17 +110,14 @@ $status-orange: #ff8c00;
         line-height: 1.3; font-weight: 400;
       }
 
-    
       &:not(.active) {
         .circle { background-color: $tracker-purple; } 
         .label { color: #888; }
       }
-      // Active
       &.active .label { color: #000; font-weight: 500; }
     }
   }
 }
-
 
 .content-box {
   border-radius: 6px;
@@ -140,7 +130,6 @@ $status-orange: #ff8c00;
   width: 100%;
   background-color: $table-bg-dark;
 
-  // Header
   .table-head {
     display: flex; justify-content: space-between;
     background-color: $table-header-red;
@@ -150,7 +139,6 @@ $status-orange: #ff8c00;
     .col-qty { width: 80px; text-align: right; color: #fff; font-size: 1rem; font-weight: 400; }
   }
 
-  // Row
   .table-row {
     display: flex; justify-content: space-between; align-items: center;
     padding: 20px 30px;
@@ -167,7 +155,6 @@ $status-orange: #ff8c00;
     }
   }
 
-  // Footer
   .table-footer {
     display: flex; justify-content: space-between; align-items: center;
     padding: 25px 30px;
@@ -192,27 +179,15 @@ $status-orange: #ff8c00;
   }
 }
 
-
-// RESPONSIVE
-
-
-// Tablet (ลด Padding ด้านข้าง)
 @media (max-width: 768px) {
   .status-page { padding: 30px 15px; }
   .order-tracker-box { padding: 25px 20px; }
-  
-  .stepper-wrapper .step-item .label {
-    font-size: 0.85rem;
-  }
+  .stepper-wrapper .step-item .label { font-size: 0.85rem; }
 }
 
-// Mobile (มือถือ)
 @media (max-width: 500px) {
   .page-header h1 { font-size: 1.2rem; }
-  
   .tracker-header { font-size: 1.1rem !important; margin-bottom: 30px !important; }
-
-  // ย่อขนาด Tracker
   .stepper-wrapper {
       .step-item {
           .circle { 
@@ -223,17 +198,10 @@ $status-orange: #ff8c00;
       }
       .stepper-line-background, .stepper-line-progress { top: 9px !important; }
   }
-  
-  // จัด Footer เป็นแนวตั้ง (Stack) ในจอมือถือเล็กๆ
   .cart-table {
     .table-head, .table-row { padding: 15px 20px; }
-    
     .table-footer {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 15px;
-      padding: 20px;
-      
+      flex-direction: column; align-items: flex-start; gap: 15px; padding: 20px;
       .footer-left { width: 100%; border-bottom: 1px solid #333; padding-bottom: 10px; }
       .footer-right { 
           width: 100%; justify-content: space-between; 
