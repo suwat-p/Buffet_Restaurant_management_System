@@ -25,10 +25,12 @@ const STEPS = [
   { label: 'ดำเนินการเสร็จสิ้น' },
 ];
 
+// 🟢 ปรับให้ Map สถานะตรงกับทั้ง DB และ SignalR
 const STATUS_MAP: Record<string, number> = {
   รับออเดอร์: 0,
   กำลังจัดเตรียมอาหาร: 1,
   กำลังนำเสิร์ฟ: 2,
+  ดำเนินการเสร็จสิ้น: 3,
   เสร็จสิ้น: 3,
 };
 
@@ -91,16 +93,15 @@ export class StatusCustomerOrder implements OnInit, OnDestroy {
       const targetOrder = this.activeOrders.find((o) => o.orderId === event.orderId);
 
       if (targetOrder) {
-        if (event.status === 'เสร็จสิ้น') {
-          // 🟢 ลบออเดอร์ที่เสร็จสิ้นออกจากหน้าจอทันที
+        if (event.status === 'เสร็จสิ้น' || event.status === 'ดำเนินการเสร็จสิ้น') {
+          // 🟢 เมื่อเสิร์ฟเสร็จ ให้ลบออเดอร์ออกจากหน้ารอนำเสิร์ฟ
           this.activeOrders = this.activeOrders.filter((o) => o.orderId !== event.orderId);
         } else {
           // 🟢 อัปเดตสถานะ Real-time
           targetOrder.orderStatus = event.status;
           targetOrder.currentStep = STATUS_MAP[event.status] ?? targetOrder.currentStep;
         }
-      } else if (event.status !== 'เสร็จสิ้น') {
-        // หากมีออเดอร์ใหม่เข้ามาในบิลนี้ ให้โหลดข้อมูลใหม่
+      } else if (event.status !== 'เสร็จสิ้น' && event.status !== 'ดำเนินการเสร็จสิ้น') {
         this.loadActiveOrders();
       }
     });
