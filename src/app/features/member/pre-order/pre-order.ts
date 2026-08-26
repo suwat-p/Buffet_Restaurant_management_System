@@ -97,18 +97,13 @@ export class PreOrder implements OnInit {
     });
   }
 
-  // โหลดรายการสินค้าในตะกร้าจาก DB และอัปเดต Badge
   loadCart() {
     if (!this.bookingId) return;
 
     this.cartService.getCartItems(0, this.bookingId).subscribe({
       next: (res: any) => {
-        console.log('Cart Response from DB:', res);
-
         if (res && (res.cartId || res.cart_id)) {
           this.currentCartId = res.cartId || res.cart_id;
-
-          // ดึงข้อมูลรายการสินค้า (รองรับทั้ง items, cart_items, cartItems)
           const rawItems = res.items || res.cart_items || res.cartItems || [];
 
           this.cartItems = rawItems.map((item: any) => ({
@@ -121,7 +116,6 @@ export class PreOrder implements OnInit {
             selected: true,
           }));
 
-          // คำนวณจำนวนชิ้นรวมสำหรับ Badge
           this.cartBadgeCount = this.cartItems.reduce((sum, item) => sum + item.quantity, 0);
         } else {
           this.cartItems = [];
@@ -138,7 +132,6 @@ export class PreOrder implements OnInit {
     });
   }
 
-  // เปิด-ปิด Modal ตะกร้า
   toggleCartModal() {
     this.displayCartDialog = !this.displayCartDialog;
     if (this.displayCartDialog) {
@@ -146,24 +139,20 @@ export class PreOrder implements OnInit {
     }
   }
 
-  // คำนวณจำนวนรายการที่เลือก
   get totalSelectedItems(): number {
     return this.cartItems.filter((item) => item.selected).length;
   }
 
-  // คำนวณราคารวมทั้งหมด
   get totalPrice(): number {
     return this.cartItems
       .filter((item) => item.selected)
       .reduce((sum, item) => sum + item.price * item.quantity, 0);
   }
 
-  // เพิ่มจำนวนสินค้า
   increaseQty(item: CartItem) {
     this.updateCartQuantity(item, 1);
   }
 
-  // ลดจำนวนสินค้า
   decreaseQty(item: CartItem) {
     this.updateCartQuantity(item, -1);
   }
@@ -252,7 +241,6 @@ export class PreOrder implements OnInit {
     });
   }
 
-  // ส่งรายการสั่งล่วงหน้า
   async placeOrder() {
     if (this.currentCartId === 0 || this.cartItems.length === 0) return;
 
@@ -306,6 +294,7 @@ export class PreOrder implements OnInit {
     });
   }
 
+  // **นำทางไปยังหน้าติดตามสถานะการจอง**
   goToBookingStatus() {
     if (this.bookingId) {
       this.router.navigate(['/BookingStatus'], {
@@ -313,6 +302,15 @@ export class PreOrder implements OnInit {
       });
     } else {
       this.router.navigate(['/BookingStatus']);
+    }
+  }
+
+  // **นำทางไปยังหน้าติดตามสถานะออเดอร์ (/StatusCustomer)**[cite: 28]
+  goToOrderStatus() {
+    if (this.bookingId) {
+      this.router.navigate(['/StatusCustomer', this.bookingId]);
+    } else {
+      this.router.navigate(['/StatusCustomer']);
     }
   }
 

@@ -36,6 +36,12 @@
           <i class="pi pi-history"></i>
           <span *ngIf="isSidebarOpen">ติดตามสถานะการจอง</span>
         </li>
+
+        <!-- เพิ่มเมนู ติดตามสถานะออเดอร์ (ไปที่ /StatusCustomer) -->
+        <li class="menu-item" (click)="goToOrderStatus()">
+          <i class="pi pi-receipt"></i>
+          <span *ngIf="isSidebarOpen">ติดตามสถานะออเดอร์</span>
+        </li>
       </ul>
     </aside>
 
@@ -156,9 +162,7 @@
   </div>
 </div>
 
-<!-- ==========================================
-     Modal ตะกร้าสินค้าแบบ Table Grid (Pre-Order Cart)
-========================================== -->
+<!-- Modal ตะกร้าสินค้า -->
 <p-dialog
   header="รถเข็นรายการสั่งอาหารล่วงหน้า"
   [(visible)]="displayCartDialog"
@@ -173,7 +177,6 @@
   <div class="cart-dialog-container">
     <div class="cart-table">
       <ng-container *ngIf="cartItems && cartItems.length > 0; else emptyCart">
-        <!-- หัวตาราง -->
         <div class="table-head">
           <div class="col-num center">#</div>
           <div class="col-name">สินค้า</div>
@@ -181,7 +184,6 @@
           <div class="col-qty center">จำนวน</div>
         </div>
 
-        <!-- รายการสินค้า -->
         <div class="table-body">
           <div class="table-row" *ngFor="let item of cartItems; let i = index">
             <div class="col-num center">{{ i + 1 }}</div>
@@ -206,7 +208,6 @@
           </div>
         </div>
 
-        <!-- สรุปยอดและปุ่มสั่งอาหาร -->
         <div class="table-footer">
           <div class="footer-left">
             <span class="summary-text">
@@ -231,9 +232,7 @@
   </div>
 </p-dialog>
 
-<!-- ==========================================
-     Dialog ยืนยันการลบรายการ
-========================================== -->
+<!-- Dialog ยืนยันการลบรายการ -->
 <p-dialog
   header="ยืนยันการลบรายการ"
   [(visible)]="displayConfirmDelete"
