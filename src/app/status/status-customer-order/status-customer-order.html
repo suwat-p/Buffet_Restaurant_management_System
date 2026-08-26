@@ -6,60 +6,65 @@
     </div>
 
     <div class="container">
-      <!-- Dynamic Header -->
-      <div class="page-header">
-        <h1 *ngIf="!isPreorder">ติดตามสถานะออเดอร์คุณ</h1>
-        <h1 *ngIf="isPreorder">ติดตามสถานะสั่งล่วงหน้า (การจอง #{{ bookingId }})</h1>
-        <mat-icon class="header-icon">description</mat-icon>
+      <!-- กรณีไม่มีออเดอร์ที่ค้างอยู่เลย -->
+      <div class="no-orders-box" *ngIf="activeOrders.length === 0">
+        <h2>ไม่มีรายการอาหารที่กำลังรอนำเสิร์ฟ</h2>
       </div>
 
-      <!-- Stepper Box -->
-      <div class="order-tracker-box">
-        <div class="tracker-header">
-          {{ isPreorder ? 'สถานะการสั่งอาหารล่วงหน้า' : 'สถานะออเดอร์' }}
+      <!-- วน Loop แสดงการ์ดออเดอร์ทั้งหมดที่ยังไม่เสร็จสิ้น -->
+      <div class="order-card-group" *ngFor="let order of activeOrders">
+        <!-- Header แสดง Order ID -->
+        <div class="page-header">
+          <h1>ติดตามสถานะออเดอร์คุณ (ออเดอร์ #{{ order.orderId }})</h1>
+          <mat-icon class="header-icon">description</mat-icon>
         </div>
 
-        <div class="stepper-wrapper">
-          <div class="stepper-line-background"></div>
-          <div
-            class="stepper-line-progress"
-            [style.width.%]="(currentStep / (steps.length - 1)) * 100"
-          ></div>
+        <!-- Stepper Box -->
+        <div class="order-tracker-box">
+          <div class="tracker-header">สถานะออเดอร์</div>
 
-          <div
-            class="step-item"
-            *ngFor="let step of steps; let i = index"
-            [class.active]="i <= currentStep"
-          >
-            <div class="circle">
-              <mat-icon *ngIf="i <= currentStep">check</mat-icon>
+          <div class="stepper-wrapper">
+            <div class="stepper-line-background"></div>
+            <div
+              class="stepper-line-progress"
+              [style.width.%]="(order.currentStep / (steps.length - 1)) * 100"
+            ></div>
+
+            <div
+              class="step-item"
+              *ngFor="let step of steps; let i = index"
+              [class.active]="i <= order.currentStep"
+            >
+              <div class="circle">
+                <mat-icon *ngIf="i <= order.currentStep">check</mat-icon>
+              </div>
+              <div class="label">{{ step.label }}</div>
             </div>
-            <div class="label">{{ step.label }}</div>
           </div>
         </div>
-      </div>
 
-      <!-- Content Box / Table -->
-      <div class="content-box">
-        <div class="cart-table">
-          <div class="table-head">
-            <div class="col-name">สินค้า</div>
-            <div class="col-qty">จำนวน</div>
-          </div>
-
-          <div class="table-row" *ngFor="let item of orderItems">
-            <div class="col-name">{{ item.name }}</div>
-            <div class="col-qty">{{ item.quantity }}</div>
-          </div>
-
-          <div class="table-footer">
-            <div class="footer-left">
-              <span>รวม ({{ orderItems.length }} รายการ)</span>
+        <!-- Content Box / Table -->
+        <div class="content-box">
+          <div class="cart-table">
+            <div class="table-head">
+              <div class="col-name">สินค้า</div>
+              <div class="col-qty">จำนวน</div>
             </div>
-            <div class="footer-right">
-              <span class="status-label">สถานะ : </span>
-              <div class="status-btn-orange">
-                {{ overallStatusText }}
+
+            <div class="table-row" *ngFor="let item of order.items">
+              <div class="col-name">{{ item.name }}</div>
+              <div class="col-qty">{{ item.quantity }}</div>
+            </div>
+
+            <div class="table-footer">
+              <div class="footer-left">
+                <span>รวม ({{ order.items.length }} รายการ)</span>
+              </div>
+              <div class="footer-right">
+                <span class="status-label">สถานะ : </span>
+                <div class="status-btn-orange">
+                  {{ order.orderStatus }}
+                </div>
               </div>
             </div>
           </div>

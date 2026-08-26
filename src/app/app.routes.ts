@@ -54,11 +54,12 @@ export const routes: Routes = [
 
   { path: 'Customer', component: CustomerOrder },
   { path: 'Cart', component: Cart },
-  { path: 'StatusCustomer/:orderId', component: StatusCustomerOrder },
+
+  { path: 'StatusCustomer/:billId', component: StatusCustomerOrder },
+  { path: 'PreOrderStatus/:billId', component: StatusCustomerOrder, canActivate: [memberGuard] },
   { path: 'Employeecheckin', component: EmployeeAttendance },
   { path: 'EmployeeIncome', component: EmployeeIncome },
   { path: 'KitchenDashboard', component: KitchenDashboard },
-
   {
     path: 'serve-action',
     component: ServeAction,

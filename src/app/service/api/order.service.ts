@@ -133,4 +133,14 @@ export class OrderService {
     this.hubConnection?.stop();
     this.hubConnection = undefined;
   }
+
+  public GetActiveOrdersByBill(billId: number): Observable<any[]> {
+    try {
+      const url = this.constants.API_ENDPOINT + `/Order/getActiveOrdersByBill/${billId}`;
+      return this.http.get<any[]>(url);
+    } catch (error) {
+      console.error('Error occurred while getting active orders by bill:', error);
+      throw error;
+    }
+  }
 }

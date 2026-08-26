@@ -4,38 +4,31 @@ import { MatIconModule } from '@angular/material/icon';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { CustomerNavbar } from '../../components/menu-bar/customer-navbar/customer-navbar';
-import { OrderService, OrderStatusItem } from '../../service/api/order.service';
+import { OrderService } from '../../service/api/order.service';
 
-// 1. Steps สำหรับออเดอร์สั่งปกติที่ร้าน
-const NORMAL_STEPS = [
+export interface ActiveOrderItem {
+  name: string;
+  quantity: number;
+}
+
+export interface ActiveOrder {
+  orderId: number;
+  orderStatus: string;
+  currentStep: number;
+  items: ActiveOrderItem[];
+}
+
+const STEPS = [
   { label: 'รับออเดอร์' },
   { label: 'กำลังจัดเตรียมอาหาร' },
-  { label: 'กำลังนำเสริฟ' },
+  { label: 'กำลังนำเสิร์ฟ' },
   { label: 'ดำเนินการเสร็จสิ้น' },
 ];
 
-// 2. Steps สำหรับออเดอร์สั่งล่วงหน้า (Pre-order)
-const PREORDER_STEPS = [
-  { label: 'รับออเดอร์สั่งล่วงหน้า' },
-  { label: 'รอเช็คอินเข้าร้าน' },
-  { label: 'กำลังจัดเตรียมอาหาร' },
-  { label: 'ดำเนินการเสร็จสิ้น' },
-];
-
-// 3. Map สถานะ DB เป็น Index (ปกติ)
-const NORMAL_STATUS_MAP: Record<string, number> = {
+const STATUS_MAP: Record<string, number> = {
   รับออเดอร์: 0,
   กำลังจัดเตรียมอาหาร: 1,
   กำลังนำเสิร์ฟ: 2,
-  เสร็จสิ้น: 3,
-};
-
-// 4. Map สถานะ DB เป็น Index (สั่งล่วงหน้า)
-const PREORDER_STATUS_MAP: Record<string, number> = {
-  รับออเดอร์: 0,
-  สั่งล่วงหน้าสำเร็จ: 0,
-  รอเช็คอิน: 1,
-  กำลังจัดเตรียมอาหาร: 2,
   เสร็จสิ้น: 3,
 };
 
@@ -47,17 +40,9 @@ const PREORDER_STATUS_MAP: Record<string, number> = {
   styleUrl: './status-customer-order.scss',
 })
 export class StatusCustomerOrder implements OnInit, OnDestroy {
-  currentStep = 0;
-  orderId!: number;
-  bookingId: number | null = null;
-  isPreorder = false;
-
-  // กำหนด Dynamic Steps และ Status Map
-  steps = NORMAL_STEPS;
-  private currentStatusMap = NORMAL_STATUS_MAP;
-
-  orderItems: { name: string; quantity: number }[] = [];
-  overallStatusText = '';
+  billId!: number;
+  steps = STEPS;
+  activeOrders: ActiveOrder[] = [];
 
   private statusSub?: Subscription;
   private paramSub?: Subscription;
@@ -68,34 +53,11 @@ export class StatusCustomerOrder implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    // เช็ค Query Params สำหรับกรณี Pre-order (สั่งล่วงหน้า)
-    this.route.queryParams.subscribe((queryParams) => {
-      if (queryParams['bookingId']) {
-        this.isPreorder = true;
-        this.bookingId = Number(queryParams['bookingId']);
-        this.steps = PREORDER_STEPS;
-        this.currentStatusMap = PREORDER_STATUS_MAP;
-
-        this.loadPreorderStatus();
-      }
-    });
-
-    // เช็ค Route Param สำหรับกรณี สั่งปกติที่ร้าน
     this.paramSub = this.route.paramMap.subscribe((params) => {
-      const idParam = params.get('orderId');
-      if (idParam && !this.isPreorder) {
-        const newOrderId = Number(idParam);
-        if (newOrderId === this.orderId) return;
-
-        this.orderId = newOrderId;
-        this.isPreorder = false;
-        this.steps = NORMAL_STEPS;
-        this.currentStatusMap = NORMAL_STATUS_MAP;
-
-        this.resetState();
-        this.statusSub?.unsubscribe();
-
-        this.loadInitialStatus();
+      const idParam = params.get('billId') || params.get('orderId');
+      if (idParam) {
+        this.billId = Number(idParam);
+        this.loadActiveOrders();
         this.listenForRealtimeUpdates();
       }
     });
@@ -107,60 +69,40 @@ export class StatusCustomerOrder implements OnInit, OnDestroy {
     this.orderService.disconnect();
   }
 
-  private resetState() {
-    this.currentStep = 0;
-    this.overallStatusText = '';
-    this.orderItems = [];
-  }
-
-  // โหลดออเดอร์ปกติ
-  private loadInitialStatus() {
-    this.orderService.GetOrderStatus(this.orderId).subscribe({
-      next: (res) => {
-        this.overallStatusText = res.orderStatus;
-        this.orderItems = res.items.map((item: OrderStatusItem) => ({
-          name: item.menuName,
-          quantity: item.quantity,
+  private loadActiveOrders() {
+    this.orderService.GetActiveOrdersByBill(this.billId).subscribe({
+      next: (res: any[]) => {
+        this.activeOrders = res.map((ord) => ({
+          orderId: ord.orderId,
+          orderStatus: ord.orderStatus || 'กำลังจัดเตรียมอาหาร',
+          currentStep: STATUS_MAP[ord.orderStatus] ?? 1,
+          items: ord.items.map((i: any) => ({
+            name: i.menuName,
+            quantity: i.quantity,
+          })),
         }));
-        this.updateTracker(res.orderStatus);
       },
-      error: (err) => console.error('โหลดสถานะออเดอร์ไม่สำเร็จ:', err),
-    });
-  }
-
-  // โหลดออเดอร์สั่งล่วงหน้า (Pre-order)
-  private loadPreorderStatus() {
-    if (!this.bookingId) return;
-    this.resetState();
-
-    // ตัวอย่างการรับ/แม็ปข้อมูลสั่งล่วงหน้า
-    this.orderService.GetOrderStatus(this.bookingId).subscribe({
-      next: (res) => {
-        this.overallStatusText = res.orderStatus || 'รับออเดอร์';
-        this.orderItems = res.items.map((item: OrderStatusItem) => ({
-          name: item.menuName,
-          quantity: item.quantity,
-        }));
-        this.updateTracker(this.overallStatusText);
-      },
-      error: (err) => console.error('โหลดสถานะ Pre-order ไม่สำเร็จ:', err),
+      error: (err) => console.error('โหลดรายการออเดอร์ไม่สำเร็จ:', err),
     });
   }
 
   private listenForRealtimeUpdates() {
     this.statusSub = this.orderService.connect().subscribe((event) => {
-      if (event.orderId !== this.orderId) return;
-      this.overallStatusText = event.status;
-      this.updateTracker(event.status);
-    });
-  }
+      const targetOrder = this.activeOrders.find((o) => o.orderId === event.orderId);
 
-  private updateTracker(statusText: string) {
-    const index = this.currentStatusMap[statusText];
-    if (index !== undefined) {
-      this.currentStep = index;
-    } else {
-      console.warn('ไม่รู้จักสถานะนี้ ตรวจสอบ Map:', statusText);
-    }
+      if (targetOrder) {
+        if (event.status === 'เสร็จสิ้น') {
+          // 🟢 ลบออเดอร์ที่เสร็จสิ้นออกจากหน้าจอทันที
+          this.activeOrders = this.activeOrders.filter((o) => o.orderId !== event.orderId);
+        } else {
+          // 🟢 อัปเดตสถานะ Real-time
+          targetOrder.orderStatus = event.status;
+          targetOrder.currentStep = STATUS_MAP[event.status] ?? targetOrder.currentStep;
+        }
+      } else if (event.status !== 'เสร็จสิ้น') {
+        // หากมีออเดอร์ใหม่เข้ามาในบิลนี้ ให้โหลดข้อมูลใหม่
+        this.loadActiveOrders();
+      }
+    });
   }
 }

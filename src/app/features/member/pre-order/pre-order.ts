@@ -308,9 +308,10 @@ export class PreOrder implements OnInit {
   // **นำทางไปยังหน้าติดตามสถานะออเดอร์ (/StatusCustomer)**[cite: 28]
   goToOrderStatus() {
     if (this.bookingId) {
-      this.router.navigate(['/StatusCustomer', this.bookingId]);
+      // เปลี่ยนไปใช้ path PreOrderStatus เพื่อแยก Navbar และ Parameter
+      this.router.navigate(['/PreOrderStatus', this.bookingId]);
     } else {
-      this.router.navigate(['/StatusCustomer']);
+      this.router.navigate(['/BookingStatus']);
     }
   }
 

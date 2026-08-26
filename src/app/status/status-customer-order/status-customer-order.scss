@@ -92,7 +92,7 @@ $status-orange: #ff8c00;
     .step-item {
       position: relative; z-index: 1;
       display: flex; flex-direction: column; align-items: center;
-      width: 25%; 
+      width: 25%; /* 🟢 กลับมาใช้ 25% สำหรับแบ่ง 4 ขั้นตอน */
 
       .circle {
         width: $circle-size; height: $circle-size;
