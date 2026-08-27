@@ -18,7 +18,55 @@ $status-orange: #ff8c00;
   overflow-x: hidden;
   box-sizing: border-box;
 }
+// เพิ่มต่อท้ายไฟล์เดิมที่มีอยู่แล้ว
+.section-title {
+  color: #fff;
+  margin: 20px 0 15px;
+  h2 {
+    font-size: 1.3rem;
+    font-weight: 500;
+  }
+}
 
+.no-orders-box {
+  text-align: center;
+  color: #aaa;
+  padding: 50px 0;
+  h2 {
+    font-size: 1.2rem;
+    font-weight: 400;
+  }
+}
+
+.history-section {
+  margin-top: 40px;
+  border-top: 1px dashed #444;
+  padding-top: 25px;
+
+  .history-title h2 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #4caf50;
+  }
+
+  .completed-card {
+    opacity: 0.85;
+    margin-bottom: 15px;
+
+    .history-head {
+      background-color: #1b3e20 !important;
+    }
+
+    .status-btn-green {
+      background-color: #2e7d32;
+      color: #fff;
+      padding: 6px 20px;
+      border-radius: 30px;
+      font-size: 0.85rem;
+    }
+  }
+}
 .background-wrapper {
   position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0;
   .bg-img { width: 100%; height: 100%; object-fit: cover; }

@@ -6,20 +6,20 @@
     </div>
 
     <div class="container">
-      <!-- กรณีไม่มีออเดอร์ที่ค้างอยู่เลย -->
-      <div class="no-orders-box" *ngIf="activeOrders.length === 0">
-        <h2>ไม่มีรายการอาหารที่กำลังรอนำเสิร์ฟ</h2>
+      <div class="section-title" *ngIf="activeOrders.length > 0">
+        <h2>รายการที่กำลังจัดเตรียม / นำเสิร์ฟ</h2>
       </div>
 
-      <!-- วน Loop แสดงการ์ดออเดอร์ทั้งหมดที่ยังไม่เสร็จสิ้น -->
+      <div class="no-orders-box" *ngIf="activeOrders.length === 0 && completedOrders.length === 0">
+        <h2>ไม่มีรายการอาหารในขณะนี้</h2>
+      </div>
+
       <div class="order-card-group" *ngFor="let order of activeOrders">
-        <!-- Header แสดง Order ID -->
         <div class="page-header">
           <h1>ติดตามสถานะออเดอร์คุณ (ออเดอร์ #{{ order.orderId }})</h1>
           <mat-icon class="header-icon">description</mat-icon>
         </div>
 
-        <!-- Stepper Box -->
         <div class="order-tracker-box">
           <div class="tracker-header">สถานะออเดอร์</div>
 
@@ -43,7 +43,6 @@
           </div>
         </div>
 
-        <!-- Content Box / Table -->
         <div class="content-box">
           <div class="cart-table">
             <div class="table-head">
@@ -64,6 +63,37 @@
                 <span class="status-label">สถานะ : </span>
                 <div class="status-btn-orange">
                   {{ order.orderStatus }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="history-section" *ngIf="completedOrders.length > 0">
+        <div class="section-title history-title">
+          <h2><mat-icon>task_alt</mat-icon> รายการที่เสิร์ฟเรียบร้อยแล้ว</h2>
+        </div>
+
+        <div class="order-card-group completed-card" *ngFor="let order of completedOrders">
+          <div class="content-box">
+            <div class="cart-table">
+              <div class="table-head history-head">
+                <div class="col-name">ออเดอร์ #{{ order.orderId }}</div>
+                <div class="col-qty">จำนวน</div>
+              </div>
+
+              <div class="table-row" *ngFor="let item of order.items">
+                <div class="col-name">{{ item.name }}</div>
+                <div class="col-qty">{{ item.quantity }}</div>
+              </div>
+
+              <div class="table-footer">
+                <div class="footer-left">
+                  <span>เสิร์ฟครบแล้ว ({{ order.items.length }} รายการ)</span>
+                </div>
+                <div class="footer-right">
+                  <div class="status-btn-green">เสร็จสิ้น</div>
                 </div>
               </div>
             </div>

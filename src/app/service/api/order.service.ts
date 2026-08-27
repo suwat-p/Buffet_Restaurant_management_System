@@ -19,6 +19,7 @@ export interface OrderStatusResponse {
 export interface OrderStatusUpdatedEvent {
   orderId: number;
   status: string;
+  billId?: number;
 }
 
 @Injectable({
@@ -103,12 +104,8 @@ export class OrderService {
     }
   }
 
-  // 📡 เชื่อมต่อ SignalR แล้วคืน Observable ที่ยิงทุกครั้งที่มีการอัปเดตสถานะ (ของ order ไหนก็ได้)
-  // ผู้เรียกต้อง filter เอาเองว่าเป็น orderId ที่ตัวเองสนใจหรือไม่
   public connect(): Observable<OrderStatusUpdatedEvent> {
     if (!this.hubConnection) {
-      // Hub ถูก map ไว้ที่ root ("/tableStatusHub") ไม่ได้อยู่ใต้ "/api" ตาม Program.cs
-      // จึงตัด "/api" ท้าย API_ENDPOINT ออกก่อนต่อ hub
       const baseUrl = this.constants.API_ENDPOINT.replace(/\/api\/?$/, '');
       const hubUrl = `${baseUrl}/tableStatusHub`;
 
@@ -117,8 +114,14 @@ export class OrderService {
         .withAutomaticReconnect()
         .build();
 
-      this.hubConnection.on('OrderStatusUpdated', (payload: OrderStatusUpdatedEvent) => {
-        this.statusUpdated$.next(payload);
+      // 🟢 รองรับ payload Real-time ทุกรูปแบบ
+      this.hubConnection.on('OrderStatusUpdated', (data: any) => {
+        const mappedEvent: OrderStatusUpdatedEvent = {
+          orderId: data.orderId || data.OrderId,
+          status: data.status || data.OrderStatus,
+          billId: data.billId || data.BillId,
+        };
+        this.statusUpdated$.next(mappedEvent);
       });
 
       this.hubConnection.start().catch((err) => {
@@ -130,17 +133,14 @@ export class OrderService {
   }
 
   public disconnect(): void {
-    this.hubConnection?.stop();
-    this.hubConnection = undefined;
+    if (this.hubConnection) {
+      this.hubConnection.stop();
+      this.hubConnection = undefined;
+    }
   }
 
   public GetActiveOrdersByBill(billId: number): Observable<any[]> {
-    try {
-      const url = this.constants.API_ENDPOINT + `/Order/getActiveOrdersByBill/${billId}`;
-      return this.http.get<any[]>(url);
-    } catch (error) {
-      console.error('Error occurred while getting active orders by bill:', error);
-      throw error;
-    }
+    const url = this.constants.API_ENDPOINT + `/Order/getActiveOrdersByBill/${billId}`;
+    return this.http.get<any[]>(url);
   }
 }
