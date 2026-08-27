@@ -136,3 +136,160 @@ $text-light: #ffffff;
         margin-bottom: 2rem;
     }
 }
+.filter-controls-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.mode-buttons-group {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+
+  .custom-btn {
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+}
+
+/* ปรับแต่ง Input Field ของ DatePicker */
+.datepicker-wrapper {
+  display: flex;
+  justify-content: flex-end;
+
+  ::ng-deep .custom-datepicker {
+    position: relative;
+    display: inline-flex;
+
+    .p-inputtext {
+      background-color: #18181b !important;
+      color: #ffffff !important;
+      border: 1px solid #3f3f46 !important;
+      border-radius: 8px 0 0 8px !important;
+      padding: 6px 12px !important;
+      font-size: 0.875rem !important;
+      width: 140px;
+
+      &:focus {
+        border-color: #22c55e !important;
+        box-shadow: 0 0 0 1px #22c55e !important;
+      }
+    }
+
+    .p-datepicker-trigger {
+      background-color: #27272a !important;
+      color: #22c55e !important;
+      border: 1px solid #3f3f46 !important;
+      border-left: none !important;
+      border-radius: 0 8px 8px 0 !important;
+      padding: 6px 10px !important;
+
+      &:hover {
+        background-color: #3f3f46 !important;
+        color: #4ade80 !important;
+      }
+    }
+  }
+}
+
+/* 🎯 บังคับแก้ไข Popup ปฏิทินที่สีหลุดกลายเป็นสีขาว (PrimeNG DatePicker Panel Override) */
+::ng-deep .p-datepicker-panel,
+::ng-deep .p-datepicker {
+  background-color: #18181b !important;
+  border: 1px solid #3f3f46 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.7) !important;
+  padding: 12px !important;
+  color: #ffffff !important;
+
+  /* Header (ปุ่มเปลี่ยนเดือน/ปี) */
+  .p-datepicker-header {
+    background-color: #27272a !important;
+    border-bottom: 1px solid #3f3f46 !important;
+    color: #ffffff !important;
+    border-radius: 8px 8px 0 0 !important;
+    padding: 8px !important;
+
+    .p-datepicker-title {
+      color: #ffffff !important;
+
+      button {
+        color: #ffffff !important;
+        font-weight: 600 !important;
+
+        &:hover {
+          background-color: rgba(255, 255, 255, 0.1) !important;
+          color: #22c55e !important;
+        }
+      }
+    }
+
+    .p-datepicker-prev,
+    .p-datepicker-next {
+      color: #a1a1aa !important;
+
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.1) !important;
+        color: #ffffff !important;
+      }
+    }
+  }
+
+  /* ตารางวัน (Table Days) */
+  table {
+    margin-top: 8px !important;
+
+    th {
+      color: #a1a1aa !important;
+      font-weight: 600 !important;
+      padding: 6px !important;
+    }
+
+    td {
+      padding: 4px !important;
+
+      > span {
+        color: #e4e4e7 !important;
+        border-radius: 50% !important;
+
+        &:hover {
+          background-color: #27272a !important;
+          color: #22c55e !important;
+        }
+
+        /* วันที่ถูกเลือก */
+        &.p-highlight {
+          background-color: #22c55e !important;
+          color: #ffffff !important;
+          font-weight: bold !important;
+        }
+      }
+
+      /* วันของเดือนก่อนหน้า/ถัดไป */
+      &.p-datepicker-other-month > span {
+        color: #52525b !important;
+      }
+    }
+  }
+
+  /* ตารางเลือกเดือน (Month View) และ เลือกปี (Year View) */
+  .p-monthpicker-month,
+  .p-yearpicker-year {
+    color: #e4e4e7 !important;
+    border-radius: 8px !important;
+
+    &:hover {
+      background-color: #27272a !important;
+      color: #22c55e !important;
+    }
+
+    &.p-highlight {
+      background-color: #22c55e !important;
+      color: #ffffff !important;
+      font-weight: bold !important;
+    }
+  }
+}

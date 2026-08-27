@@ -15,9 +15,18 @@ export class DashboardService {
   public overview() {
     return this.http.get<DashboardOverview>(`${this.constants.API_ENDPOINT}/Dashboard/overview`);
   }
-  public salesChart(type: 'daily' | 'monthly' | 'yearly' = 'daily') {
-    const params = new HttpParams().set('type', type);
-    return this.http.get<SalesChartResponse>(`${this.constants.API_ENDPOINT}/Dashboard/sales-chart`, { params });
+  public salesChart(type: 'daily' | 'monthly' | 'yearly' = 'daily', selectedDate?: string) {
+    let params = new HttpParams().set('type', type);
+
+    // 🎯 หากมีการส่ง selectedDate เข้ามา ให้ตั้งค่า params เพิ่มเติม
+    if (selectedDate && type === 'daily') {
+      params = params.set('selectedDate', selectedDate);
+    }
+
+    return this.http.get<SalesChartResponse>(
+      `${this.constants.API_ENDPOINT}/Dashboard/sales-chart`,
+      { params }
+    );
   }
   public GetCashierDashboardStats(type: 'daily' | 'monthly' | 'yearly' = 'daily') {
     const params = new HttpParams().set('type', type);
