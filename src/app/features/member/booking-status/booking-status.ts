@@ -50,6 +50,16 @@ export class BookingStatus implements OnInit {
 
   availableTimeSlots: string[] = [];
 
+  // 🔔 Toast notification (แทน alert())
+  toasts: { id: number; type: 'success' | 'error' | 'warning'; message: string }[] = [];
+  private toastCounter = 0;
+
+  // ⚠️ Confirm modal (แทน confirm())
+  showConfirmModal = false;
+  confirmModalTitle = '';
+  confirmModalMessage = '';
+  private confirmModalAction: (() => void) | null = null;
+
   constructor(
     private bookingService: BookingService,
     private authService: AuthService,
@@ -113,8 +123,15 @@ export class BookingStatus implements OnInit {
   isEditSlotDisabled(slot: string): boolean {
     const today = this.getTodayStr();
     const bookingDate = this.editBookingDate || today;
+
+    // ถ้าน้อยกว่าวันนี้ ให้ถือว่าเป็นอดีต
     if (bookingDate < today) return true;
-    if (bookingDate === today) return slot < this.getMinTimeStr();
+
+    // ถ้าเป็นวันนี้ ปิดเฉพาะรอบเวลาที่น้อยกว่าเวลาปัจจุบัน + 30 นาที
+    if (bookingDate === today) {
+      return slot < this.getMinTimeStr();
+    }
+
     return false;
   }
 
@@ -128,6 +145,37 @@ export class BookingStatus implements OnInit {
     setTimeout(() => {
       this.showCheckInSuccessAlert = false;
     }, 3000);
+  }
+
+  // ---------- Toast helpers ----------
+  showToast(type: 'success' | 'error' | 'warning', message: string) {
+    const id = ++this.toastCounter;
+    this.toasts.push({ id, type, message });
+    setTimeout(() => this.dismissToast(id), 3500);
+  }
+
+  dismissToast(id: number) {
+    this.toasts = this.toasts.filter((t) => t.id !== id);
+  }
+
+  // ---------- Confirm modal helpers ----------
+  openConfirm(title: string, message: string, onConfirm: () => void) {
+    this.confirmModalTitle = title;
+    this.confirmModalMessage = message;
+    this.confirmModalAction = onConfirm;
+    this.showConfirmModal = true;
+  }
+
+  handleConfirmAccept() {
+    const action = this.confirmModalAction;
+    this.showConfirmModal = false;
+    this.confirmModalAction = null;
+    if (action) action();
+  }
+
+  handleConfirmCancel() {
+    this.showConfirmModal = false;
+    this.confirmModalAction = null;
   }
 
   loadLatestBooking() {
@@ -262,7 +310,11 @@ export class BookingStatus implements OnInit {
     this.editingBookingId = booking.booking_id;
 
     const dateObj = booking.rawDateTime ? new Date(booking.rawDateTime) : null;
-    this.editBookingDate = dateObj && !isNaN(dateObj.getTime()) ? this.toLocalDateStr(dateObj) : '';
+    if (dateObj && !isNaN(dateObj.getTime()) && !booking.rawDateTime.startsWith('0001')) {
+      this.editBookingDate = this.toLocalDateStr(dateObj);
+    } else {
+      this.editBookingDate = this.getTodayStr(); // Fallback เป็นวันที่ปัจจุบัน
+    }
 
     this.editFormData = {
       adultCount: booking.adultCount,
@@ -285,19 +337,22 @@ export class BookingStatus implements OnInit {
     const children = Number(this.editFormData.childCount) || 0;
 
     if (adults < 1) {
-      alert('ต้องมีผู้ใหญ่อย่างน้อย 1 คน');
+      this.showToast('warning', 'ต้องมีผู้ใหญ่อย่างน้อย 1 คน');
       return;
     }
     if (children < 0) {
-      alert('จำนวนเด็กต้องไม่ติดลบ');
+      this.showToast('warning', 'จำนวนเด็กต้องไม่ติดลบ');
       return;
     }
     if (!this.editFormData.time) {
-      alert('กรุณาเลือกเวลาที่ต้องการแก้ไข');
+      this.showToast('warning', 'กรุณาเลือกเวลาที่ต้องการแก้ไข');
       return;
     }
     if (this.isEditSlotDisabled(this.editFormData.time)) {
-      alert('ไม่สามารถแก้ไขไปยังเวลาที่ผ่านไปแล้วได้ กรุณาเลือกเวลาที่ยังไม่ถึง');
+      this.showToast(
+        'warning',
+        'ไม่สามารถแก้ไขไปยังเวลาที่ผ่านไปแล้วได้ กรุณาเลือกเวลาที่ยังไม่ถึง',
+      );
       return;
     }
 
@@ -316,7 +371,7 @@ export class BookingStatus implements OnInit {
 
     this.bookingService.updateBooking(this.editingBookingId, payload).subscribe({
       next: () => {
-        alert('อัปเดตข้อมูลการจองสำเร็จ');
+        this.showToast('success', 'อัปเดตข้อมูลการจองสำเร็จ');
         this.isEditing = false;
         this.closeEditModal();
         this.loadLatestBooking();
@@ -324,29 +379,35 @@ export class BookingStatus implements OnInit {
       error: (err) => {
         this.isEditing = false;
         if (err.status === 409) {
-          alert('เวลาใหม่ที่คุณเลือก มีคิวอื่นจองไปแล้ว กรุณาเลือกเวลาอื่นครับ');
+          this.showToast('error', 'เวลาใหม่ที่คุณเลือก มีคิวอื่นจองไปแล้ว กรุณาเลือกเวลาอื่นครับ');
         } else {
-          alert('เกิดข้อผิดพลาดในการอัปเดต: ' + (err.error?.message || 'กรุณาลองใหม่'));
+          this.showToast(
+            'error',
+            'เกิดข้อผิดพลาดในการอัปเดต: ' + (err.error?.message || 'กรุณาลองใหม่'),
+          );
         }
       },
     });
   }
   onCancelBooking(booking: BookingDetail) {
-    const confirmDelete = confirm(`ยืนยันที่จะยกเลิกการจอง #${booking.booking_id}?`);
-    if (!confirmDelete) return;
-
-    this.bookingService.cancelBooking(booking.booking_id).subscribe({
-      next: () => {
-        try {
-          localStorage.removeItem(`qr_${booking.booking_id}`);
-        } catch (e) {}
-        alert('ยกเลิกการจองสำเร็จ');
-        this.loadLatestBooking();
+    this.openConfirm(
+      'ยืนยันการยกเลิกการจอง',
+      `ต้องการยกเลิกการจอง #${booking.booking_id} ใช่หรือไม่? การกระทำนี้ไม่สามารถย้อนกลับได้`,
+      () => {
+        this.bookingService.cancelBooking(booking.booking_id).subscribe({
+          next: () => {
+            try {
+              localStorage.removeItem(`qr_${booking.booking_id}`);
+            } catch (e) {}
+            this.showToast('success', 'ยกเลิกการจองสำเร็จ');
+            this.loadLatestBooking();
+          },
+          error: (err: any) => {
+            this.showToast('error', 'ยกเลิกไม่สำเร็จ: ' + (err.error?.message || 'กรุณาลองใหม่'));
+          },
+        });
       },
-      error: (err: any) => {
-        alert('ยกเลิกไม่สำเร็จ: ' + (err.error?.message || 'กรุณาลองใหม่'));
-      },
-    });
+    );
   }
 
   goBack() {

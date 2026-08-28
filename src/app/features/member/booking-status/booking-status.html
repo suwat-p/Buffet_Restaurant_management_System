@@ -1,4 +1,26 @@
 <div class="status-container">
+  <!-- Toast Notifications -->
+  <div class="toast-stack">
+    <div
+      *ngFor="let toast of toasts"
+      class="toast-item"
+      [ngClass]="toast.type"
+      (click)="dismissToast(toast.id)"
+    >
+      <span class="toast-icon">
+        <ng-container [ngSwitch]="toast.type">
+          <span *ngSwitchCase="'success'">✔</span>
+          <span *ngSwitchCase="'error'">✕</span>
+          <span *ngSwitchCase="'warning'">!</span>
+        </ng-container>
+      </span>
+      <span class="toast-message">{{ toast.message }}</span>
+      <button class="toast-close" (click)="dismissToast(toast.id); $event.stopPropagation()">
+        ✕
+      </button>
+    </div>
+  </div>
+
   <header class="page-header">
     <div class="header-left" (click)="goBack()">
       <span class="back-arrow">❮</span>
@@ -150,6 +172,21 @@
       <button class="confirm-btn" [disabled]="isEditing" (click)="saveEditBooking()">
         {{ isEditing ? 'กำลังบันทึก...' : 'บันทึก' }}
       </button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm Modal (แทน window.confirm()) -->
+<div class="modal-overlay" *ngIf="showConfirmModal">
+  <div class="modal-content confirm-modal">
+    <div class="confirm-icon-wrapper">
+      <span class="confirm-icon">!</span>
+    </div>
+    <h3>{{ confirmModalTitle }}</h3>
+    <p>{{ confirmModalMessage }}</p>
+    <div class="confirm-modal-actions">
+      <button class="cancel-btn-outline" (click)="handleConfirmCancel()">ยกเลิก</button>
+      <button class="confirm-btn-danger" (click)="handleConfirmAccept()">ยืนยัน</button>
     </div>
   </div>
 </div>
