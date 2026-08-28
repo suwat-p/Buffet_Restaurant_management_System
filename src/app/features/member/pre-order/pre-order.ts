@@ -46,6 +46,7 @@ interface CartItem {
   styleUrl: './pre-order.scss',
 })
 export class PreOrder implements OnInit {
+  // sidebar เริ่มเปิดบนจอเดสก์ท็อป และปิดเป็นค่าเริ่มต้นบนมือถือ (แบบเดียวกับ menu-member)
   isSidebarOpen: boolean = true;
   currentBannerIndex: number = 0;
   slideInterval: number = 5000;
@@ -87,6 +88,9 @@ export class PreOrder implements OnInit {
   ) {}
 
   ngOnInit() {
+    // จอเล็ก (มือถือ) ให้ sidebar เริ่มต้นเป็นแบบพับ/ซ่อนไว้ก่อน เหมือน menu-member
+    this.isSidebarOpen = window.innerWidth > 768;
+
     this.loadMenus();
 
     this.route.queryParams.subscribe((params) => {
@@ -95,6 +99,18 @@ export class PreOrder implements OnInit {
         this.loadCart();
       }
     });
+  }
+
+  // เปิด/ปิด sidebar ด้วยปุ่ม hamburger (แบบเดียวกับ menu-member)
+  toggleSidebar() {
+    this.isSidebarOpen = !this.isSidebarOpen;
+  }
+
+  // ปิด sidebar อัตโนมัติเมื่อกดเมนูบนมือถือ (แบบเดียวกับ menu-member)
+  closeSidebar() {
+    if (window.innerWidth <= 768) {
+      this.isSidebarOpen = false;
+    }
   }
 
   loadCart() {

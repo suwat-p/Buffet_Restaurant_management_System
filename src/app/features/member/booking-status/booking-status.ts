@@ -302,10 +302,16 @@ export class BookingStatus implements OnInit {
     }
 
     this.isEditing = true;
+
+    // 🟢 รวม วันที่ (YYYY-MM-DD) + เวลา (HH:mm) เข้าด้วยกัน ให้เป็น ISO DateTime string
+    // ตัวอย่าง: "2026-08-28T18:00:00"
+    const updatedDateTime = `${this.editBookingDate}T${this.editFormData.time}:00`;
+
+    // 🟢 ส่ง payload ในชื่อฟิลด์ที่ตรงกับ C# DTO (Booking_DateTime)
     const payload = {
-      adultCount: adults,
-      childCount: children,
-      time: this.editFormData.time,
+      AdultCount: adults,
+      ChildCount: children,
+      Booking_DateTime: updatedDateTime,
     };
 
     this.bookingService.updateBooking(this.editingBookingId, payload).subscribe({
@@ -325,7 +331,6 @@ export class BookingStatus implements OnInit {
       },
     });
   }
-
   onCancelBooking(booking: BookingDetail) {
     const confirmDelete = confirm(`ยืนยันที่จะยกเลิกการจอง #${booking.booking_id}?`);
     if (!confirmDelete) return;

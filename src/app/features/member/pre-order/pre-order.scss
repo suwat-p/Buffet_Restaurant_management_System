@@ -12,6 +12,8 @@ $active-red: #b30000;
 $text-inactive: #cfcfcf;
 $header-height: 70px;
 $row-border: #333333;
+$sidebar-collapsed: 64px;
+$sidebar-expanded: 240px;
 
 :host {
   display: block;
@@ -56,9 +58,10 @@ $row-border: #333333;
 .preorder-layout {
   display: flex;
   width: 100%;
+  position: relative;
 
   .sidebar {
-    width: 240px;
+    width: $sidebar-collapsed;
     background: $sidebar-bg;
     border-right: 1px solid rgba(255, 255, 255, 0.06);
     display: flex;
@@ -68,11 +71,19 @@ $row-border: #333333;
     min-height: 100vh;
     position: sticky;
     top: 0;
+    overflow: hidden;
+    transition: width 0.3s ease;
+    z-index: 500;
+
+    &.expanded {
+      width: $sidebar-expanded;
+    }
 
     .sidebar-header {
       height: $header-height;
       display: flex;
       align-items: center;
+      justify-content: center;
       border-bottom: 1px solid rgba(255, 255, 255, 0.06);
       margin-bottom: 16px;
 
@@ -84,19 +95,39 @@ $row-border: #333333;
           width: 34px;
           height: 34px;
           object-fit: contain;
+          flex-shrink: 0;
         }
         .brand-name {
           font-size: 1.15rem;
           font-weight: 700;
           letter-spacing: 0.5px;
           color: #fff;
+          white-space: nowrap;
         }
       }
+
+      .close-btn {
+        background: none;
+        border: none;
+        color: $text-inactive;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-left: auto;
+
+        i { font-size: 1.1rem; }
+
+        &:hover { color: #fff; }
+      }
     }
+
+    &.expanded .sidebar-header { justify-content: space-between; }
 
     .table-badge {
       display: flex;
       align-items: center;
+      justify-content: center;
       gap: 8px;
       background: rgba(255, 255, 255, 0.05);
       border: 1px solid rgba(255, 255, 255, 0.1);
@@ -105,9 +136,12 @@ $row-border: #333333;
       border-radius: 8px;
       margin-bottom: 18px;
       font-size: 0.88rem;
+      white-space: nowrap;
 
       i { color: $bright-red; }
     }
+
+    &.expanded .table-badge { justify-content: flex-start; }
 
     .nav-menu {
       list-style: none;
@@ -120,18 +154,22 @@ $row-border: #333333;
       .menu-item {
         display: flex;
         align-items: center;
+        justify-content: center;
         gap: 12px;
-        padding: 12px 14px;
+        padding: 12px;
         border-radius: 8px;
         color: $text-inactive;
         cursor: pointer;
         font-size: 0.92rem;
         transition: all 0.2s ease;
+        position: relative;
+        white-space: nowrap;
 
         i {
           font-size: 1.15rem;
           width: 20px;
           text-align: center;
+          flex-shrink: 0;
         }
 
         &:hover {
@@ -146,28 +184,64 @@ $row-border: #333333;
         }
 
         .badge {
-          margin-left: auto;
+          position: absolute;
+          top: 6px;
+          right: 8px;
           background: $bright-red;
           color: #fff;
-          font-size: 0.7rem;
+          font-size: 0.65rem;
           font-weight: 700;
-          min-width: 18px;
-          height: 18px;
-          padding: 0 4px;
+          min-width: 16px;
+          height: 16px;
+          padding: 0 3px;
           border-radius: 10px;
           display: flex;
           align-items: center;
           justify-content: center;
+          box-shadow: 0 0 0 2px $sidebar-bg;
         }
       }
     }
 
+    &.expanded .nav-menu .menu-item {
+      justify-content: flex-start;
+      padding: 12px 14px;
+
+      .badge {
+        position: static;
+        margin-left: auto;
+        box-shadow: none;
+      }
+    }
+
+    // จอมือถือ: sidebar กลายเป็น overlay ลอยทับเนื้อหา แบบเดียวกับ menu-member
     @media (max-width: 768px) {
-      width: 64px;
-      .sidebar-header { justify-content: center; }
-      .brand-name, .table-badge span, .menu-item span { display: none; }
-      .table-badge { justify-content: center; padding: 9px; }
-      .menu-item { justify-content: center; padding: 12px; }
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 0;
+      padding: 0;
+      border-right: none;
+
+      &.expanded {
+        width: 260px;
+        padding: 0 12px;
+        box-shadow: 5px 0 15px rgba(0, 0, 0, 0.5);
+      }
+    }
+  }
+
+  // Backdrop มืดๆ เวลาเปิด sidebar บนมือถือ แตะเพื่อปิด
+  .sidebar-backdrop {
+    display: none;
+
+    @media (max-width: 768px) {
+      display: block;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 400;
     }
   }
 
@@ -175,6 +249,10 @@ $row-border: #333333;
     flex: 1;
     min-width: 0;
     padding-bottom: 80px;
+
+    @media (max-width: 768px) {
+      margin-left: 0;
+    }
   }
 }
 
@@ -192,6 +270,15 @@ $row-border: #333333;
   background: $topbar-bg;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 
+  @media (max-width: 480px) { padding: 0 12px; gap: 8px; }
+  @media (max-width: 360px) { padding: 0 8px; }
+
+  .navbar-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
   .icon-btn {
     position: relative;
     display: flex;
@@ -206,6 +293,8 @@ $row-border: #333333;
     border-radius: 50%;
     cursor: pointer;
     transition: all 0.2s ease;
+
+    @media (max-width: 360px) { width: 36px; height: 36px; }
 
     i { font-size: 1.1rem; }
 
@@ -311,9 +400,11 @@ $row-border: #333333;
   .category-scroll {
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     gap: 8px;
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
     padding: 0 15px;
 
     &::-webkit-scrollbar { display: none; }
@@ -327,6 +418,7 @@ $row-border: #333333;
       font-family: 'Kanit', sans-serif;
       cursor: pointer;
       white-space: nowrap;
+      flex-shrink: 0;
       border-radius: 50px;
       transition: all 0.3s ease;
 
@@ -373,6 +465,11 @@ $row-border: #333333;
       position: absolute; bottom: 0; left: 0; width: 100%; height: 80px;
       background: linear-gradient(to top, #000, transparent);
     }
+
+    @media (max-width: 1024px) { height: 260px; }
+    @media (max-width: 768px) { height: 220px; }
+    @media (max-width: 480px) { height: 170px; }
+    @media (max-width: 360px) { height: 140px; }
   }
 }
 
@@ -411,11 +508,20 @@ $row-border: #333333;
   border-radius: 4px;
 
   h3 { margin: 0; font-size: 1.05rem; color: #ff9100; }
+
+  @media (max-width: 480px) {
+    padding: 10px 14px;
+    margin: 12px 14px;
+    h3 { font-size: 0.92rem; }
+  }
 }
 
 /* Grid เมนูอาหาร */
 .menu-content {
   padding: 24px 30px;
+
+  @media (max-width: 480px) { padding: 16px 14px; }
+  @media (max-width: 360px) { padding: 12px 10px; }
 
   .section-header {
     font-size: 1.5rem;
@@ -423,6 +529,8 @@ $row-border: #333333;
     color: #fff;
     margin-bottom: 20px;
     text-align: center;
+
+    @media (max-width: 480px) { font-size: 1.2rem; margin-bottom: 14px; }
   }
 
   .food-grid {
@@ -430,9 +538,12 @@ $row-border: #333333;
     grid-template-columns: repeat(4, 1fr);
     gap: 20px;
 
+    @media (min-width: 1600px) { grid-template-columns: repeat(5, 1fr); }
+    @media (min-width: 2000px) { grid-template-columns: repeat(6, 1fr); }
     @media (max-width: 1024px) { grid-template-columns: repeat(3, 1fr); }
     @media (max-width: 768px) { grid-template-columns: repeat(2, 1fr); gap: 14px; }
-    @media (max-width: 460px) { grid-template-columns: repeat(1, 1fr); }
+    @media (max-width: 400px) { gap: 10px; }
+    @media (max-width: 340px) { grid-template-columns: repeat(1, 1fr); }
 
     .food-card {
       background: $card-bg;
@@ -460,6 +571,11 @@ $row-border: #333333;
           background: linear-gradient(to top, rgba(0, 0, 0, 0.85), transparent);
 
           span { color: #fff; font-size: 0.95rem; font-weight: 500; }
+
+          @media (max-width: 400px) {
+            padding: 8px 10px;
+            span { font-size: 0.85rem; }
+          }
         }
       }
 
@@ -469,6 +585,8 @@ $row-border: #333333;
         justify-content: space-between;
         align-items: center;
         gap: 8px;
+
+        @media (max-width: 400px) { padding: 8px 10px; gap: 6px; }
 
         .add-cart-btn {
           flex: 1;
@@ -486,6 +604,8 @@ $row-border: #333333;
           transition: background 0.2s;
 
           &:hover { background: #b71c1c; }
+
+          @media (max-width: 400px) { font-size: 0.72rem; padding: 6px 8px; gap: 4px; }
         }
 
         .price {
@@ -493,6 +613,8 @@ $row-border: #333333;
           font-weight: bold;
           color: $primary-gold;
           white-space: nowrap;
+
+          @media (max-width: 400px) { font-size: 0.9rem; }
         }
       }
     }
@@ -596,6 +718,7 @@ $row-border: #333333;
 
   .cart-table {
     width: 100%;
+    overflow-x: hidden;
 
     .table-head,
     .table-row {
@@ -603,6 +726,26 @@ $row-border: #333333;
       grid-template-columns: 50px 1fr 120px 140px;
       align-items: center;
       padding: 12px 10px;
+      column-gap: 6px;
+
+      @media (max-width: 640px) {
+        grid-template-columns: 28px 1fr 70px 90px;
+        padding: 10px 6px;
+        font-size: 0.85rem;
+      }
+
+      @media (max-width: 400px) {
+        grid-template-columns: 22px 1fr 60px 78px;
+        padding: 8px 4px;
+        font-size: 0.78rem;
+      }
+    }
+
+    .col-name {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      padding-right: 4px;
     }
 
     .table-head {
@@ -612,6 +755,8 @@ $row-border: #333333;
       font-weight: bold;
       border-radius: 8px 8px 0 0;
       text-transform: uppercase;
+
+      @media (max-width: 400px) { font-size: 0.68rem; }
     }
 
     .table-body {
@@ -644,6 +789,8 @@ $row-border: #333333;
       align-items: center;
       gap: 12px;
 
+      @media (max-width: 400px) { gap: 6px; }
+
       .qty-btn {
         background: none;
         border: none;
@@ -657,6 +804,8 @@ $row-border: #333333;
           font-size: 22px;
           width: 22px;
           height: 22px;
+
+          @media (max-width: 400px) { font-size: 18px; width: 18px; height: 18px; }
         }
 
         &:hover { opacity: 0.8; }
@@ -677,6 +826,14 @@ $row-border: #333333;
       align-items: center;
       margin-top: 10px;
       border-radius: 8px;
+      flex-wrap: wrap;
+      gap: 10px;
+
+      @media (max-width: 480px) {
+        padding: 12px 14px;
+        flex-direction: column;
+        align-items: stretch;
+      }
 
       .footer-left {
         display: flex;
@@ -684,6 +841,8 @@ $row-border: #333333;
 
         .summary-text { color: #ddd; font-size: 1rem; }
         .price { color: $primary-gold; font-weight: 600; margin-left: 8px; font-size: 1.15rem; }
+
+        @media (max-width: 480px) { justify-content: center; }
       }
 
       .footer-right {
@@ -697,6 +856,7 @@ $row-border: #333333;
           cursor: pointer;
           font-family: 'Kanit';
           transition: background 0.2s;
+          width: 100%;
 
           &:hover { background-color: #b71c1c; }
         }
