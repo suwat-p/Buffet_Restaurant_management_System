@@ -8,60 +8,19 @@
   </div>
 
   <div class="page-container preorder-layout">
-    <!-- 1. Sidebar ด้านซ้าย -->
-    <aside class="sidebar" [class.expanded]="isSidebarOpen">
-      <div class="sidebar-header">
-        <div class="brand-info">
-          <img src="assets/Images/Logo.png" alt="Logo" class="logo" />
-          <span class="brand-name" *ngIf="isSidebarOpen">BUFFET</span>
-        </div>
-        <button class="close-btn" *ngIf="isSidebarOpen" (click)="toggleSidebar()">
-          <i class="pi pi-times"></i>
-        </button>
-      </div>
-
-      <div class="table-badge" *ngIf="isSidebarOpen && bookingId">
-        <i class="pi pi-bookmark"></i>
-        <span>การจอง #{{ bookingId }}</span>
-      </div>
-
-      <ul class="nav-menu">
-        <li class="menu-item active" [title]="!isSidebarOpen ? 'รายการเมนูอาหาร' : ''">
-          <i class="pi pi-list"></i>
-          <span *ngIf="isSidebarOpen">รายการเมนูอาหาร</span>
-        </li>
-        <li
-          class="menu-item"
-          [title]="!isSidebarOpen ? 'สั่งอาหาร/ตะกร้าของคุณ' : ''"
-          (click)="toggleCartModal(); closeSidebar()"
-        >
-          <i class="pi pi-shopping-cart"></i>
-          <span *ngIf="isSidebarOpen">สั่งอาหาร/ตะกร้าของคุณ</span>
-          <span class="badge" *ngIf="cartBadgeCount > 0">{{ cartBadgeCount }}</span>
-        </li>
-        <li
-          class="menu-item"
-          [title]="!isSidebarOpen ? 'ติดตามสถานะการจอง' : ''"
-          (click)="goToBookingStatus(); closeSidebar()"
-        >
-          <i class="pi pi-history"></i>
-          <span *ngIf="isSidebarOpen">ติดตามสถานะการจอง</span>
-        </li>
-
-        <!-- เพิ่มเมนู ติดตามสถานะออเดอร์ (ไปที่ /StatusCustomer) -->
-        <li
-          class="menu-item"
-          [title]="!isSidebarOpen ? 'ติดตามสถานะออเดอร์' : ''"
-          (click)="goToOrderStatus(); closeSidebar()"
-        >
-          <i class="pi pi-receipt"></i>
-          <span *ngIf="isSidebarOpen">ติดตามสถานะออเดอร์</span>
-        </li>
-      </ul>
-    </aside>
-
-    <!-- Backdrop มือถือ: แตะเพื่อปิด sidebar -->
-    <div class="sidebar-backdrop" *ngIf="isSidebarOpen" (click)="toggleSidebar()"></div>
+    <!-- 1. Sidebar ด้านซ้าย (แยกเป็น component MenuPreorder) -->
+    <app-menu-preorder
+      [isSidebarOpen]="isSidebarOpen"
+      [bookingId]="bookingId"
+      [cartBadgeCount]="cartBadgeCount"
+      [activeView]="'menu'"
+      (toggleSidebar)="toggleSidebar()"
+      (closeSidebar)="closeSidebar()"
+      (toggleCartModal)="toggleCartModal()"
+      (goToBookingStatus)="goToBookingStatus()"
+      (goToOrderStatus)="goToOrderStatus()"
+      (goToMenu)="goToMenu()"
+    ></app-menu-preorder>
 
     <!-- 2. ส่วนเนื้อหาหลัก (Main Content) -->
     <main class="main-wrapper">

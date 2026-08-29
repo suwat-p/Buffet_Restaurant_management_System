@@ -15,7 +15,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { Menu, MenuService } from '../../../service/api/menu.service';
 import { CartService } from '../../../service/api/cart.service';
 import { OrderService } from '../../../service/api/order.service';
-
+import { MenuPreorder } from '../../../components/menu-bar/menu-member/menu-preorder/menu-preorder';
 interface CartItem {
   id: number;
   menuId: number;
@@ -40,6 +40,7 @@ interface CartItem {
     TooltipModule,
     DialogModule,
     MatIconModule,
+    MenuPreorder,
   ],
   providers: [MessageService],
   templateUrl: './pre-order.html',
@@ -309,6 +310,9 @@ export class PreOrder implements OnInit {
       },
     });
   }
+
+  // อยู่หน้าเมนูอยู่แล้ว กดจากตรงนี้ไม่ต้องทำอะไร (กันไว้เผื่อ sidebar ใช้ร่วมกับหน้าอื่น)
+  goToMenu() {}
 
   // **นำทางไปยังหน้าติดตามสถานะการจอง**
   goToBookingStatus() {
