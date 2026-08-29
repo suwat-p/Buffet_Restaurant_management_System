@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
@@ -57,6 +57,7 @@ export class StatusPreOrder implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private orderService: OrderService,
     private router: Router,
+    private cdr: ChangeDetectorRef // 🟢 1. Inject ChangeDetectorRef เพื่อสั่ง Re-render หน้าจอทันที
   ) {}
 
   ngOnInit() {
@@ -97,6 +98,9 @@ export class StatusPreOrder implements OnInit, OnDestroy {
         this.completedOrders = allMapped.filter(
           (o) => o.orderStatus === 'เสร็จสิ้น' || o.orderStatus === 'ดำเนินการเสร็จสิ้น',
         );
+
+        // 🟢 สั่งให้ Angular วาดหน้าจอใหม่ทันทีที่โหลดข้อมูลเสร็จ
+        this.cdr.detectChanges();
       },
       error: (err) => console.error('โหลดรายการออเดอร์สั่งล่วงหน้าไม่สำเร็จ:', err),
     });
@@ -137,26 +141,38 @@ export class StatusPreOrder implements OnInit, OnDestroy {
   }
 
   private listenForRealtimeUpdates() {
-    this.statusSub = this.orderService.connect().subscribe((event) => {
-      const activeIndex = this.activeOrders.findIndex((o) => o.orderId === event.orderId);
+    this.statusSub = this.orderService.connect().subscribe({
+      next: (event: any) => {
+        if (!event) return;
 
-      if (activeIndex !== -1) {
-        const targetOrder = this.activeOrders[activeIndex];
-        const newStatus = event.status;
+        // 🟢 2. Normalization รองรับ Property Name ทั้ง camelCase และ PascalCase จาก C#
+        const incomingOrderId = Number(event.orderId ?? event.OrderId ?? event.order_Id);
+        const newStatus = event.status ?? event.Status ?? event.orderStatus;
 
-        if (newStatus === 'เสร็จสิ้น' || newStatus === 'ดำเนินการเสร็จสิ้น') {
-          targetOrder.orderStatus = 'ดำเนินการเสร็จสิ้น';
-          targetOrder.currentStep = 3;
+        const activeIndex = this.activeOrders.findIndex((o) => o.orderId === incomingOrderId);
 
-          this.activeOrders.splice(activeIndex, 1);
-          this.completedOrders.unshift(targetOrder);
+        if (activeIndex !== -1) {
+          const targetOrder = this.activeOrders[activeIndex];
+
+          if (newStatus === 'เสร็จสิ้น' || newStatus === 'ดำเนินการเสร็จสิ้น') {
+            targetOrder.orderStatus = 'ดำเนินการเสร็จสิ้น';
+            targetOrder.currentStep = 3;
+
+            this.activeOrders.splice(activeIndex, 1);
+            this.completedOrders.unshift(targetOrder);
+          } else {
+            targetOrder.orderStatus = newStatus;
+            targetOrder.currentStep = STATUS_MAP[newStatus] ?? targetOrder.currentStep;
+          }
         } else {
-          targetOrder.orderStatus = newStatus;
-          targetOrder.currentStep = STATUS_MAP[newStatus] ?? targetOrder.currentStep;
+          // ถ้าเป็นรายการใหม่ที่ไม่มีใน activeOrders ให้โหลดใหม่ทั้งหมด
+          this.loadOrders();
         }
-      } else {
-        this.loadOrders();
-      }
+
+        // 🟢 3. บังคับ Re-render UI ทันทีโดยไม่ต้องรอกด Refresh
+        this.cdr.detectChanges();
+      },
+      error: (err) => console.error('SignalR Error:', err)
     });
   }
 }
