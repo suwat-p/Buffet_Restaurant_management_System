@@ -46,7 +46,6 @@ export class StatusPreOrder implements OnInit, OnDestroy {
   activeOrders: ActiveOrder[] = [];
   completedOrders: ActiveOrder[] = [];
 
-  // sidebar เริ่มเปิดบนจอเดสก์ท็อป และปิดเป็นค่าเริ่มต้นบนมือถือ (แบบเดียวกับ pre-order)
   isSidebarOpen: boolean = true;
   cartBadgeCount: number = 0;
 
@@ -57,7 +56,7 @@ export class StatusPreOrder implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private orderService: OrderService,
     private router: Router,
-    private cdr: ChangeDetectorRef // 🟢 1. Inject ChangeDetectorRef เพื่อสั่ง Re-render หน้าจอทันที
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit() {
@@ -99,41 +98,34 @@ export class StatusPreOrder implements OnInit, OnDestroy {
           (o) => o.orderStatus === 'เสร็จสิ้น' || o.orderStatus === 'ดำเนินการเสร็จสิ้น',
         );
 
-        // 🟢 สั่งให้ Angular วาดหน้าจอใหม่ทันทีที่โหลดข้อมูลเสร็จ
         this.cdr.detectChanges();
       },
       error: (err) => console.error('โหลดรายการออเดอร์สั่งล่วงหน้าไม่สำเร็จ:', err),
     });
   }
 
-  // เปิด/ปิด sidebar ด้วยปุ่ม hamburger (แบบเดียวกับ pre-order)
   toggleSidebar() {
     this.isSidebarOpen = !this.isSidebarOpen;
   }
 
-  // ปิด sidebar อัตโนมัติเมื่อกดเมนูบนมือถือ (แบบเดียวกับ pre-order)
   closeSidebar() {
     if (window.innerWidth <= 768) {
       this.isSidebarOpen = false;
     }
   }
 
-  // กลับไปหน้าสั่งอาหารล่วงหน้า (เมนู) ของการจองนี้
   goToMenu() {
     this.router.navigate(['/PreOrder'], {
       queryParams: { bookingId: this.billId },
     });
   }
 
-  // ตะกร้าอยู่ในหน้าเมนู ให้พาไปหน้าเมนูแล้วเปิดตะกร้าที่นั่น
   toggleCartModal() {
     this.goToMenu();
   }
 
-  // อยู่หน้าติดตามสถานะออเดอร์อยู่แล้ว กดจากตรงนี้ไม่ต้องทำอะไร
   goToOrderStatus() {}
 
-  // กลับไปหน้าสถานะการจอง
   goToBookingStatus() {
     this.router.navigate(['/BookingStatus'], {
       queryParams: { bookingId: this.billId },
@@ -141,13 +133,13 @@ export class StatusPreOrder implements OnInit, OnDestroy {
   }
 
   private listenForRealtimeUpdates() {
-    this.statusSub = this.orderService.connect().subscribe({
+    // 🟢 ส่ง this.billId เพื่อทำการ Join Room บิลนี้โดยเฉพาะ
+    this.statusSub = this.orderService.connect(this.billId).subscribe({
       next: (event: any) => {
         if (!event) return;
 
-        // 🟢 2. Normalization รองรับ Property Name ทั้ง camelCase และ PascalCase จาก C#
-        const incomingOrderId = Number(event.orderId ?? event.OrderId ?? event.order_Id);
-        const newStatus = event.status ?? event.Status ?? event.orderStatus;
+        const incomingOrderId = Number(event.orderId);
+        const newStatus = event.status;
 
         const activeIndex = this.activeOrders.findIndex((o) => o.orderId === incomingOrderId);
 
@@ -165,14 +157,13 @@ export class StatusPreOrder implements OnInit, OnDestroy {
             targetOrder.currentStep = STATUS_MAP[newStatus] ?? targetOrder.currentStep;
           }
         } else {
-          // ถ้าเป็นรายการใหม่ที่ไม่มีใน activeOrders ให้โหลดใหม่ทั้งหมด
           this.loadOrders();
         }
 
-        // 🟢 3. บังคับ Re-render UI ทันทีโดยไม่ต้องรอกด Refresh
+        //  บังคับให้ UI วาดใหม่ทันที
         this.cdr.detectChanges();
       },
-      error: (err) => console.error('SignalR Error:', err)
+      error: (err) => console.error('SignalR Error:', err),
     });
   }
 }
