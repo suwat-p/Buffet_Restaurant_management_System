@@ -58,20 +58,27 @@ export class StatusPreOrder implements OnInit, OnDestroy {
     private router: Router,
     private cdr: ChangeDetectorRef,
   ) {}
-
   ngOnInit() {
     this.isSidebarOpen = window.innerWidth > 768;
 
     this.paramSub = this.route.paramMap.subscribe((params) => {
-      const idParam = params.get('billId');
+      let idParam = params.get('billId') || params.get('bookingId');
+
+      if (!idParam) {
+        idParam =
+          this.route.snapshot.queryParamMap.get('billId') ||
+          this.route.snapshot.queryParamMap.get('bookingId');
+      }
+
       if (idParam) {
         this.billId = Number(idParam);
         this.loadOrders();
         this.listenForRealtimeUpdates();
+      } else {
+        console.warn('ไม่พบ billId หรือ bookingId ใน URL');
       }
     });
   }
-
   ngOnDestroy() {
     this.paramSub?.unsubscribe();
     this.statusSub?.unsubscribe();
@@ -133,13 +140,13 @@ export class StatusPreOrder implements OnInit, OnDestroy {
   }
 
   private listenForRealtimeUpdates() {
-    // 🟢 ส่ง this.billId เพื่อทำการ Join Room บิลนี้โดยเฉพาะ
     this.statusSub = this.orderService.connect(this.billId).subscribe({
       next: (event: any) => {
         if (!event) return;
 
-        const incomingOrderId = Number(event.orderId);
-        const newStatus = event.status;
+        // รองรับทั้ง camelCase และ PascalCase จาก C# SignalR
+        const incomingOrderId = Number(event.orderId ?? event.OrderId);
+        const newStatus = event.status ?? event.OrderStatus;
 
         const activeIndex = this.activeOrders.findIndex((o) => o.orderId === incomingOrderId);
 
@@ -157,10 +164,11 @@ export class StatusPreOrder implements OnInit, OnDestroy {
             targetOrder.currentStep = STATUS_MAP[newStatus] ?? targetOrder.currentStep;
           }
         } else {
+          // ออเดอร์ใหม่อาจจะยังไม่อยู่ใน List ให้โหลดใหม่
           this.loadOrders();
         }
 
-        //  บังคับให้ UI วาดใหม่ทันที
+        // บังคับอัปเดต View
         this.cdr.detectChanges();
       },
       error: (err) => console.error('SignalR Error:', err),
