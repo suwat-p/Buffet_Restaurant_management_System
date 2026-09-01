@@ -22,7 +22,7 @@ export class SignalrService {
   public newKitchenOrder$ = new Subject<number>();
   // 🍽️ สถานะออเดอร์เปลี่ยน (เช่น เสิร์ฟสแกน QR แล้วเปลี่ยนเป็น "กำลังนำเสิร์ฟ")
   public orderStatusUpdated$ = new Subject<any>();
-
+  public resDiscountUpdate$ = new Subject<void>();
   constructor(private constants: Constants) {
     this.initConnection();
   }
@@ -85,6 +85,10 @@ export class SignalrService {
     this.hubConnection.on('OrderStatusUpdated', (data) => {
       console.log('SignalR [OrderStatusUpdated]:', data);
       this.orderStatusUpdated$.next(data);
+    });
+    this.hubConnection.on('UpdateDiscount', () => {
+      console.log('SignalR [UpdateDiscount]');
+      this.resDiscountUpdate$.next();
     });
   }
 
