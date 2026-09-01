@@ -11,11 +11,20 @@ import { ImageService } from '../service/api/image.service';
 import { Subscription } from 'rxjs';
 import { DiscountService } from '../service/api/discount.service';
 import { Discount } from '../models/discount.model';
+import { DialogModule } from 'primeng/dialog';
 
 @Component({
   selector: 'app-index',
   standalone: true,
-  imports: [CommonModule, IndexNavbar, CarouselModule, ButtonModule, RippleModule, MenuMember],
+  imports: [
+    CommonModule,
+    IndexNavbar,
+    CarouselModule,
+    ButtonModule,
+    RippleModule,
+    MenuMember,
+    DialogModule,
+  ],
   templateUrl: './index.html',
   styleUrl: './index.scss',
 })
@@ -26,7 +35,8 @@ export class Index implements OnInit, OnDestroy {
   isLoggedIn: boolean = false;
   resData: any;
   discountData: Discount[] = [];
-
+  displayDiscountDialog: boolean = false;
+  selectedDiscount: Discount | null = null;
   banners: { image: string }[] = [];
   posterUrl: string | null = null;
 
@@ -66,7 +76,8 @@ export class Index implements OnInit, OnDestroy {
     this.loadImages();
   }
   showDiscountDetail(discount: Discount) {
-    console.log(discount); // หรือเปิด modal / navigate ไปหน้ารายละเอียด
+    this.selectedDiscount = discount;
+    this.displayDiscountDialog = true;
   }
   loadImages(): void {
     this.imageService.getImages().subscribe({

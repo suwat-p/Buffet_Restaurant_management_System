@@ -57,11 +57,6 @@
       <div class="navbar-right">
         <div class="table-info">โต๊ะ: {{ tableNumber }}</div>
 
-        <div class="icon-wrapper" pRipple>
-          <mat-icon>notifications</mat-icon>
-          <span class="badge" *ngIf="notificationCount > 0">{{ notificationCount }}</span>
-        </div>
-
         <div class="icon-wrapper" pRipple routerLink="/cart">
           <mat-icon>shopping_cart</mat-icon>
           <span class="badge" *ngIf="cartCount > 0">{{ cartCount }}</span>
