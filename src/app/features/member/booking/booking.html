@@ -178,23 +178,42 @@
     <!-- ── Modal จองสำเร็จ + QR เช็คอิน ── -->
     <div class="modal-overlay" *ngIf="showWaitingModal && paymentSuccess">
       <div class="modal-content form-modal success-modal">
-        <div class="modal-header">
-          <h3>จองสำเร็จ</h3>
-          <button class="close-btn" (click)="closeWaitingModal()">✕</button>
-        </div>
+        <button class="close-btn success-close" (click)="closeWaitingModal()">✕</button>
+
         <div class="modal-body text-center">
-          <div class="success-pill">✓ ชำระเงินเรียบร้อย</div>
-          <p class="s-ref">Booking #{{ bookingId }}</p>
-          <p class="s-table">
-            โต๊ะ: <strong>{{ bookedTableNames.join(', ') }}</strong>
-          </p>
-          <p class="s-hint">สแกน QR เพื่อเช็คอินเมื่อมาถึงร้าน</p>
+          <div class="check-ring">
+            <svg viewBox="0 0 52 52" class="check-svg">
+              <circle class="check-circle" cx="26" cy="26" r="23" fill="none" />
+              <path class="check-mark" fill="none" d="M14 27 l8 8 l16 -16" />
+            </svg>
+          </div>
+
+          <h3 class="success-title">จองสำเร็จ!</h3>
+          <p class="success-sub">ชำระค่ามัดจำเรียบร้อยแล้ว</p>
+
+          <div class="booking-summary">
+            <div class="summary-row">
+              <span>เลขที่จอง</span>
+              <strong>#{{ bookingId }}</strong>
+            </div>
+            <div class="summary-row">
+              <span>โต๊ะ</span>
+              <div class="summary-chips">
+                <span class="summary-chip" *ngFor="let t of bookedTableNames">โต๊ะ {{ t }}</span>
+              </div>
+            </div>
+          </div>
+
           <div class="checkin-qr-box" *ngIf="qrUrl">
-            <img [src]="qrUrl" alt="QR Check-in" class="checkin-qr" />
+            <div class="qr-frame">
+              <img [src]="qrUrl" alt="QR Check-in" class="checkin-qr" />
+            </div>
+            <p class="s-hint">📲 สแกน QR นี้เพื่อเช็คอินเมื่อมาถึงร้าน</p>
           </div>
         </div>
+
         <div class="modal-footer">
-          <button class="confirm-btn red-btn" (click)="closeWaitingModal()">ปิด</button>
+          <button class="confirm-btn red-btn" (click)="closeWaitingModal()">เสร็จสิ้น</button>
         </div>
       </div>
     </div>
