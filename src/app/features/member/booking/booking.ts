@@ -187,6 +187,22 @@ export class Booking implements OnInit, OnDestroy {
     this.bookingForm.NumChildren = isNaN(c) || c < 0 ? 0 : Math.floor(c);
   }
 
+  // กันไม่ให้พิมพ์ตัวอักษรที่ไม่ใช่เลข เช่น - + . e , ตั้งแต่ตอนกดคีย์
+  blockInvalidNumberKey(event: KeyboardEvent) {
+    const blockedKeys = ['-', '+', '.', ',', 'e', 'E'];
+    if (blockedKeys.includes(event.key)) {
+      event.preventDefault();
+    }
+  }
+
+  // กันกรณีวาง (paste) หรือกรอกผ่านช่องทางอื่นที่หลุดผ่าน keydown มาได้
+  sanitizeGuestInput(event: Event, field: 'NumAdults' | 'NumChildren') {
+    const input = event.target as HTMLInputElement;
+    const digitsOnly = input.value.replace(/[^0-9]/g, '');
+    input.value = digitsOnly;
+    this.bookingForm[field] = digitsOnly === '' ? 0 : Number(digitsOnly);
+  }
+
   incrementAdults() {
     this.bookingForm.NumAdults = (Number(this.bookingForm.NumAdults) || 0) + 1;
   }
