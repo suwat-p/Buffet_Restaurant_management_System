@@ -47,7 +47,7 @@ export class Booking implements OnInit, OnDestroy {
   qrUrl: string = '';
 
   promptPayQrUrl: string = '';
-  depositAmount: number = 0; // 🟢 รอรับค่ายอดจริงจาก API Gateway (เช่น 1.02)
+  depositAmount: number = 0;
   transactionId: string = '';
 
   minDate: string = '';
@@ -288,7 +288,7 @@ export class Booking implements OnInit, OnDestroy {
     this.bookedTableNames = [];
   }
 
-  // 🟢 ส่งยอดจริง (เช่น 1.02) เข้า Display
+  //  (เช่น 1.02) เข้า Display
   sendToCustomerDisplay(qrCodeUrl: string | null = null, actualAmount: number = 1.0) {
     const payload = {
       tableNumbers: this.getSelectedTableString(),
@@ -301,7 +301,7 @@ export class Booking implements OnInit, OnDestroy {
       ],
       fineAmount: 0,
       discountName: 'ไม่มีโปรโมชั่น',
-      grandTotal: actualAmount, // 🟢 ยอดตรงตาม QR (เช่น 1.02)
+      grandTotal: actualAmount, //  ยอดตรงตาม QR (เช่น 1.02)
       qrData: qrCodeUrl,
       isPaidSuccess: false,
     };
@@ -381,7 +381,7 @@ export class Booking implements OnInit, OnDestroy {
 
             this.transactionId = res.transaction_id || '';
 
-            // 🟢 ดึงยอดเงินจริงที่ตอบกลับจาก API Backend (เช่น 1.02)
+            //  ดึงยอดเงินจริงที่ตอบกลับจาก API Backend (เช่น 1.02)
             const realAmount = parseFloat(res.amount_pay) || 1.0;
             this.depositAmount = realAmount;
 
@@ -389,7 +389,7 @@ export class Booking implements OnInit, OnDestroy {
             this.showBookingModal = false;
             this.showPaymentModal = true;
 
-            // 🟢 ส่งยอด 1.02 เข้า Display
+            //  ส่งยอด 1.02 เข้า Display
             this.sendToCustomerDisplay(this.promptPayQrUrl, realAmount);
 
             this.startAutoCheckStatus();

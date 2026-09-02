@@ -179,16 +179,16 @@
     <div class="modal-overlay" *ngIf="showWaitingModal && paymentSuccess">
       <div class="modal-content form-modal success-modal">
         <div class="modal-header">
-          <h3>🎉 จองสำเร็จ!</h3>
-          <button class="close-btn" (click)="closeWaitingModal()">×</button>
+          <h3>จองสำเร็จ</h3>
+          <button class="close-btn" (click)="closeWaitingModal()">✕</button>
         </div>
         <div class="modal-body text-center">
-          <div class="success-pill">✅ ชำระเงินเรียบร้อย</div>
+          <div class="success-pill">✓ ชำระเงินเรียบร้อย</div>
           <p class="s-ref">Booking #{{ bookingId }}</p>
           <p class="s-table">
             โต๊ะ: <strong>{{ bookedTableNames.join(', ') }}</strong>
           </p>
-          <p class="s-hint">📲 สแกน QR เพื่อเช็คอินเมื่อมาถึงร้าน</p>
+          <p class="s-hint">สแกน QR เพื่อเช็คอินเมื่อมาถึงร้าน</p>
           <div class="checkin-qr-box" *ngIf="qrUrl">
             <img [src]="qrUrl" alt="QR Check-in" class="checkin-qr" />
           </div>
