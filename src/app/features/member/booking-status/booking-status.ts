@@ -79,9 +79,8 @@ export class BookingStatus implements OnInit {
           this.activeQrBookingId = null;
         }
 
-        this.bookingList = this.bookingList.filter((b) => b.booking_id !== data.bookingId);
-
         this.showSuccessAlert();
+        this.loadLatestBooking();
       } else {
         this.loadLatestBooking();
       }
@@ -199,7 +198,7 @@ export class BookingStatus implements OnInit {
 
         const activeBookings = resArray.filter((b: any) => {
           const status = (b.booking_Status || '').toLowerCase();
-          return status === 'confirmed';
+          return status === 'confirmed' || status === 'checkedin' || status === 'completed';
         });
 
         if (activeBookings.length === 0) {

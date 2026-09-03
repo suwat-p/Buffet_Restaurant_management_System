@@ -17,7 +17,26 @@ $header-height: 70px;
 .preorder-container {
   position: relative;
 }
+.back-btn {
+    width: auto !important;
+    padding: 0 18px 0 14px !important;
+    border-radius: 25px !important;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 
+    .back-label { 
+      font-size: 0.9rem; 
+      font-weight: 500; 
+      white-space: nowrap;
+    }
+
+    /* ซ่อนข้อความบนจอมือถือเล็ก จะแสดงแค่ไอคอน */
+    @media (max-width: 640px) {
+      width: 42px !important;
+      padding: 0 !important;
+      .back-label { display: none; }
+    }}
 .page-container {
   position: relative;
   z-index: 1;

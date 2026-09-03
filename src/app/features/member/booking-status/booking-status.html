@@ -35,7 +35,14 @@
   <div *ngFor="let booking of bookingList" class="booking-card">
     <div class="card-header">
       <span class="label">โต๊ะที่เลือก</span>
-      <button class="edit-btn" (click)="onEditBooking(booking)">แก้ไขจอง</button>
+      <!-- แสดงปุ่มแก้ไขเฉพาะกรณีที่ยังไม่ได้เช็คอิน -->
+      <button
+        *ngIf="booking.status !== 'เช็คอินแล้ว'"
+        class="edit-btn"
+        (click)="onEditBooking(booking)"
+      >
+        แก้ไขจอง
+      </button>
     </div>
 
     <div class="table-display">
@@ -68,14 +75,30 @@
       </div>
 
       <div class="action-buttons-group">
-        <button class="pre-order-btn" (click)="goPreOrder(booking)">สั่งล่วงหน้า</button>
-        <button class="qr-checkin-btn" (click)="toggleQrModal(booking.booking_id)">
+        <!-- ปุ่มสั่งอาหารสามารถกดได้ตลอดเวลา -->
+        <button class="pre-order-btn" (click)="goPreOrder(booking)">
+          {{ booking.status === 'เช็คอินแล้ว' ? 'สั่งอาหาร / ดูออเดอร์' : 'สั่งล่วงหน้า' }}
+        </button>
+
+        <!-- แสดงปุ่ม QR เช็คอินเฉพาะกรณีที่ยังไม่ได้เช็คอิน -->
+        <button
+          *ngIf="booking.status !== 'เช็คอินแล้ว'"
+          class="qr-checkin-btn"
+          (click)="toggleQrModal(booking.booking_id)"
+        >
           คิวอาร์โค้ดเช็คอิน
         </button>
       </div>
     </div>
 
-    <button class="cancel-btn-full" (click)="onCancelBooking(booking)">ยกเลิกการจอง</button>
+    <!-- แสดงปุ่มยกเลิกการจองเฉพาะกรณีที่ยังไม่ได้เช็คอิน -->
+    <button
+      *ngIf="booking.status !== 'เช็คอินแล้ว'"
+      class="cancel-btn-full"
+      (click)="onCancelBooking(booking)"
+    >
+      ยกเลิกการจอง
+    </button>
   </div>
 
   <!-- QR Modal -->
@@ -140,11 +163,11 @@
       </div>
 
       <div class="form-group">
-        <label
-          >เลือกเวลาที่มาถึง <span class="required">*</span>
-          <span class="selected-time-text" *ngIf="editFormData.time"
-            >({{ editFormData.time }})</span
-          >
+        <label>
+          เลือกเวลาที่มาถึง <span class="required">*</span>
+          <span class="selected-time-text" *ngIf="editFormData.time">
+            ({{ editFormData.time }})
+          </span>
         </label>
         <div class="time-grid">
           <button
@@ -176,7 +199,7 @@
   </div>
 </div>
 
-<!-- Confirm Modal (แทน window.confirm()) -->
+<!-- Confirm Modal -->
 <div class="modal-overlay" *ngIf="showConfirmModal">
   <div class="modal-content confirm-modal">
     <div class="confirm-icon-wrapper">
