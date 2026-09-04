@@ -148,6 +148,7 @@ export class CustomerOrder implements OnInit {
 
     this.cartService.addToCart(payload).subscribe({
       next: (res) => {
+        this.cartService.refreshCartCount(this.tableid);
         this.messageService.add({
           severity: 'success',
           summary: 'เพิ่มลงตะกร้าแล้ว',

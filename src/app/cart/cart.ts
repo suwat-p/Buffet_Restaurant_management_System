@@ -109,11 +109,13 @@ export class Cart implements OnInit {
           this.cartItems = [];
           this.currentCartId = 0;
         }
+        this.cartService.setCartCount(this.cartItems.reduce((sum, i) => sum + i.quantity, 0));
       },
       error: (err) => {
         console.error('Load cart error:', err);
         this.cartItems = [];
         this.currentCartId = 0;
+        this.cartService.setCartCount(0);
       },
     });
   }
@@ -207,7 +209,9 @@ export class Cart implements OnInit {
     };
 
     this.cartService.addToCart(payload).subscribe({
-      next: () => {},
+      next: () => {
+        this.cartService.setCartCount(this.cartItems.reduce((sum, i) => sum + i.quantity, 0));
+      },
       error: () => {
         item.quantity = previousQuantity;
         this.cartItems = previousItems;
@@ -225,6 +229,7 @@ export class Cart implements OnInit {
     this.cartService.deleteItem(id).subscribe({
       next: () => {
         this.cartItems = this.cartItems.filter((item) => item.id !== id);
+        this.cartService.setCartCount(this.cartItems.reduce((sum, i) => sum + i.quantity, 0)); // ← เพิ่มบรรทัดนี้
         this.messageService.add({ severity: 'success', summary: 'ลบสำเร็จ' });
         if (this.cartItems.length === 0) this.currentCartId = 0;
       },
@@ -266,6 +271,7 @@ export class Cart implements OnInit {
 
         this.cartItems = [];
         this.currentCartId = 0;
+        this.cartService.setCartCount(0); // ← เพิ่มบรรทัดนี้
 
         setTimeout(() => {
           this.router.navigate(['/StatusCustomer', this.billId]);
