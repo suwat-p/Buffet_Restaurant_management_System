@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { BadgeModule } from 'primeng/badge';
@@ -9,10 +9,12 @@ import { CarouselModule } from 'primeng/carousel';
 import { DialogModule } from 'primeng/dialog';
 import { RippleModule } from 'primeng/ripple';
 import { ToastModule } from 'primeng/toast';
+import { Subscription } from 'rxjs';
 import { CustomerNavbar } from '../components/menu-bar/customer-navbar/customer-navbar';
 import { CartService } from '../service/api/cart.service';
 import { Menu, MenuService } from '../service/api/menu.service';
 import { TableService } from '../service/api/table.service';
+import { SignalrService } from '../service/api/signalr.service';
 
 interface CartItem extends Menu {
   quantity: number;
@@ -36,7 +38,9 @@ interface CartItem extends Menu {
   templateUrl: './customer-order.html',
   styleUrl: './customer-order.scss',
 })
-export class CustomerOrder implements OnInit {
+export class CustomerOrder implements OnInit, OnDestroy {
+  private menuSub!: Subscription;
+
   currentBannerIndex: number = 0;
   slideInterval: number = 5000;
   slideTimer: any;
@@ -66,10 +70,17 @@ export class CustomerOrder implements OnInit {
     private cartService: CartService,
     private route: ActivatedRoute,
     private tableService: TableService,
+    private signalrService: SignalrService,
   ) {}
 
   ngOnInit() {
     this.loadMenus();
+
+    this.menuSub = this.signalrService.menuUpdated$.subscribe(() => {
+      console.log('SignalR: Detect menu update, reloading menus...');
+      this.loadMenus();
+    });
+
     const urlTable = this.route.snapshot.queryParamMap.get('table');
     if (urlTable) {
       this.tableService.setTable(urlTable);
@@ -78,7 +89,6 @@ export class CustomerOrder implements OnInit {
       this.tableNumber = this.tableService.getTable();
     }
 
-    // 2. ถ้ามี tableNumber ให้เรียก gettableid ทันทีเพื่อให้ได้ tableid จริงๆ
     if (this.tableNumber) {
       this.gettableid(this.tableNumber);
     }
@@ -93,7 +103,7 @@ export class CustomerOrder implements OnInit {
         const uniqueCats = [...new Set(data.map((item) => item.category))];
         this.categories = ['ทั้งหมด', ...uniqueCats];
 
-        this.filterCategory('ทั้งหมด');
+        this.filterCategory(this.currentCategory);
       },
       error: (err) => {
         console.error('Error fetching menus:', err);
@@ -105,6 +115,7 @@ export class CustomerOrder implements OnInit {
       },
     });
   }
+
   gettableid(tableNumber: string) {
     this.tableService.getTableid(tableNumber).subscribe({
       next: (id: number) => {
@@ -199,5 +210,11 @@ export class CustomerOrder implements OnInit {
       detail: 'ครัวได้รับรายการแล้ว',
     });
     this.cart = [];
+  }
+
+  ngOnDestroy() {
+    if (this.menuSub) {
+      this.menuSub.unsubscribe();
+    }
   }
 }

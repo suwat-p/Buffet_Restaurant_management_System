@@ -23,6 +23,7 @@ export class SignalrService {
   // 🍽️ สถานะออเดอร์เปลี่ยน (เช่น เสิร์ฟสแกน QR แล้วเปลี่ยนเป็น "กำลังนำเสิร์ฟ")
   public orderStatusUpdated$ = new Subject<any>();
   public resDiscountUpdate$ = new Subject<void>();
+  public menuUpdated$ = new Subject<void>();
   constructor(private constants: Constants) {
     this.initConnection();
   }
@@ -38,50 +39,54 @@ export class SignalrService {
   }
 
   private registerOnEvents() {
-    // 1. สถานะโต๊ะ
+    //  สถานะโต๊ะ
     this.hubConnection.on('UpdateTable', (data) => {
       console.log('SignalR [UpdateTable]:', data);
       this.tableStatus$.next(data);
     });
+    this.hubConnection.on('MenuUpdated', () => {
+      console.log('SignalR [MenuUpdated]');
+      this.menuUpdated$.next();
+    });
 
-    // 2. ข้อมูล Config ร้าน (ราคา/ค่าปรับ)
+    //  ข้อมูล Config ร้าน (ราคา/ค่าปรับ)
     this.hubConnection.on('UpdateResConfig', (data) => {
       console.log('SignalR [UpdateResConfig]:', data);
       this.resConfig$.next(data);
     });
 
-    // 3. อัปเดตรูปภาพ
+    //  อัปเดตรูปภาพ
     this.hubConnection.on('UpdateResImage', () => {
       console.log('SignalR [UpdateResImage]');
       this.resImageUpdate$.next();
     });
 
-    // 4. การอัปเดตบิล (เช่น เช็คบิล, เปลี่ยนส่วนลด, เปลี่ยนจำนวนคน)
+    // การอัปเดตบิล (เช่น เช็คบิล, เปลี่ยนส่วนลด, เปลี่ยนจำนวนคน)
     this.hubConnection.on('UpdateBill', (data) => {
       console.log('SignalR [UpdateBill]:', data);
       this.billUpdated$.next(data);
     });
 
-    // 5. การอัปเดตรายการอาหารที่สั่งเพิ่ม
+    //  การอัปเดตรายการอาหารที่สั่งเพิ่ม
     this.hubConnection.on('UpdateOrder', (data) => {
       console.log('SignalR [UpdateOrder]:', data);
       this.orderUpdated$.next(data);
     });
 
-    // 🟢 6. การอัปเดตข้อมูลลูกค้า (จำนวนลูกค้า / ข้อมูลสมาชิก)
+    // 🟢  การอัปเดตข้อมูลลูกค้า (จำนวนลูกค้า / ข้อมูลสมาชิก)
     this.hubConnection.on('UpdateCustomer', (data) => {
       console.log('SignalR [UpdateCustomer]:', data);
       this.customerUpdated$.next(data);
     });
 
-    // 🍳 7. ออเดอร์ใหม่ — backend ส่งมาแค่ Order_id เฉยๆ ฝั่งที่ subscribe ต้องยิง
+    // 🍳  ออเดอร์ใหม่ — backend ส่งมาแค่ Order_id เฉยๆ ฝั่งที่ subscribe ต้องยิง
     // OrderService.GetKitchenTicket(orderId) ต่อเองเพื่อได้รายละเอียดเต็ม
     this.hubConnection.on('NewKitchenOrder', (orderId) => {
       console.log('SignalR [NewKitchenOrder]:', orderId);
       this.newKitchenOrder$.next(orderId);
     });
 
-    // 🍽️ 8. สถานะออเดอร์เปลี่ยน (เช่น เสิร์ฟกดยืนยันจากหน้า /serve-action)
+    //  สถานะออเดอร์เปลี่ยน (เช่น เสิร์ฟกดยืนยันจากหน้า /serve-action)
     this.hubConnection.on('OrderStatusUpdated', (data) => {
       console.log('SignalR [OrderStatusUpdated]:', data);
       this.orderStatusUpdated$.next(data);
