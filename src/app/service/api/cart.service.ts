@@ -1,17 +1,36 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Constants } from '../../config/contants'; // ตรวจสอบ path ให้ตรงกับเครื่องคุณ
-
+import { BehaviorSubject } from 'rxjs';
+import { Constants } from '../../config/contants';
 @Injectable({
   providedIn: 'root',
 })
 export class CartService {
+  private cartCountSubject = new BehaviorSubject<number>(0);
+  public cartCount$ = this.cartCountSubject.asObservable();
+
   constructor(
     private http: HttpClient,
     private constants: Constants,
   ) {}
 
-  // 1. เพิ่มรายการลงตะกร้า
+  public refreshCartCount(tableId?: number, bookingId?: number) {
+    this.getCartItems(tableId, bookingId).subscribe({
+      next: (res: any) => {
+        const items = res?.items ?? [];
+        const total = items.reduce((sum: number, item: any) => sum + (item.quantity || 0), 0);
+        this.cartCountSubject.next(total);
+      },
+      error: () => {
+        this.cartCountSubject.next(0);
+      },
+    });
+  }
+
+  public setCartCount(count: number) {
+    this.cartCountSubject.next(count);
+  }
+
   public addToCart(data: any) {
     const url = this.constants.API_ENDPOINT + '/Cart/add-item';
     const token = localStorage.getItem('token') || sessionStorage.getItem('token');

@@ -15,7 +15,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { Menu, MenuService } from '../../../service/api/menu.service';
 import { CartService } from '../../../service/api/cart.service';
 import { OrderService } from '../../../service/api/order.service';
-
+import { MenuPreorder } from '../../../components/menu-bar/menu-member/menu-preorder/menu-preorder';
 interface CartItem {
   id: number;
   menuId: number;
@@ -40,12 +40,14 @@ interface CartItem {
     TooltipModule,
     DialogModule,
     MatIconModule,
+    MenuPreorder,
   ],
   providers: [MessageService],
   templateUrl: './pre-order.html',
   styleUrl: './pre-order.scss',
 })
 export class PreOrder implements OnInit {
+  // sidebar เริ่มเปิดบนจอเดสก์ท็อป และปิดเป็นค่าเริ่มต้นบนมือถือ (แบบเดียวกับ menu-member)
   isSidebarOpen: boolean = true;
   currentBannerIndex: number = 0;
   slideInterval: number = 5000;
@@ -87,6 +89,9 @@ export class PreOrder implements OnInit {
   ) {}
 
   ngOnInit() {
+    // จอเล็ก (มือถือ) ให้ sidebar เริ่มต้นเป็นแบบพับ/ซ่อนไว้ก่อน เหมือน menu-member
+    this.isSidebarOpen = window.innerWidth > 768;
+
     this.loadMenus();
 
     this.route.queryParams.subscribe((params) => {
@@ -95,6 +100,18 @@ export class PreOrder implements OnInit {
         this.loadCart();
       }
     });
+  }
+
+  // เปิด/ปิด sidebar ด้วยปุ่ม hamburger (แบบเดียวกับ menu-member)
+  toggleSidebar() {
+    this.isSidebarOpen = !this.isSidebarOpen;
+  }
+
+  // ปิด sidebar อัตโนมัติเมื่อกดเมนูบนมือถือ (แบบเดียวกับ menu-member)
+  closeSidebar() {
+    if (window.innerWidth <= 768) {
+      this.isSidebarOpen = false;
+    }
   }
 
   loadCart() {
@@ -293,6 +310,9 @@ export class PreOrder implements OnInit {
       },
     });
   }
+
+  // อยู่หน้าเมนูอยู่แล้ว กดจากตรงนี้ไม่ต้องทำอะไร (กันไว้เผื่อ sidebar ใช้ร่วมกับหน้าอื่น)
+  goToMenu() {}
 
   // **นำทางไปยังหน้าติดตามสถานะการจอง**
   goToBookingStatus() {

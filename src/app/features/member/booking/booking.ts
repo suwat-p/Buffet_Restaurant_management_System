@@ -47,7 +47,7 @@ export class Booking implements OnInit, OnDestroy {
   qrUrl: string = '';
 
   promptPayQrUrl: string = '';
-  depositAmount: number = 0; // 🟢 รอรับค่ายอดจริงจาก API Gateway (เช่น 1.02)
+  depositAmount: number = 0;
   transactionId: string = '';
 
   minDate: string = '';
@@ -187,6 +187,22 @@ export class Booking implements OnInit, OnDestroy {
     this.bookingForm.NumChildren = isNaN(c) || c < 0 ? 0 : Math.floor(c);
   }
 
+  // กันไม่ให้พิมพ์ตัวอักษรที่ไม่ใช่เลข เช่น - + . e , ตั้งแต่ตอนกดคีย์
+  blockInvalidNumberKey(event: KeyboardEvent) {
+    const blockedKeys = ['-', '+', '.', ',', 'e', 'E'];
+    if (blockedKeys.includes(event.key)) {
+      event.preventDefault();
+    }
+  }
+
+  // กันกรณีวาง (paste) หรือกรอกผ่านช่องทางอื่นที่หลุดผ่าน keydown มาได้
+  sanitizeGuestInput(event: Event, field: 'NumAdults' | 'NumChildren') {
+    const input = event.target as HTMLInputElement;
+    const digitsOnly = input.value.replace(/[^0-9]/g, '');
+    input.value = digitsOnly;
+    this.bookingForm[field] = digitsOnly === '' ? 0 : Number(digitsOnly);
+  }
+
   incrementAdults() {
     this.bookingForm.NumAdults = (Number(this.bookingForm.NumAdults) || 0) + 1;
   }
@@ -288,7 +304,7 @@ export class Booking implements OnInit, OnDestroy {
     this.bookedTableNames = [];
   }
 
-  // 🟢 ส่งยอดจริง (เช่น 1.02) เข้า Display
+  //  (เช่น 1.02) เข้า Display
   sendToCustomerDisplay(qrCodeUrl: string | null = null, actualAmount: number = 1.0) {
     const payload = {
       tableNumbers: this.getSelectedTableString(),
@@ -301,7 +317,7 @@ export class Booking implements OnInit, OnDestroy {
       ],
       fineAmount: 0,
       discountName: 'ไม่มีโปรโมชั่น',
-      grandTotal: actualAmount, // 🟢 ยอดตรงตาม QR (เช่น 1.02)
+      grandTotal: actualAmount, //  ยอดตรงตาม QR (เช่น 1.02)
       qrData: qrCodeUrl,
       isPaidSuccess: false,
     };
@@ -381,7 +397,7 @@ export class Booking implements OnInit, OnDestroy {
 
             this.transactionId = res.transaction_id || '';
 
-            // 🟢 ดึงยอดเงินจริงที่ตอบกลับจาก API Backend (เช่น 1.02)
+            //  ดึงยอดเงินจริงที่ตอบกลับจาก API Backend (เช่น 1.02)
             const realAmount = parseFloat(res.amount_pay) || 1.0;
             this.depositAmount = realAmount;
 
@@ -389,7 +405,7 @@ export class Booking implements OnInit, OnDestroy {
             this.showBookingModal = false;
             this.showPaymentModal = true;
 
-            // 🟢 ส่งยอด 1.02 เข้า Display
+            //  ส่งยอด 1.02 เข้า Display
             this.sendToCustomerDisplay(this.promptPayQrUrl, realAmount);
 
             this.startAutoCheckStatus();

@@ -6,6 +6,7 @@ import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
 import { BillService } from '../../../service/api/bill.service';
 import { TableService } from '../../../service/api/table.service';
+import { CartService } from '../../../service/api/cart.service';
 
 interface NavMenuItem {
   label: string;
@@ -27,8 +28,8 @@ export class CustomerNavbar implements OnInit {
   tableNumber: string | null = null;
   tableId: number = 0;
   billId: number = 0;
-  notificationCount: number = 2;
-  cartCount: number = 3;
+
+  cartCount: number = 0;
 
   menuItems: NavMenuItem[] = [
     { label: 'รายการเมนูอาหาร', icon: 'restaurant_menu', route: '/Customer' },
@@ -39,6 +40,7 @@ export class CustomerNavbar implements OnInit {
   constructor(
     private tableService: TableService,
     private billService: BillService,
+    private cartService: CartService,
     private router: Router,
   ) {}
 
@@ -47,12 +49,18 @@ export class CustomerNavbar implements OnInit {
     if (this.tableNumber) {
       this.getBillInfo(this.tableNumber);
     }
+
+    // subscribe ค่าจำนวนตะกร้าแบบ real-time
+    this.cartService.cartCount$.subscribe((count) => {
+      this.cartCount = count;
+    });
   }
 
   getBillInfo(tableNum: string) {
     this.tableService.getTableid(tableNum).subscribe({
       next: (id: number) => {
         this.tableId = id;
+        this.cartService.refreshCartCount(this.tableId);
         this.billService.getBillByTableId(this.tableId).subscribe({
           next: (res: any) => {
             if (res && res.bill_id) {

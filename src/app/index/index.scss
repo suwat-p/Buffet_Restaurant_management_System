@@ -256,6 +256,168 @@
   background: #6366f1;
   color: white;
 }
+/* --- 🟢 Fix Contrast & Modern Glassmorphism Modal --- */
+::ng-deep .custom-discount-modal {
+  border-radius: 20px !important;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.95), 0 0 20px rgba(255, 202, 40, 0.2) !important;
+
+  .p-dialog-header {
+    background: #1e1e1e;
+    color: #ffffff;
+    padding: 18px 24px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
+    .p-dialog-title {
+      font-weight: 700;
+      font-size: 1.15rem;
+      letter-spacing: 0.5px;
+      color: #ffffff;
+    }
+
+    .p-dialog-header-icon {
+      color: #ffffff;
+      border-radius: 50%;
+      transition: all 0.2s ease;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.15);
+      }
+    }
+  }
+
+  .p-dialog-content {
+    background: #141414;
+    padding: 24px !important;
+  }
+}
+
+.coupon-card-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+  /* Hero Section: เปลี่ยนเป็นไล่สีทองสด Bright Gold ให้ตัวหนังสือคมชัดขึ้น */
+  .coupon-hero {
+    background: linear-gradient(135deg, #d84315 0%, #bf360c 50%, #8d6e63 100%);
+    border: 1px solid rgba(255, 202, 40, 0.4);
+    border-radius: 16px;
+    padding: 22px;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+
+    .badge-tag {
+      display: inline-block;
+      background: #ffca28;
+      color: #000000;
+      font-size: 0.75rem;
+      font-weight: 800;
+      padding: 4px 14px;
+      border-radius: 20px;
+      letter-spacing: 1.5px;
+      margin-bottom: 10px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    }
+
+    .amount-wrapper {
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      gap: 6px;
+
+      .amount-number {
+        font-size: 3.5rem;
+        font-weight: 900;
+        color: #ffffff;
+        line-height: 1;
+        text-shadow: 0 3px 8px rgba(0, 0, 0, 0.6);
+      }
+
+      .amount-unit {
+        font-size: 1.6rem;
+        font-weight: 800;
+        color: #ffca28;
+        text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+      }
+    }
+
+    .discount-subtext {
+      display: block;
+      margin-top: 8px;
+      font-size: 0.9rem;
+      color: #ffffff;
+      font-weight: 500;
+      letter-spacing: 0.3px;
+    }
+  }
+
+  .coupon-details {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    .coupon-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #ffffff;
+      margin: 0;
+      text-align: center;
+    }
+
+    .info-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      background: #1f1f1f;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 14px;
+      padding: 16px;
+
+      .info-item {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+
+        .info-icon {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 40px;
+          height: 40px;
+          border-radius: 10px;
+          background: rgba(255, 202, 40, 0.15);
+          color: #ffca28;
+          flex-shrink: 0;
+        }
+
+        .info-text {
+          display: flex;
+          flex-direction: column;
+          gap: 3px;
+
+          .label {
+            font-size: 0.8rem;
+            color: #b0bec5; /* ปรับสีเทาสว่าง */
+            font-weight: 500;
+          }
+
+          .value {
+            font-size: 0.95rem;
+            color: #ffffff; /* ปรับเป็นสีขาวบริสุทธิ์ */
+            font-weight: 600;
+
+            &.date-highlight {
+              color: #ffca28; /* สีเหลืองทองอ่านง่าย */
+              font-weight: 700;
+            }
+          }
+        }
+      }
+    }
+  }
+}
 
 /* --- RESPONSIVE (Mobile) --- */
 @media (max-width: 900px) {

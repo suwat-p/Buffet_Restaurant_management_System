@@ -104,7 +104,7 @@ export class OrderService {
     }
   }
 
-  public connect(): Observable<OrderStatusUpdatedEvent> {
+  public connect(billId?: number): Observable<OrderStatusUpdatedEvent> {
     if (!this.hubConnection) {
       const baseUrl = this.constants.API_ENDPOINT.replace(/\/api\/?$/, '');
       const hubUrl = `${baseUrl}/tableStatusHub`;
@@ -114,22 +114,41 @@ export class OrderService {
         .withAutomaticReconnect()
         .build();
 
-      // 🟢 รองรับ payload Real-time ทุกรูปแบบ
       this.hubConnection.on('OrderStatusUpdated', (data: any) => {
+        console.log('⚡ SignalR Event [OrderStatusUpdated]:', data);
         const mappedEvent: OrderStatusUpdatedEvent = {
-          orderId: data.orderId || data.OrderId,
-          status: data.status || data.OrderStatus,
-          billId: data.billId || data.BillId,
+          orderId: Number(data.orderId ?? data.OrderId ?? data.order_Id),
+          status: data.status ?? data.Status ?? data.orderStatus,
+          billId: Number(data.billId ?? data.BillId),
         };
         this.statusUpdated$.next(mappedEvent);
       });
 
-      this.hubConnection.start().catch((err) => {
-        console.error('เชื่อมต่อ SignalR ไม่สำเร็จ:', err);
-      });
+      this.hubConnection
+        .start()
+        .then(() => {
+          console.log('SignalR OrderService Connected successfully.');
+          if (billId) {
+            this.joinBillRoom(billId);
+          }
+        })
+        .catch((err) => {
+          console.error('เชื่อมต่อ SignalR ไม่สำเร็จ:', err);
+        });
+    } else if (billId && this.hubConnection.state === signalR.HubConnectionState.Connected) {
+      this.joinBillRoom(billId);
     }
 
     return this.statusUpdated$.asObservable();
+  }
+
+  //สั่งเข้า Room ของบิลเพื่อรับ Event Realtime
+  public joinBillRoom(billId: number): void {
+    if (this.hubConnection && this.hubConnection.state === signalR.HubConnectionState.Connected) {
+      this.hubConnection.invoke('JoinBillRoom', billId.toString()).catch((err) => {
+        console.error('JoinBillRoom Error:', err);
+      });
+    }
   }
 
   public disconnect(): void {

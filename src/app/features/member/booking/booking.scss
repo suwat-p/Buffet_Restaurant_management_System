@@ -160,6 +160,7 @@ $color-selected-text: #000000;
       }
 
       input[type='number'],
+      input[type='text'],
       input[type='date'] {
         width: 100%;
         padding: 12px 14px;
@@ -647,27 +648,187 @@ $color-selected-text: #000000;
    ════════════════════════════════════════════ */
 
 .success-modal {
-  .success-pill {
-    display: inline-block;
-    background: #e8f5e9; color: #2e7d32;
-    padding: 6px 18px; border-radius: 20px;
-    font-weight: 700; font-size: 0.95rem;
-    margin-bottom: 10px;
-  }
-  .s-ref  { color: #888; font-size: 0.88rem; margin: 4px 0; }
-  .s-table{ color: #e65100; font-size: 0.92rem; margin: 4px 0 14px; }
-  .s-hint { color: #666; font-size: 0.82rem; margin-bottom: 14px; }
+  position: relative;
 
-  .checkin-qr-box {
-    display: flex; justify-content: center; margin-bottom: 8px;
-    .checkin-qr {
-      width: clamp(150px, 48vw, 195px);
-      height: clamp(150px, 48vw, 195px);
-      border: 2px solid #ddd; border-radius: 12px;
+  .success-close {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    z-index: 2;
+  }
+
+  .modal-body {
+    padding: 36px 28px 8px;
+    align-items: center;
+    gap: 0;
+  }
+
+  // ── Animated check ──
+  .check-ring {
+    width: 76px;
+    height: 76px;
+    margin-bottom: 18px;
+  }
+
+  .check-svg {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+
+  .check-circle {
+    stroke: $color-free;
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-dasharray: 145;
+    stroke-dashoffset: 145;
+    animation: drawCircle 0.5s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+  }
+
+  .check-mark {
+    stroke: $color-free;
+    stroke-width: 4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 34;
+    stroke-dashoffset: 34;
+    animation: drawCheck 0.35s 0.45s ease-out forwards;
+  }
+
+  .success-title {
+    margin: 0 0 4px;
+    color: $text-white;
+    font-size: 1.35rem;
+    font-weight: 700;
+  }
+
+  .success-sub {
+    margin: 0 0 22px;
+    color: $text-gray;
+    font-size: 0.9rem;
+  }
+
+  // ── Booking summary card ──
+  .booking-summary {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    padding: 14px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 22px;
+    text-align: left;
+  }
+
+  .summary-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+
+    > span {
+      color: $text-gray;
+      font-size: 0.82rem;
+      flex-shrink: 0;
+    }
+
+    > strong {
+      color: $text-white;
+      font-size: 0.95rem;
+      font-weight: 700;
+    }
+
+    &:not(:last-child) {
+      padding-bottom: 10px;
+      border-bottom: 1px dashed rgba(255, 255, 255, 0.08);
     }
   }
 
-  .red-btn { background: #c0392b; &:hover { background: #a93226; } }
+  .summary-chips {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .summary-chip {
+    background: rgba(255, 87, 34, 0.12);
+    border: 1px solid rgba(255, 87, 34, 0.35);
+    color: #ff8a5c;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 20px;
+  }
+
+  // ── QR check-in ──
+  .checkin-qr-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 6px;
+  }
+
+  .qr-frame {
+    position: relative;
+    padding: 14px;
+    background: #ffffff;
+    border-radius: 16px;
+    margin-bottom: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+
+    &::before,
+    &::after {
+      content: '';
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      border: 3px solid #ff5722;
+    }
+
+    &::before {
+      top: -6px;
+      left: -6px;
+      border-right: none;
+      border-bottom: none;
+      border-top-left-radius: 6px;
+    }
+
+    &::after {
+      bottom: -6px;
+      right: -6px;
+      border-left: none;
+      border-top: none;
+      border-bottom-right-radius: 6px;
+    }
+
+    .checkin-qr {
+      width: clamp(140px, 44vw, 180px);
+      height: clamp(140px, 44vw, 180px);
+      display: block;
+      border-radius: 4px;
+    }
+  }
+
+  .s-hint {
+    margin: 0;
+    color: $text-gray;
+    font-size: 0.82rem;
+  }
+}
+
+@keyframes drawCircle {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes drawCheck {
+  to {
+    stroke-dashoffset: 0;
+  }
 }
 
 /* ════════════════════════════════════════════

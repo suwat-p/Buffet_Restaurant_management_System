@@ -11,11 +11,20 @@ import { ImageService } from '../service/api/image.service';
 import { Subscription } from 'rxjs';
 import { DiscountService } from '../service/api/discount.service';
 import { Discount } from '../models/discount.model';
+import { DialogModule } from 'primeng/dialog';
 
 @Component({
   selector: 'app-index',
   standalone: true,
-  imports: [CommonModule, IndexNavbar, CarouselModule, ButtonModule, RippleModule, MenuMember],
+  imports: [
+    CommonModule,
+    IndexNavbar,
+    CarouselModule,
+    ButtonModule,
+    RippleModule,
+    MenuMember,
+    DialogModule,
+  ],
   templateUrl: './index.html',
   styleUrl: './index.scss',
 })
@@ -26,12 +35,14 @@ export class Index implements OnInit, OnDestroy {
   isLoggedIn: boolean = false;
   resData: any;
   discountData: Discount[] = [];
-
+  displayDiscountDialog: boolean = false;
+  selectedDiscount: Discount | null = null;
   banners: { image: string }[] = [];
   posterUrl: string | null = null;
 
   private resConfigSub!: Subscription;
   private resImageSub!: Subscription;
+  private resDiscountSub!: Subscription;
 
   constructor(
     private ConfigService: ConfigService,
@@ -54,8 +65,12 @@ export class Index implements OnInit, OnDestroy {
       this.resData = updatedConfig;
     });
 
-    this.DiscountService.getDiscount().subscribe((res) => {
-      this.discountData = res; // ต้องประกาศ property นี้ไว้ด้วย
+    // โหลดข้อมูลส่วนลดครั้งแรก
+    this.loadDiscounts();
+
+    // realtime: ส่วนลดเปลี่ยน — โหลดใหม่อัตโนมัติ
+    this.resDiscountSub = this.signalRService.resDiscountUpdate$.subscribe(() => {
+      this.loadDiscounts();
     });
 
     // realtime: รูปภาพเปลี่ยน — โหลดใหม่อัตโนมัติ
@@ -65,9 +80,37 @@ export class Index implements OnInit, OnDestroy {
 
     this.loadImages();
   }
-  showDiscountDetail(discount: Discount) {
-    console.log(discount); // หรือเปิด modal / navigate ไปหน้ารายละเอียด
+
+  loadDiscounts(): void {
+    this.DiscountService.getDiscount().subscribe({
+      next: (res) => {
+        this.discountData = res;
+
+        // ถ้ากำลังเปิด Popup ส่วนลดตัวไหนอยู่ ให้อัปเดตข้อมูลตัวนั้นใน Popup แบบ Realtime ด้วย
+        if (this.selectedDiscount) {
+          const updatedSelected = this.discountData.find(
+            (item) => item.discount_id === this.selectedDiscount?.discount_id,
+          );
+          if (updatedSelected) {
+            this.selectedDiscount = updatedSelected;
+          } else {
+            // กรณีคูปองใบที่เปิดอยู่นั้นถูกเจ้าของร้านลบออกไป ให้ปิด Popup อัตโนมัติ
+            this.displayDiscountDialog = false;
+            this.selectedDiscount = null;
+          }
+        }
+      },
+      error: (err) => {
+        console.error('เกิดข้อผิดพลาดในการโหลดข้อมูลส่วนลด:', err);
+      },
+    });
   }
+
+  showDiscountDetail(discount: Discount) {
+    this.selectedDiscount = discount;
+    this.displayDiscountDialog = true;
+  }
+
   loadImages(): void {
     this.imageService.getImages().subscribe({
       next: (images: any[]) => {
@@ -91,6 +134,7 @@ export class Index implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.resConfigSub?.unsubscribe();
     this.resImageSub?.unsubscribe();
+    this.resDiscountSub?.unsubscribe();
   }
 
   onClicksmailPictures(index: number) {

@@ -8,57 +8,46 @@
   </div>
 
   <div class="page-container preorder-layout">
-    <!-- 1. Sidebar ด้านซ้าย -->
-    <aside class="sidebar" [class.expanded]="isSidebarOpen">
-      <div class="sidebar-header">
-        <div class="brand-info">
-          <img src="assets/Images/Logo.png" alt="Logo" class="logo" />
-          <span class="brand-name" *ngIf="isSidebarOpen">BUFFET</span>
-        </div>
-      </div>
+    <!--  Sidebar ด้านซ้าย (แยกเป็น component MenuPreorder) -->
+    <app-menu-preorder
+      [isSidebarOpen]="isSidebarOpen"
+      [bookingId]="bookingId"
+      [cartBadgeCount]="cartBadgeCount"
+      [activeView]="'menu'"
+      (toggleSidebar)="toggleSidebar()"
+      (closeSidebar)="closeSidebar()"
+      (toggleCartModal)="toggleCartModal()"
+      (goToBookingStatus)="goToBookingStatus()"
+      (goToOrderStatus)="goToOrderStatus()"
+      (goToMenu)="goToMenu()"
+    ></app-menu-preorder>
 
-      <div class="table-badge" *ngIf="isSidebarOpen && bookingId">
-        <i class="pi pi-bookmark"></i>
-        <span>การจอง #{{ bookingId }}</span>
-      </div>
-
-      <ul class="nav-menu">
-        <li class="menu-item active">
-          <i class="pi pi-list"></i>
-          <span *ngIf="isSidebarOpen">รายการเมนูอาหาร</span>
-        </li>
-        <li class="menu-item" (click)="toggleCartModal()">
-          <i class="pi pi-shopping-cart"></i>
-          <span *ngIf="isSidebarOpen">สั่งอาหาร/ตะกร้าของคุณ</span>
-          <span class="badge" *ngIf="cartBadgeCount > 0">{{ cartBadgeCount }}</span>
-        </li>
-        <li class="menu-item" (click)="goToBookingStatus()">
-          <i class="pi pi-history"></i>
-          <span *ngIf="isSidebarOpen">ติดตามสถานะการจอง</span>
-        </li>
-
-        <!-- เพิ่มเมนู ติดตามสถานะออเดอร์ (ไปที่ /StatusCustomer) -->
-        <li class="menu-item" (click)="goToOrderStatus()">
-          <i class="pi pi-receipt"></i>
-          <span *ngIf="isSidebarOpen">ติดตามสถานะออเดอร์</span>
-        </li>
-      </ul>
-    </aside>
-
-    <!-- 2. ส่วนเนื้อหาหลัก (Main Content) -->
+    <!--  ส่วนเนื้อหาหลัก (Main Content) -->
     <main class="main-wrapper">
       <!-- Floating Header -->
       <header class="top-navbar">
-        <button
-          class="icon-btn back-btn"
-          (click)="goToBookingStatus()"
-          pRipple
-          pTooltip="สถานะการจอง"
-          tooltipPosition="bottom"
-        >
-          <i class="pi pi-arrow-left"></i>
-          <span class="back-label">สถานะการจอง</span>
-        </button>
+        <div class="navbar-left">
+          <button
+            class="icon-btn hamburger-btn"
+            (click)="toggleSidebar()"
+            pRipple
+            pTooltip="เมนู"
+            tooltipPosition="bottom"
+          >
+            <i class="pi pi-bars"></i>
+          </button>
+
+          <button
+            class="icon-btn back-btn"
+            (click)="goToBookingStatus()"
+            pRipple
+            pTooltip="สถานะการจอง"
+            tooltipPosition="bottom"
+          >
+            <i class="pi pi-arrow-left"></i>
+            <span class="back-label">สถานะการจอง</span>
+          </button>
+        </div>
 
         <div class="header-right">
           <div class="booking-chip" *ngIf="bookingId">

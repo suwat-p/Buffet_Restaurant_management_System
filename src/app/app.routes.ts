@@ -36,6 +36,7 @@ import { memberGuard } from './guards/member-guard';
 import { Index } from './index';
 import { StatusCustomerOrder } from './status/status-customer-order/status-customer-order';
 import { PreOrderCart } from './cart/pre-order-cart/pre-order-cart';
+import { StatusPreOrder } from './status/status-pre-order/status-pre-order';
 
 export const routes: Routes = [
   { path: '', component: Index },
@@ -56,7 +57,7 @@ export const routes: Routes = [
   { path: 'Cart', component: Cart },
 
   { path: 'StatusCustomer/:billId', component: StatusCustomerOrder },
-  { path: 'PreOrderStatus/:billId', component: StatusCustomerOrder, canActivate: [memberGuard] },
+  { path: 'PreOrderStatus/:billId', component: StatusPreOrder, canActivate: [memberGuard] },
   { path: 'Employeecheckin', component: EmployeeAttendance },
   { path: 'EmployeeIncome', component: EmployeeIncome },
   { path: 'KitchenDashboard', component: KitchenDashboard },

@@ -357,6 +357,188 @@ $color-red-danger: #b71c1c;
   to { transform: scale(1); opacity: 1; }
 }
 
+// --- Toast Notifications (แทน alert()) ---
+.toast-stack {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 340px;
+  width: calc(100% - 40px);
+
+  @media (max-width: 480px) {
+    top: 12px;
+    right: 12px;
+    left: 12px;
+    width: auto;
+    max-width: none;
+  }
+}
+
+.toast-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #1a1a1a;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-left: 4px solid $color-blue-text;
+  border-radius: 10px;
+  padding: 12px 14px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+  animation: toastIn 0.25s ease-out;
+
+  .toast-icon {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    font-weight: bold;
+    color: #000;
+    background: $color-blue-text;
+  }
+
+  .toast-message {
+    flex: 1;
+    font-size: 0.9rem;
+    color: $text-white;
+    line-height: 1.4;
+  }
+
+  .toast-close {
+    flex-shrink: 0;
+    background: none;
+    border: none;
+    color: $text-gray;
+    font-size: 0.85rem;
+    cursor: pointer;
+    padding: 0;
+
+    &:hover {
+      color: $text-white;
+    }
+  }
+
+  &.success {
+    border-left-color: $color-green-success;
+    .toast-icon {
+      background: $color-green-success;
+    }
+  }
+
+  &.error {
+    border-left-color: #ef4444;
+    .toast-icon {
+      background: #ef4444;
+      color: #fff;
+    }
+  }
+
+  &.warning {
+    border-left-color: #ff9100;
+    .toast-icon {
+      background: #ff9100;
+    }
+  }
+}
+
+@keyframes toastIn {
+  from { transform: translateX(30px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+// --- Confirm Modal (แทน window.confirm()) ---
+.modal-content.confirm-modal {
+  background: #141414;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  width: 100%;
+  max-width: 360px;
+  padding: 28px 24px 24px;
+  text-align: center;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+  animation: popUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+  .confirm-icon-wrapper {
+    width: 56px;
+    height: 56px;
+    background: rgba(239, 68, 68, 0.15);
+    border: 2px solid #ef4444;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+
+    .confirm-icon {
+      color: #ef4444;
+      font-size: 1.6rem;
+      font-weight: bold;
+    }
+  }
+
+  h3 {
+    margin: 0 0 8px;
+    color: $text-white;
+    font-size: 1.15rem;
+    font-weight: 600;
+  }
+
+  p {
+    margin: 0 0 24px;
+    color: $text-gray;
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+
+  .confirm-modal-actions {
+    display: flex;
+    gap: 10px;
+
+    .cancel-btn-outline,
+    .confirm-btn-danger {
+      flex: 1;
+      padding: 12px;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .cancel-btn-outline {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #d1d5db;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: #fff;
+      }
+    }
+
+    .confirm-btn-danger {
+      background: linear-gradient(135deg, #ef4444 0%, #b71c1c 100%);
+      color: white;
+      border: none;
+      box-shadow: 0 4px 14px rgba(239, 68, 68, 0.35);
+
+      &:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 20px rgba(239, 68, 68, 0.5);
+        filter: brightness(1.1);
+      }
+    }
+  }
+}
+
 // --- Edit Modal (จับคู่ดีไซน์กับ booking.html/booking.scss ให้เหมือนกัน) ---
 .modal-content.form-modal {
   background: #141414;
