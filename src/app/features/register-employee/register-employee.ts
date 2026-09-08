@@ -294,6 +294,7 @@ get hasSpecialChar(): boolean {
       !isDeptValid ||
       !isEmpTypeValid
     ) {
+      this.isLoading = false;
       this.messageService.add({
         severity: 'error',
         summary: 'ข้อมูลไม่ถูกต้อง',
@@ -338,7 +339,6 @@ get hasSpecialChar(): boolean {
         summary: 'ข้อผิดพลาด',
         detail: errorMessage,
       });
-      console.error('Registration Error:', error);
     }
   }
 
