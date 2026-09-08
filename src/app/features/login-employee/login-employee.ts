@@ -5,15 +5,12 @@ import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { ActivatedRoute, Router } from '@angular/router';
 import { jwtDecode } from 'jwt-decode';
-import { MessageService } from 'primeng/api';
-import { Toast } from 'primeng/toast';
 import { AuthService } from '../../service/api/auth.service';
 
 @Component({
   selector: 'app-login-employee',
   standalone: true,
-  imports: [CommonModule, MatIconModule, FormsModule, Toast],
-  providers: [MessageService],
+  imports: [CommonModule, MatIconModule, FormsModule],
   templateUrl: './login-employee.html',
   styleUrl: './login-employee.scss',
 })
@@ -21,10 +18,9 @@ export class LoginEmployee implements OnInit {
   constructor(
     private authService: AuthService,
     private http: HttpClient,
-    private messageService: MessageService,
     private router: Router,
     private route: ActivatedRoute,
-  ) {}
+  ) { }
 
   email: string = '';
   password: string = '';
@@ -32,6 +28,13 @@ export class LoginEmployee implements OnInit {
   rememberMe: boolean = false;
   returnUrl: string = '';
   isLoading: boolean = false;
+
+  // Alert Modal State
+  showAlert: boolean = false;
+  alertType: 'success' | 'error' | 'warning' = 'error';
+  alertTitle: string = '';
+  alertMessage: string = '';
+  private alertCallback: (() => void) | null = null;
 
   ngOnInit() {
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '';
@@ -55,15 +58,33 @@ export class LoginEmployee implements OnInit {
     }
   }
 
+  // Alert Control
+ triggerAlert(type: 'success' | 'error' | 'warning', title: string, message: string, callback?: () => void) {
+    this.alertType = type;
+    this.alertTitle = title;
+    this.alertMessage = message;
+    this.showAlert = true;
+
+    setTimeout(() => {
+      this.showAlert = false;
+      if (callback) {
+        callback();
+      }
+    }, 1500);
+  }
+
+
+
   onLogin() {
     const forms = new FormData();
     forms.append('Phone', this.phone);
     forms.append('Password', this.password);
     this.isLoading = true;
+    
     this.authService.loginEmployee(forms).subscribe(
       (res: any) => {
         console.log(res);
-        
+
         const token = res.token;
         let userRole = '';
 
@@ -83,24 +104,17 @@ export class LoginEmployee implements OnInit {
           if (userRole) sessionStorage.setItem('role', userRole);
         }
 
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Login Successful',
-          detail: 'กำลังพาคุณเข้าสู่ระบบ...',
-        });
-
-        setTimeout(() => {
+        // แจ้งเตือนสำเร็จ แล้วเปลี่ยนหน้า
+        this.triggerAlert('success', 'เข้าสู่ระบบสำเร็จ', 'กำลังพาคุณเข้าสู่ระบบ...', () => {
           this.navigateByRole(userRole);
-        }, 1500);
+        });
       },
       (err) => {
-        const errorMessage = err.error?.message || 'An error occurred during login.';
+        const errorMessage = err.error?.message || 'เกิดข้อผิดพลาดระหว่างเข้าสู่ระบบ';
         console.log(err);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Login Failed',
-          detail: errorMessage,
-        });
+        
+        // แจ้งเตือนข้อผิดพลาด
+        this.triggerAlert('error', 'เข้าสู่ระบบไม่สำเร็จ', errorMessage);
       },
     ).add(() => {
       this.isLoading = false;

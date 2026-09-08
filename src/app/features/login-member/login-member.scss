@@ -8,6 +8,7 @@ $text-muted: #94a3b8;
 $danger-color: #ef4444;
 $warning-color: #f59e0b;
 
+/* Container */
 .login-container {
   min-height: 100vh;
   display: flex;
@@ -20,6 +21,94 @@ $warning-color: #f59e0b;
   box-sizing: border-box;
 }
 
+/* Alert Modal Center Card */
+.alert-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 1rem;
+  animation: fadeIn 0.2s ease-out;
+
+  .alert-card {
+    width: 100%;
+    max-width: 320px;
+    background: #0f172a;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 20px;
+    padding: 1.75rem 1.5rem;
+    text-align: center;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+    animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    .alert-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 0.75rem;
+
+      mat-icon {
+        font-size: 36px;
+        width: 36px;
+        height: 36px;
+      }
+    }
+
+    .alert-title {
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: #f8fafc;
+      margin: 0 0 0.35rem 0;
+    }
+
+    .alert-message {
+      font-size: 0.875rem;
+      color: #94a3b8;
+      margin: 0;
+      line-height: 1.4;
+    }
+
+    /* Alert Variants */
+    &.success {
+      border-color: rgba($primary-teal, 0.4);
+      .alert-icon {
+        background: rgba($primary-teal, 0.15);
+        color: $primary-teal;
+      }
+    }
+
+    &.error {
+      border-color: rgba($danger-color, 0.4);
+      .alert-icon {
+        background: rgba($danger-color, 0.15);
+        color: $danger-color;
+      }
+    }
+
+    &.warning {
+      border-color: rgba($warning-color, 0.4);
+      .alert-icon {
+        background: rgba($warning-color, 0.15);
+        color: $warning-color;
+      }
+    }
+  }
+}
+
+/* Login Card */
 .login-card {
   position: relative;
   width: 100%;
@@ -99,6 +188,7 @@ $warning-color: #f59e0b;
     }
   }
 
+  /* Form Elements */
   form {
     display: flex;
     flex-direction: column;
@@ -163,6 +253,7 @@ $warning-color: #f59e0b;
     }
   }
 
+  /* Options */
   .options-wrapper {
     display: flex;
     align-items: center;
@@ -203,6 +294,7 @@ $warning-color: #f59e0b;
     }
   }
 
+  /* Buttons */
   button {
     width: 100%;
     padding: 0.8rem;
@@ -276,6 +368,7 @@ $warning-color: #f59e0b;
   }
 }
 
+/* Animations & Utilities */
 .spinner-sm {
   width: 18px;
   height: 18px;
@@ -286,11 +379,20 @@ $warning-color: #f59e0b;
 }
 
 @keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
+  to { transform: rotate(360deg); }
 }
 
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes popIn {
+  from { opacity: 0; transform: scale(0.85); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* Responsive */
 @media (max-width: 480px) {
   .login-container {
     padding: 1rem 0.5rem;
@@ -316,34 +418,6 @@ $warning-color: #f59e0b;
 
       h2 {
         font-size: 1.2rem;
-      }
-    }
-  }
-}
-
-:host ::ng-deep {
-  @media (max-width: 768px) {
-    .p-toast {
-      width: 90vw !important;
-      left: 5vw !important;
-      right: 5vw !important;
-
-      .p-toast-message {
-        margin: 0 0 10px 0 !important;
-        width: 100% !important;
-      }
-
-      .p-toast-message-content {
-        padding: 10px !important;
-        font-size: 0.85rem !important;
-
-        .p-toast-icon {
-          font-size: 1.2rem !important;
-        }
-
-        .p-toast-summary {
-          font-weight: 600;
-        }
       }
     }
   }
