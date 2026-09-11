@@ -123,7 +123,6 @@ export const routes: Routes = [
     canActivate: [employeeGuard],
     data: { roles: ['เจ้าของร้าน'] },
   },
-
   {
     path: 'CreateBill',
     component: CreateBill,

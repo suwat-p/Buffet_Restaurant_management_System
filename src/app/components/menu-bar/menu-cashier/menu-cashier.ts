@@ -44,10 +44,10 @@ export class MenuCashier {
       active: false,
     },
     { label: 'แดชบอร์ด', icon: 'dashboard', route: '/cashier-dashboard', active: false },
-    { label: 'ลงเวลาเข้างาน', icon: 'history', route: '/CheckIn', active: false },
+    { label: 'ลงเวลาเข้างาน', icon: 'history', route: '/Employeecheckin', active: false },
     {
       label: 'เช็คเงินที่ทำงาน',
-      icon: 'account_balance_wallet',
+      icon: 'EmployeeIncome',
       route: '/EmployeeIncome',
       active: false,
     },

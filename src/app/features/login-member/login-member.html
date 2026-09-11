@@ -1,6 +1,18 @@
-<p-toast [breakpoints]="{ '120px': { width: '50%' } }" />
-
 <div class="login-container">
+  
+  <!-- Alert Modal Center Card (ไม่มีปุ่ม ปิดอัตโนมัติ) -->
+  <div class="alert-backdrop" *ngIf="showAlert">
+    <div class="alert-card" [ngClass]="alertType">
+      <div class="alert-icon">
+        <mat-icon *ngIf="alertType === 'success'">check_circle</mat-icon>
+        <mat-icon *ngIf="alertType === 'error'">error</mat-icon>
+        <mat-icon *ngIf="alertType === 'warning'">warning</mat-icon>
+      </div>
+      <h3 class="alert-title">{{ alertTitle }}</h3>
+      <p class="alert-message">{{ alertMessage }}</p>
+    </div>
+  </div>
+
   <div class="login-card">
     
     <!-- Loading Overlay -->

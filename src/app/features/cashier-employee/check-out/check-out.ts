@@ -232,7 +232,7 @@ export class CheckOut implements OnInit, OnDestroy {
 
   loadPricedOrderItems() {
     this.isLoadingItems = true;
-
+    console.log(this.billId)
     this.orderService.GetOrderPrice(this.billId).subscribe({
       next: (res: any) => {
         this.isLoadingItems = false;
@@ -243,7 +243,7 @@ export class CheckOut implements OnInit, OnDestroy {
           price: item.priceAtOrderTime || item.price || 0,
           subTotal: item.subTotal || (item.quantity * item.priceAtOrderTime)
         }));
-
+        console.log(this.orderItems)
         this.extraItemsTotalPrice = res.totalPrice || 0;
         this.sendToCustomerDisplay();
       },

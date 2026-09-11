@@ -220,6 +220,7 @@ export class RegisterMember {
     const isBirthdayValid = this.validateBirthday();
 
     if (!isNameValid || !isEmailValid || !isPhoneValid || !isPasswordValid || !isBirthdayValid) {
+      this.isLoading = false;
       this.messageService.add({
         severity: 'error',
         summary: 'ข้อมูลไม่ถูกต้อง',
@@ -256,7 +257,7 @@ export class RegisterMember {
         summary: 'เกิดข้อผิดพลาด',
         detail: errorMessage,
       });
-    }
+    } 
   }
 
   goBack() {

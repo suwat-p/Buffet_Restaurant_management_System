@@ -1,6 +1,18 @@
-<p-toast [breakpoints]="{ '120px': { width: '50%' } }" />
-
 <div class="login-container">
+  
+  <!-- Alert Modal Center Card -->
+  <div class="alert-backdrop" *ngIf="showAlert">
+    <div class="alert-card" [ngClass]="alertType">
+      <div class="alert-icon">
+        <mat-icon *ngIf="alertType === 'success'">check_circle</mat-icon>
+        <mat-icon *ngIf="alertType === 'error'">error</mat-icon>
+        <mat-icon *ngIf="alertType === 'warning'">warning</mat-icon>
+      </div>
+      <h3 class="alert-title">{{ alertTitle }}</h3>
+      <p class="alert-message">{{ alertMessage }}</p>
+    </div>
+  </div>
+
   <div class="login-card">
     
     <!-- Loading Overlay -->
@@ -23,7 +35,7 @@
     </div>
 
     <form (ngSubmit)="onLogin()">
-      <!-- เบอร์โทรศัพท์ -->
+      <!-- Phone Input -->
       <div class="form-group">
         <label for="phone">เบอร์โทรศัพท์</label>
         <div class="input-wrapper">
@@ -39,7 +51,7 @@
         </div>
       </div>
 
-      <!-- รหัสผ่าน -->
+      <!-- Password Input -->
       <div class="form-group">
         <label for="password">รหัสผ่าน</label>
         <div class="input-wrapper">
@@ -55,7 +67,7 @@
         </div>
       </div>
 
-      <!-- ตัวเลือกจดจำ & ลืมรหัสผ่าน -->
+      <!-- Options -->
       <div class="options-wrapper">
         <div class="remember-me">
           <input type="checkbox" id="remember" name="remember" [(ngModel)]="rememberMe" [disabled]="isLoading" />
@@ -64,7 +76,7 @@
         <a (click)="forgotPassword()" class="forgot-pass">ลืมรหัสผ่าน?</a>
       </div>
 
-      <!-- ปุ่มเข้าสู่ระบบ -->
+      <!-- Submit Button -->
       <button type="submit" class="btn-login" [disabled]="isLoading">
         <span *ngIf="isLoading" class="spinner-sm"></span>
         <span>{{ isLoading ? 'กำลังเข้าสู่ระบบ...' : 'เข้าสู่ระบบ (Login)' }}</span>
@@ -74,7 +86,7 @@
         <span>หรือ</span>
       </div>
 
-      <!-- ปุ่มสมัครสมาชิก -->
+      <!-- Register Buttons -->
       <button type="button" class="btn-register-customer" (click)="onRegisterMember()" [disabled]="isLoading">
         สมัครสมาชิก (สำหรับ ลูกค้า)
       </button>
