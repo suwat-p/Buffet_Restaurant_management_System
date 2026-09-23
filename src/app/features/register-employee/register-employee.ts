@@ -7,6 +7,7 @@ import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { Toast } from 'primeng/toast';
 import { lastValueFrom } from 'rxjs';
+import { environment } from '../../../environments/environment.development';
 import { AuthService } from '../../service/api/auth.service';
 
 @Component({
@@ -100,7 +101,7 @@ export class RegisterEmployee {
     this.emailError = '';
 
     try {
-      const abstractApiUrl = `https://emailreputation.abstractapi.com/v1/?api_key=95447c2830c24726a08c83228443e563&email=${encodeURIComponent(this.email)}`;
+      const abstractApiUrl = `https://emailreputation.abstractapi.com/v1/?api_key=${environment.CHECK_EMAIL_API_KEY}&email=${encodeURIComponent(this.email)}`;
       const apiRes: any = await lastValueFrom(this.http.get(abstractApiUrl));
 
       const status = apiRes?.email_deliverability?.status;
