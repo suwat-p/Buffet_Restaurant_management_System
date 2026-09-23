@@ -398,7 +398,7 @@ export class Booking implements OnInit, OnDestroy {
             this.transactionId = res.transaction_id || '';
 
             //  ดึงยอดเงินจริงที่ตอบกลับจาก API Backend (เช่น 1.02)
-            const realAmount = parseFloat(res.amount_pay) || 1.0;
+            const realAmount = parseFloat(res.amount_pay || res.deposit_amount || 0);
             this.depositAmount = realAmount;
 
             this.isLoading = false;
