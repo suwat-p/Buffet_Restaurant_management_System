@@ -104,6 +104,10 @@
 
         <!-- สรุปยอดฝั่งซ้าย -->
         <div class="panel-summary">
+          <div class="summary-row" *ngIf="bookingAmount > 0">
+            <span>ค่ามัดจำการจอง</span>
+            <span class="bookingamount">-{{ bookingAmount | number:'1.2-2' }} ฿</span>
+          </div>
           <div class="summary-row">
             <span>รวมค่าบุฟเฟต์</span>
             <span>{{ buffetTotal | number:'1.2-2' }} ฿</span>

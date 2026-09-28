@@ -11,6 +11,7 @@ import { Subscription } from 'rxjs';
 import { MenuCashier } from "../../../components/menu-bar/menu-cashier/menu-cashier";
 import { Bill } from '../../../models/bill.model';
 import { BillService } from '../../../service/api/bill.service';
+import { BookingService } from '../../../service/api/booking.service';
 import { ConfigService } from '../../../service/api/config.service';
 import { DiscountService } from '../../../service/api/discount.service';
 import { OrderService } from '../../../service/api/order.service';
@@ -41,6 +42,9 @@ export class CheckOut implements OnInit, OnDestroy {
   extraItemsTotalPrice: number = 0;
   isLoadingItems: boolean = false;
   billId: number = 0;
+  bookingId: number = 0;
+
+  bookingAmount: number = 0; 
 
   resData: any = null;
   private subscriptions: Subscription[] = [];
@@ -69,11 +73,13 @@ export class CheckOut implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private paymentService: PaymentService,
+    private bookingService: BookingService
   ) { }
 
   // Lifecycle Hooks
   ngOnInit() {
     this.loadDiscounts();
+   
 
     this.ConfigService.getConfig().subscribe((res) => {
       if (res && res.length > 0) {
@@ -98,6 +104,7 @@ export class CheckOut implements OnInit, OnDestroy {
     if (this.billId) {
       this.loadBillInfo();
       this.loadPricedOrderItems();
+    
       this.setupSignalRListeners();
     } else {
       this.messageService.add({
@@ -191,7 +198,10 @@ export class CheckOut implements OnInit, OnDestroy {
       next: (res: any) => {
         this.currentBill = res;
         this.currentBill!.tableNumbers = 'กำลังโหลด...';
-
+        console.log('โหลดข้อมูลบิลสำเร็จ:', this.currentBill);
+        this.bookingId = this.currentBill?.booking_id || 0;
+        console.log('Booking ID ที่โหลดจากบิล:', this.bookingId);
+        this.loadamount_Booking();
         this.matchInitialDiscount();
 
         if (this.billId) {
@@ -265,6 +275,24 @@ export class CheckOut implements OnInit, OnDestroy {
         this.sendToCustomerDisplay();
       }
     }
+  }
+  loadamount_Booking(){
+    console.log('Loading booking amount for bookingId:', this.bookingId);
+    this.bookingService.getBooking(this.bookingId).subscribe({
+      next: (res: any) => {
+        if (this.currentBill && this.currentBill.booking_id === res.booking_id) {
+          this.bookingAmount = res.deposit_Amount;
+          this.sendToCustomerDisplay();
+        }
+        else if(this.bookingId === 0){
+          console.log("ไม่พบการจอง")
+        }
+      },
+      error: (err) => {
+        console.error('โหลดข้อมูลการจองไม่สำเร็จ:', err);
+        this.bookingAmount = 0;
+      }
+    });
   }
 
   preventNegative(event: KeyboardEvent): void {
@@ -418,7 +446,7 @@ export class CheckOut implements OnInit, OnDestroy {
   }
 
   get subtotalBeforeDiscount(): number {
-    return this.buffetTotal + this.itemsSubtotal + this.fineAmount;
+    return this.buffetTotal + this.itemsSubtotal + this.fineAmount - this.bookingAmount;
   }
 
   get discountAmount(): number {
@@ -569,6 +597,7 @@ export class CheckOut implements OnInit, OnDestroy {
       fineAmount: this.fineAmount,
       discountName: this.discountAmount > 0 ? this.discountName : 'ไม่มีโปรโมชั่น',
       grandTotal: this.grandTotal,
+      bookingAmount: this.bookingAmount,
       qrData: qrCodeData,
       isPaidSuccess: false
     };
