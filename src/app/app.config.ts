@@ -1,15 +1,15 @@
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import {
   ApplicationConfig,
   provideBrowserGlobalErrorListeners,
   provideZoneChangeDetection,
 } from '@angular/core';
-import { provideRouter } from '@angular/router';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
-import { routes } from './app.routes';
-import { provideHttpClient } from '@angular/common/http';
-import { providePrimeNG } from 'primeng/config';
+import { provideRouter } from '@angular/router';
 import Aura from '@primeng/themes/aura';
 import { MessageService } from 'primeng/api';
+import { providePrimeNG } from 'primeng/config';
+import { routes } from './app.routes';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -17,13 +17,25 @@ export const appConfig: ApplicationConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     provideAnimationsAsync(),
-    provideHttpClient(),
+    
+    // 🟢 1. แนบ Interceptor เพื่อส่ง Header 'ngrok-skip-browser-warning' ไปในทุก Request
+    provideHttpClient(
+      withInterceptors([
+        (req, next) => {
+          const ngrokReq = req.clone({
+            headers: req.headers.set('ngrok-skip-browser-warning', 'true')
+          });
+          return next(ngrokReq);
+        }
+      ])
+    ),
+
     MessageService,
     providePrimeNG({
       theme: {
-        preset: Aura, // กำหนดธีมที่นี่
+        preset: Aura,
         options: {
-          darkModeSelector: '.my-app-dark', // หรือใช้ระบบ default
+          darkModeSelector: '.my-app-dark',
         },
       },
     }),
