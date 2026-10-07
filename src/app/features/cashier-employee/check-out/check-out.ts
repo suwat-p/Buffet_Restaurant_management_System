@@ -16,6 +16,7 @@ import { ConfigService } from '../../../service/api/config.service';
 import { DiscountService } from '../../../service/api/discount.service';
 import { OrderService } from '../../../service/api/order.service';
 import { PaymentService } from '../../../service/api/payment.service';
+import { PrintService } from '../../../service/api/print.service';
 import { SignalrService } from '../../../service/api/signalr.service';
 import { TableService } from '../../../service/api/table.service';
 
@@ -44,7 +45,7 @@ export class CheckOut implements OnInit, OnDestroy {
   billId: number = 0;
   bookingId: number = 0;
 
-  bookingAmount: number = 0; 
+  bookingAmount: number = 0;
 
   resData: any = null;
   private subscriptions: Subscription[] = [];
@@ -73,13 +74,14 @@ export class CheckOut implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private paymentService: PaymentService,
-    private bookingService: BookingService
+    private bookingService: BookingService,
+    private printService: PrintService
   ) { }
 
   // Lifecycle Hooks
   ngOnInit() {
     this.loadDiscounts();
-   
+
 
     this.ConfigService.getConfig().subscribe((res) => {
       if (res && res.length > 0) {
@@ -104,7 +106,7 @@ export class CheckOut implements OnInit, OnDestroy {
     if (this.billId) {
       this.loadBillInfo();
       this.loadPricedOrderItems();
-    
+
       this.setupSignalRListeners();
     } else {
       this.messageService.add({
@@ -276,7 +278,7 @@ export class CheckOut implements OnInit, OnDestroy {
       }
     }
   }
-  loadamount_Booking(){
+  loadamount_Booking() {
     console.log('Loading booking amount for bookingId:', this.bookingId);
     this.bookingService.getBooking(this.bookingId).subscribe({
       next: (res: any) => {
@@ -284,7 +286,7 @@ export class CheckOut implements OnInit, OnDestroy {
           this.bookingAmount = res.deposit_Amount;
           this.sendToCustomerDisplay();
         }
-        else if(this.bookingId === 0){
+        else if (this.bookingId === 0) {
           console.log("ไม่พบการจอง")
         }
       },
@@ -561,7 +563,29 @@ export class CheckOut implements OnInit, OnDestroy {
         });
       }
     });
+
+    console.log('Print request sent for bill ID:', targetBillId);
+    this.printService.printReceipt(targetBillId).subscribe({
+      next: () => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'สำเร็จ',
+          detail: 'พิมพ์ใบเสร็จเรียบร้อยแล้ว'
+        });
+      },
+      error: (err) => {
+        console.error(err);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'ไม่สามารถพิมพ์ใบเสร็จได้'
+        });
+      }
+    });
+
   }
+
+
 
   // Customer Display Synchronization
   sendToCustomerDisplay(qrCodeData: string | null = null) {
