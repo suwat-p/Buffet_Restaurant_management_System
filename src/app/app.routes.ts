@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { Cart } from './cart/cart';
+import { PreOrderCart } from './cart/pre-order-cart/pre-order-cart';
 import { CustomerOrder } from './customer-order/customer-order';
 import { BillingList } from './features/cashier-employee/bill/bill';
 import { CheckOut } from './features/cashier-employee/check-out/check-out';
@@ -35,7 +36,6 @@ import { employeeGuard } from './guards/employee-guard';
 import { memberGuard } from './guards/member-guard';
 import { Index } from './index';
 import { StatusCustomerOrder } from './status/status-customer-order/status-customer-order';
-import { PreOrderCart } from './cart/pre-order-cart/pre-order-cart';
 import { StatusPreOrder } from './status/status-pre-order/status-pre-order';
 
 export const routes: Routes = [
@@ -139,7 +139,7 @@ export const routes: Routes = [
     path: 'BillingList',
     component: BillingList,
     canActivate: [employeeGuard],
-    data: { roles: ['พนักงานแคชเชียร์'] },
+    data: { roles: ['พนักงานแคชเชียร์','เจ้าของร้าน'] },
   },
   {
     path: 'CheckOut/:billId',
