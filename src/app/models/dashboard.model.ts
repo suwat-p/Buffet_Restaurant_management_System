@@ -24,3 +24,19 @@ export interface CashierDashboardStats {
     cashAmount: number;
     transferAmount: number;
 }
+export interface HourlyChartItem {
+  timeSlot: string;
+  hour: number;
+  sales: number;
+  adults: number;
+  children: number;
+}
+
+export interface HourlyTableRow {
+  timeSlot: string;
+  sales: number;
+  adults: number;
+  children: number;
+  totalCustomers: number;
+  isPeak: boolean;
+}

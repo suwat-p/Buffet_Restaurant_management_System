@@ -56,49 +56,185 @@
         </div>
 
         <!-- Section กราฟยอดขาย -->
-        <div class="chart-section p-4 border-round-xl">
-          <div class="flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
-            <h2 class="text-xl font-bold text-white m-0">ยอดขาย</h2>
+        <div class="content-section">
 
-            <!-- ปุ่มสลับช่วงเวลากราฟ -->
-            <div class="flex gap-2">
-              <button
-                pButton
-                label="รายวัน"
-                (click)="fetchSalesChart('daily')"
-                [class.active-btn]="selectedFilter === 'daily'"
-                class="p-button-outlined p-button-success p-button-sm custom-btn"
-              ></button>
-              <button
-                pButton
-                label="รายเดือน"
-                (click)="fetchSalesChart('monthly')"
-                [class.active-btn]="selectedFilter === 'monthly'"
-                class="p-button-outlined p-button-warning p-button-sm custom-btn"
-              ></button>
-              <button
-                pButton
-                label="รายปี"
-                (click)="fetchSalesChart('yearly')"
-                [class.active-btn]="selectedFilter === 'yearly'"
-                class="p-button-outlined p-button-danger p-button-sm custom-btn"
-              ></button>
+          <!-- Chart Section -->
+          <!-- Section กราฟยอดขาย -->
+          <div class="chart-section p-4 border-round-xl">
+            <!-- ส่วน Header ของกราฟ -->
+            <div class="flex justify-content-between align-items-center mb-3 flex-wrap gap-3">
+              <h2 class="text-xl font-bold text-white m-0">ยอดขาย</h2>
+
+              <!-- กลุ่มคอนโทรลด้านขวา (ปุ่มเลือกโหมด + ช่องเลือกวันที่) -->
+              <div class="filter-controls-container">
+
+                <!-- 🟢 1. แถวปุ่มเลือกช่วงเวลา (รายวัน / รายเดือน / รายปี) -->
+                <div class="mode-buttons-group">
+                  <button pButton label="รายวัน" (click)="fetchSalesChart('daily')"
+                    [class.active-btn]="selectedFilter === 'daily'"
+                    class="p-button-outlined p-button-success p-button-sm custom-btn"></button>
+                  <button pButton label="รายเดือน" (click)="fetchSalesChart('monthly')"
+                    [class.active-btn]="selectedFilter === 'monthly'"
+                    class="p-button-outlined p-button-warning p-button-sm custom-btn"></button>
+                  <button pButton label="รายปี" (click)="fetchSalesChart('yearly')"
+                    [class.active-btn]="selectedFilter === 'yearly'"
+                    class="p-button-outlined p-button-danger p-button-sm custom-btn"></button>
+                </div>
+
+                <!-- 🟢 2. แถว DatePicker (จะเปลี่ยนรูปแบบตามโหมดที่เลือก) -->
+                <div class="datepicker-wrapper">
+                  <!-- เลือกวันที่ (รายวัน) -->
+                  <p-datepicker *ngIf="selectedFilter === 'daily'" [(ngModel)]="selectedDate"
+                    (onSelect)="onDateChange($event)" dateFormat="dd/mm/yy" iconDisplay="button" [showIcon]="true"
+                    placeholder="เลือกวันที่" styleClass="custom-datepicker">
+                  </p-datepicker>
+
+                  <!-- เลือกเดือน (รายเดือน) -->
+                  <p-datepicker *ngIf="selectedFilter === 'monthly'" [(ngModel)]="selectedDate"
+                    (onSelect)="onDateChange($event)" view="month" dateFormat="mm/yy" iconDisplay="button"
+                    [showIcon]="true" placeholder="เลือกเดือน" styleClass="custom-datepicker">
+                  </p-datepicker>
+
+                  <!-- เลือกปี (รายปี) -->
+                  <p-datepicker *ngIf="selectedFilter === 'yearly'" [(ngModel)]="selectedDate"
+                    (onSelect)="onDateChange($event)" view="year" dateFormat="yy" iconDisplay="button" [showIcon]="true"
+                    placeholder="เลือกปี" styleClass="custom-datepicker">
+                  </p-datepicker>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- Legend -->
+            <div class="flex justify-content-center mb-3">
+              <div class="flex align-items-center gap-2">
+                <span class="block w-2rem h-1rem bg-green-500 border-round-xs"></span>
+                <span class="text-gray-400 text-sm">
+                  {{ selectedFilter === 'daily' ? 'ยอดขายรายวัน (ย้อนหลัง 7 วัน)' : selectedFilter === 'monthly' ?
+                  'ยอดขายรายเดือน (ย้อนหลัง 12 เดือน)' : 'ยอดขายรายปี (ย้อนหลัง 5 ปี)' }}
+                </span>
+              </div>
+            </div>
+
+            <!-- กราฟ PrimeNG -->
+            <div class="chart-container">
+              <p-chart type="bar" [data]="data" [options]="options" height="350px"></p-chart>
+            </div>
+          </div>
+        </div>
+        <!-- Section กราฟยอดขายและลูกค้าแต่ละช่วงเวลา -->
+        <div class="chart-section p-4 border-round-xl mt-5">
+          <div class="flex justify-content-between align-items-center mb-3 flex-wrap gap-3">
+            <h2 class="text-xl font-bold text-white m-0">ยอดขายและลูกค้าแต่ละช่วงเวลา</h2>
+
+            <!-- คอนโทรลเลือกวันที่เพียงอันเดียว -->
+            <div class="datepicker-wrapper" >
+              <p-datepicker [(ngModel)]="hourlySelectedDate" (onSelect)="onHourlyDateChange($event)"
+                dateFormat="dd/mm/yy" iconDisplay="button" [showIcon]="true" placeholder="เลือกวันที่"
+                styleClass="custom-datepicker">
+              </p-datepicker>
             </div>
           </div>
 
-          <!-- สัญลักษณ์ Legend เปลี่ยนข้อความตามปุ่มที่เลือก -->
-          <div class="flex justify-content-center mb-2">
-            <div class="flex align-items-center gap-2">
-              <span class="block w-2rem h-1rem bg-green-500"></span>
-              <span class="text-gray-400 text-sm">
-                {{ selectedFilter === 'daily' ? 'ยอดขายรายวัน' : selectedFilter === 'monthly' ? 'ยอดขายรายเดือน' : 'ยอดขายรายปี' }}
-              </span>
+          <!-- กราฟเส้น PrimeNG Chart -->
+          <div class="chart-container" *ngIf="hasHourlyData; else noHourlyData">
+            <p-chart type="line" [data]="hourlyChartData" [options]="hourlyChartOptions" height="380px"></p-chart>
+          </div>
+          <ng-template #noHourlyData>
+            <div class="no-data-box">
+              <mat-icon class="no-data-icon">show_chart</mat-icon>
+              <p class="text-gray-400 m-0">ไม่มีข้อมูลในวันที่เลือก</p>
             </div>
+          </ng-template>
+        </div>
+        <!-- Section กราฟวงโดนัท สัดส่วนลูกค้า -->
+        <div class="chart-section p-4 border-round-xl mt-5">
+          <div class="mb-4">
+            <h2 class="text-xl font-bold text-white m-0">สัดส่วนลูกค้า</h2>
           </div>
 
-          <!-- กราฟ PrimeNG -->
-          <div class="chart-container">
-            <p-chart type="bar" [data]="data" [options]="options" height="350px"></p-chart>
+          <!-- กราฟวงโดนัท ) -->
+          <div class="donut-chart-container">
+            <p-chart type="doughnut" [data]="customerRatioData" [options]="customerRatioOptions"
+              height="260px"></p-chart>
+          </div>
+
+          <!-- การ์ดแสดงสรุปจำนวนคนแยก ผู้ใหญ่ / เด็ก -->
+          <ng-container *ngIf="totalAdults > 0 || totalChildren > 0; else noCustomerData">
+            <div class="customer-ratio-cards flex flex-column gap-3 mt-4">
+              <!-- ผู้ใหญ่ -->
+              <div class="ratio-card adult-card flex justify-content-between align-items-center p-3">
+                <span class="text-lg font-medium text-white">ผู้ใหญ่</span>
+                <span class="text-xl font-bold text-blue-400">{{ totalAdults | number }}คน</span>
+              </div>
+
+              <!-- เด็ก -->
+              <div class="ratio-card child-card flex justify-content-between align-items-center p-3">
+                <span class="text-lg font-medium text-white">เด็ก</span>
+                <span class="text-xl font-bold text-rose-400">{{ totalChildren | number }}คน</span>
+              </div>
+            </div>
+          </ng-container>
+
+          <!-- กล่องแจ้งเตือนเมื่อไม่มีข้อมูลลูกค้า -->
+          <ng-template #noCustomerData>
+            <div class="no-data-box">
+              <mat-icon class="no-data-icon">pie_chart_outline</mat-icon>
+              <p class="text-gray-400 m-0">ไม่มีข้อมูลสัดส่วนลูกค้าในวันที่เลือก</p>
+            </div>
+          </ng-template>
+        </div>
+        <!-- Section รายละเอียดแต่ละช่วงเวลา (ตารางสรุปรายชั่วโมง) -->
+        <div class="chart-section p-4 border-round-xl mt-5">
+          <div class="mb-4">
+            <h2 class="text-xl font-bold text-white m-0">รายละเอียดแต่ละช่วงเวลา</h2>
+          </div>
+
+          <div class="table-responsive">
+            <table class="hourly-table">
+              <thead>
+                <tr>
+                  <th class="text-left">ช่วงเวลา</th>
+                  <th class="text-right">ยอดขาย</th>
+                  <th class="text-right">ผู้ใหญ่</th>
+                  <th class="text-right">เด็ก</th>
+                  <th class="text-right">รวม</th>
+                </tr>
+              </thead>
+                <tbody *ngIf="hourlyTableData.length > 0">
+                <tr *ngFor="let item of hourlyTableData" [class.peak-row]="item.isPeak">
+                  <td class="text-left align-middle">
+                    <div class="flex align-items-center gap-2">
+                      <span>{{ item.timeSlot }}</span>
+                      <span *ngIf="item.isPeak" class="peak-badge">คึกคักที่สุด</span>
+                    </div>
+                  </td>
+                  <td class="text-right sales-text">฿{{ item.sales | number }}</td>
+                  <td class="text-right">{{ item.adults | number }}</td>
+                  <td class="text-right">{{ item.children | number }}</td>
+                  <td class="text-right font-bold">{{ item.totalCustomers | number }}</td>
+                </tr>
+              </tbody>
+              <tbody *ngIf="hourlyTableData.length === 0">
+                <tr>
+                  <td colspan="5" class="text-center py-5">
+                    <div class="flex flex-column align-items-center justify-content-center gap-2 py-3">
+                      <mat-icon class="no-data-icon">inbox</mat-icon>
+                      <span class="text-gray-400 text-base">ไม่มีข้อมูลในวันที่เลือก</span>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr class="grand-total-row">
+                  <td class="text-left font-bold text-lg">รวมทั้งหมด</td>
+                  <td class="text-right font-bold text-lg sales-text">฿{{ grandTotalSales | number }}</td>
+                  <td class="text-right font-bold text-lg">{{ grandTotalAdults | number }}</td>
+                  <td class="text-right font-bold text-lg">{{ grandTotalChildren | number }}</td>
+                  <td class="text-right font-bold text-lg text-white">{{ grandTotalCustomers | number }}</td>
+                </tr>
+              </tfoot>
+            </table>
           </div>
         </div>
       </div>
