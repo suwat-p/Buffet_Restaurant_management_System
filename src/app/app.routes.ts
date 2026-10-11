@@ -10,6 +10,7 @@ import { Receipt } from './features/cashier-employee/receipt/receipt';
 import { KitchenDashboard } from './features/kitchen-dashboard/kitchen-dashboard';
 import { LoginEmployee } from './features/login-employee/login-employee';
 import { LoginMember } from './features/login-member/login-member';
+import { Billhistory } from './features/manager/billhistory/billhistory';
 import { Dashboard } from './features/manager/dashboard/dashboard';
 import { DetailEmployee } from './features/manager/detail-employee/detail-employee';
 import { ApproveEmployee } from './features/manager/manage-employee/approve-employee/approve-employee';
@@ -139,7 +140,13 @@ export const routes: Routes = [
     path: 'BillingList',
     component: BillingList,
     canActivate: [employeeGuard],
-    data: { roles: ['พนักงานแคชเชียร์','เจ้าของร้าน'] },
+    data: { roles: ['พนักงานแคชเชียร์'] },
+  },
+  {
+    path: 'HistoryBill',
+    component:Billhistory,
+    canActivate: [employeeGuard],
+    data: { roles: ['เจ้าของร้าน'] },
   },
   {
     path: 'CheckOut/:billId',
