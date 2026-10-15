@@ -178,7 +178,9 @@ $color-purple: #8b5cf6;
         margin-top: 12px;
         display: flex;
         flex-direction: column;
-
+        .bookingamount {
+              color: $color-red;
+        }
         .summary-row {
           display: flex;
           justify-content: space-between;
@@ -198,6 +200,7 @@ $color-purple: #8b5cf6;
               font-size: 1.25rem;
               font-weight: 800;
             }
+            
           }
         }
       }

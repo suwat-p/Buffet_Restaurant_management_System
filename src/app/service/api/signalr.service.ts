@@ -103,13 +103,28 @@ export class SignalrService {
       this.hubConnection.on(eventName, callback);
     }
   }
-  public sendToCustomerDisplay(data: any): Promise<void> {
-    if (this.hubConnection) {
-      return this.hubConnection.invoke('SendToCustomerDisplay', data);
-    }
-    return Promise.reject('SignalR connection is not established.');
+public async sendToCustomerDisplay(data: any): Promise<void> {
+  if (!this.hubConnection) {
+    return Promise.reject('SignalR hub connection is not initialized.');
   }
 
+  // 1. ถ้ายังไม่ได้เชื่อมต่อ ให้พยายามทำการ Start Connection ก่อน
+  if (this.hubConnection.state === signalR.HubConnectionState.Disconnected) {
+    try {
+      await this.hubConnection.start();
+    } catch (err) {
+      console.error('Error starting SignalR connection:', err);
+      return Promise.reject(err);
+    }
+  }
+
+  // 2. ถ้ากำลัง Connecting ให้รอสั้นๆ หรือตรวจสอบว่าอยู่ในสถานะ Connected
+  if (this.hubConnection.state === signalR.HubConnectionState.Connected) {
+    return this.hubConnection.invoke('SendToCustomerDisplay', data);
+  } else {
+    return Promise.reject(`Cannot send data. Current SignalR state: ${this.hubConnection.state}`);
+  }
+}
   public clearCustomerDisplay(): Promise<void> {
     if (this.hubConnection) {
       return this.hubConnection.invoke('ClearCustomerDisplay');

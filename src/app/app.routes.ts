@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { Cart } from './cart/cart';
+import { PreOrderCart } from './cart/pre-order-cart/pre-order-cart';
 import { CustomerOrder } from './customer-order/customer-order';
 import { BillingList } from './features/cashier-employee/bill/bill';
 import { CheckOut } from './features/cashier-employee/check-out/check-out';
@@ -9,6 +10,7 @@ import { Receipt } from './features/cashier-employee/receipt/receipt';
 import { KitchenDashboard } from './features/kitchen-dashboard/kitchen-dashboard';
 import { LoginEmployee } from './features/login-employee/login-employee';
 import { LoginMember } from './features/login-member/login-member';
+import { Billhistory } from './features/manager/billhistory/billhistory';
 import { Dashboard } from './features/manager/dashboard/dashboard';
 import { DetailEmployee } from './features/manager/detail-employee/detail-employee';
 import { ApproveEmployee } from './features/manager/manage-employee/approve-employee/approve-employee';
@@ -35,7 +37,6 @@ import { employeeGuard } from './guards/employee-guard';
 import { memberGuard } from './guards/member-guard';
 import { Index } from './index';
 import { StatusCustomerOrder } from './status/status-customer-order/status-customer-order';
-import { PreOrderCart } from './cart/pre-order-cart/pre-order-cart';
 import { StatusPreOrder } from './status/status-pre-order/status-pre-order';
 
 export const routes: Routes = [
@@ -145,6 +146,12 @@ export const routes: Routes = [
     component: BillingList,
     canActivate: [employeeGuard],
     data: { roles: ['พนักงานแคชเชียร์'] },
+  },
+  {
+    path: 'HistoryBill',
+    component:Billhistory,
+    canActivate: [employeeGuard],
+    data: { roles: ['เจ้าของร้าน'] },
   },
   {
     path: 'CheckOut/:billId',
