@@ -8,8 +8,8 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { AttendanceService, AttendanceRecord } from '../../../service/api/attendance.service';
 import { AuthService } from '../../../service/api/auth.service';
-import { MenuServer } from '../../../components/menu-bar/menu-server/menu-server';
 import { Constants } from '../../../config/contants';
+import { MenuStaff } from '../../../components/menu-bar/menu-staff/menu-staff';
 
 type TodayStatus = 'idle' | 'working' | 'done';
 
@@ -25,7 +25,7 @@ interface EmployeeProfile {
 @Component({
   selector: 'app-employee-attendance',
   standalone: true,
-  imports: [CommonModule, ButtonModule, RippleModule, ToastModule, ConfirmDialogModule, MenuServer],
+  imports: [CommonModule, ButtonModule, RippleModule, ToastModule, ConfirmDialogModule, MenuStaff],
   providers: [ConfirmationService],
   templateUrl: './employee-attendance.html',
   styleUrl: './employee-attendance.scss',

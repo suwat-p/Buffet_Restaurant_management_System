@@ -7,12 +7,12 @@ import { ChartModule } from 'primeng/chart';
 import { AttendanceService } from '../../../../service/api/attendance.service';
 import { AuthService } from '../../../../service/api/auth.service';
 import { IncomeSummary, IncomeLog, Employee } from '../../../../models/employee.model';
-import { MenuServer } from '../../../../components/menu-bar/menu-server/menu-server';
+import { MenuStaff } from '../../../../components/menu-bar/menu-staff/menu-staff';
 
 @Component({
   selector: 'app-employee-income',
   standalone: true,
-  imports: [CommonModule, MenuServer, ButtonModule, TableModule, ChartModule],
+  imports: [CommonModule, MenuStaff, ButtonModule, TableModule, ChartModule],
   templateUrl: './employee-income.html',
   styleUrl: './employee-income.scss',
 })
