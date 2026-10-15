@@ -60,7 +60,12 @@ export const routes: Routes = [
   { path: 'PreOrderStatus/:billId', component: StatusPreOrder, canActivate: [memberGuard] },
   { path: 'Employeecheckin', component: EmployeeAttendance },
   { path: 'EmployeeIncome', component: EmployeeIncome },
-  { path: 'KitchenDashboard', component: KitchenDashboard },
+  {
+    path: 'KitchenDashboard',
+    component: KitchenDashboard,
+    canActivate: [employeeGuard],
+    data: { roles: ['พนักงานครัว'] },
+  },
   {
     path: 'serve-action',
     component: ServeAction,
@@ -179,6 +184,7 @@ export const routes: Routes = [
     canActivate: [memberGuard],
     data: { role: ['Member'] },
   },
+
   {
     path: 'Profile-Employee',
     component: ProfileEmployee,
