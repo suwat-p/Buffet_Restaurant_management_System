@@ -14,12 +14,13 @@ import { Ripple } from 'primeng/ripple';
   styleUrl: './index-navbar.scss',
 })
 export class IndexNavbar {
-  isExpanded: boolean = false; // เริ่มต้นแบบปิด (Mini Sidebar)
+  isExpanded: boolean = true; 
 
   // เมนูสำหรับ Sidebar
   menuItems = [
     { label: 'หน้าหลัก', icon: 'home', route: '/', active: true },
     { label: 'เข้าสู่ระบบ', icon: 'login', route: '/Loginmember', active: false },
+    { label: 'เข้าสู่ระบบ(สำหรับพนักงาน)', icon: 'login', route: '/Loginemployee', active: false },
   ];
 
   toggleSidebar() {

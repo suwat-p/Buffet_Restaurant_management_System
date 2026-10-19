@@ -1,146 +1,132 @@
-<p-toast position="bottom-center"></p-toast>
-<p-confirmDialog
-  header="ยืนยันการออกงานก่อนเวลา"
-  icon="pi pi-exclamation-triangle"
-></p-confirmDialog>
+<!-- 1. ถ้าเป็น พนักงานเสิร์ฟ ให้ครอบด้วย app-menu-server -->
+<app-menu-server *ngIf="userRole === 'พนักงานเสิร์ฟ'">
+  <ng-container *ngTemplateOutlet="attendance"></ng-container>
+</app-menu-server>
 
-<app-menu-server>
-  <div class="page-container">
-    <div class="content-wrapper">
-      <!-- Header -->
-      <div class="header-action">
-        <button
-          pButton
-          pRipple
-          icon="pi pi-arrow-left"
-          label="Back"
-          class="p-button-outlined back-btn"
-          (click)="goBack()"
-        ></button>
-        <h2 class="section-header">
-          {{ isViewOnly ? 'ประวัติการลงเวลาพนักงาน' : 'ลงเวลาเข้างาน' }}
-        </h2>
-      </div>
+<!-- 2. ถ้าเป็น พนักงานแคชเชียร์ ให้ครอบด้วย app-menu-cashier -->
+<app-menu-cashier *ngIf="userRole === 'พนักงานแคชเชียร์'">
+  <ng-container *ngTemplateOutlet="attendance"></ng-container>
+</app-menu-cashier>
 
-      <!-- Loading ตอนดึงข้อมูลพนักงานจาก token -->
-      <div class="state-loading" *ngIf="loadingProfile">
-        <i class="pi pi-spin pi-spinner"></i>
-        <p>กำลังโหลดข้อมูลพนักงาน...</p>
-      </div>
+<ng-template #attendance>
 
-      <ng-container *ngIf="!loadingProfile && employee">
-        <!-- การ์ดข้อมูลพนักงาน -->
-        <div class="emp-card">
-          <div class="emp-info">
-            <img [src]="employee.imageUrl || 'assets/images/no-avatar.png'" class="emp-avatar" />
-            <div>
-              <div class="emp-name">{{ employee.fullname }}</div>
-              <div class="emp-meta">EMP{{ padId(employee.empId) }} | {{ employee.position }}</div>
-            </div>
-          </div>
-          <div class="emp-shift">
-            <span class="shift-label">เวลาทำงาน</span>
-            <span class="shift-value">
-              {{
-                employee.shiftStart && employee.shiftEnd
-                  ? employee.shiftStart + ' - ' + employee.shiftEnd
-                  : 'ไม่ได้ระบุกะ'
-              }}
-            </span>
-          </div>
+
+  <p-toast position="bottom-center"></p-toast>
+  <p-confirmDialog header="ยืนยันการออกงานก่อนเวลา" icon="pi pi-exclamation-triangle"></p-confirmDialog>
+    <div class="page-container">
+      <div class="content-wrapper">
+        <!-- Header -->
+        <div class="header-action">
+          <button pButton pRipple icon="pi pi-arrow-left" label="Back" class="p-button-outlined back-btn"
+            (click)="goBack()"></button>
+          <h2 class="section-header">
+            {{ isViewOnly ? 'ประวัติการลงเวลาพนักงาน' : 'ลงเวลาเข้างาน' }}
+          </h2>
         </div>
 
-        <!-- การ์ดหลัก -->
-        <div class="main-card">
-          <h3 class="main-title">
-            {{ isViewOnly ? 'ประวัติการเข้า-ออกงาน' : 'ลงเวลาทำงาน' }}
-          </h3>
+        <!-- Loading ตอนดึงข้อมูลพนักงานจาก token -->
+        <div class="state-loading" *ngIf="loadingProfile">
+          <i class="pi pi-spin pi-spinner"></i>
+          <p>กำลังโหลดข้อมูลพนักงาน...</p>
+        </div>
 
-          <!-- Tab: แสดงเฉพาะกรณีพนักงานเข้ามาตอกบัตรเอง (!isViewOnly) -->
-          <div class="tab-switch" *ngIf="!isViewOnly">
-            <button
-              class="tab-btn"
-              [class.active]="activeTab === 'clock'"
-              (click)="activeTab = 'clock'"
-            >
-              เข้างาน
-            </button>
-            <button
-              class="tab-btn"
-              [class.active]="activeTab === 'history'"
-              (click)="activeTab = 'history'"
-            >
-              ประวัติ
-            </button>
+        <ng-container *ngIf="!loadingProfile && employee">
+          <!-- การ์ดข้อมูลพนักงาน -->
+          <div class="emp-card">
+            <div class="emp-info">
+              <img [src]="employee.imageUrl || 'assets/images/no-avatar.png'" class="emp-avatar" />
+              <div>
+                <div class="emp-name">{{ employee.fullname }}</div>
+                <div class="emp-meta">EMP{{ padId(employee.empId) }} | {{ employee.position }}</div>
+              </div>
+            </div>
+            <div class="emp-shift">
+              <span class="shift-label">เวลาทำงาน</span>
+              <span class="shift-value">
+                {{
+                employee.shiftStart && employee.shiftEnd
+                ? employee.shiftStart + ' - ' + employee.shiftEnd
+                : 'ไม่ได้ระบุกะ'
+                }}
+              </span>
+            </div>
           </div>
 
-          <!-- ===== Tab: เข้างาน/ออกงาน (แสดงเฉพาะพนักงานเข้ามาใช้งานเองเท่านั้น) ===== -->
-          <div *ngIf="activeTab === 'clock' && !isViewOnly" class="clock-panel">
-            <button
-              class="clock-action-btn clock-in"
-              [disabled]="todayStatus !== 'idle' || isProcessing"
-              [class.loading]="isProcessing && pendingAction === 'in'"
-              (click)="doClockIn()"
-            >
-              เข้างาน
-            </button>
-            <button
-              class="clock-action-btn clock-out"
-              [disabled]="todayStatus !== 'working' || isProcessing"
-              [class.loading]="isProcessing && pendingAction === 'out'"
-              (click)="doClockOut()"
-            >
-              ออกงาน
-            </button>
+          <!-- การ์ดหลัก -->
+          <div class="main-card">
+            <h3 class="main-title">
+              {{ isViewOnly ? 'ประวัติการเข้า-ออกงาน' : 'ลงเวลาทำงาน' }}
+            </h3>
 
-            <div class="today-summary" *ngIf="todayRecord">
-              <div class="today-total">
-                <span class="badge-label">สรุปวันนี้</span>
-                <div class="total-row">
-                  <div>
-                    <span class="summary-label">เข้างาน:</span>
-                    <span class="summary-value">{{ formatTime(todayRecord.clockInTime) }}</span>
+            <!-- Tab: แสดงเฉพาะกรณีพนักงานเข้ามาตอกบัตรเอง (!isViewOnly) -->
+            <div class="tab-switch" *ngIf="!isViewOnly">
+              <button class="tab-btn" [class.active]="activeTab === 'clock'" (click)="activeTab = 'clock'">
+                เข้างาน
+              </button>
+              <button class="tab-btn" [class.active]="activeTab === 'history'" (click)="activeTab = 'history'">
+                ประวัติ
+              </button>
+            </div>
+
+            <!-- ===== Tab: เข้างาน/ออกงาน (แสดงเฉพาะพนักงานเข้ามาใช้งานเองเท่านั้น) ===== -->
+            <div *ngIf="activeTab === 'clock' && !isViewOnly" class="clock-panel">
+              <button class="clock-action-btn clock-in" [disabled]="todayStatus !== 'idle' || isProcessing"
+                [class.loading]="isProcessing && pendingAction === 'in'" (click)="doClockIn()">
+                เข้างาน
+              </button>
+              <button class="clock-action-btn clock-out" [disabled]="todayStatus !== 'working' || isProcessing"
+                [class.loading]="isProcessing && pendingAction === 'out'" (click)="doClockOut()">
+                ออกงาน
+              </button>
+
+              <div class="today-summary" *ngIf="todayRecord">
+                <div class="today-total">
+                  <span class="badge-label">สรุปวันนี้</span>
+                  <div class="total-row">
+                    <div>
+                      <span class="summary-label">เข้างาน:</span>
+                      <span class="summary-value">{{ formatTime(todayRecord.clockInTime) }}</span>
+                    </div>
+                    <div>
+                      <span class="summary-label">ออกงาน:</span>
+                      <span class="summary-value">
+                        {{ todayRecord.clockOutTime ? formatTime(todayRecord.clockOutTime) : '-' }}
+                      </span>
+                    </div>
                   </div>
-                  <div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ===== Tab: ประวัติ (แสดงเมื่อกดแท็บประวัติ หรือเมื่อเป็นโหมด isViewOnly) ===== -->
+            <div *ngIf="activeTab === 'history' || isViewOnly" class="history-panel">
+              <div class="history-card">
+                <h4>ประวัติการลงเวลา</h4>
+
+                <div class="history-empty" *ngIf="myHistory.length === 0">
+                  ยังไม่มีประวัติการลงเวลา
+                </div>
+
+                <div class="history-row" *ngFor="let log of myHistory">
+                  <div class="history-col">
+                    <span class="summary-label">วันที่</span>
+                    <span class="summary-value">{{ formatThaiDate(log.clockInTime) }}</span>
+                  </div>
+                  <div class="history-col">
+                    <span class="summary-label">เข้างาน:</span>
+                    <span class="summary-value">{{ formatTime(log.clockInTime) }}</span>
+                  </div>
+                  <div class="history-col">
                     <span class="summary-label">ออกงาน:</span>
                     <span class="summary-value">
-                      {{ todayRecord.clockOutTime ? formatTime(todayRecord.clockOutTime) : '-' }}
+                      {{ log.clockOutTime ? formatTime(log.clockOutTime) : '-' }}
                     </span>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-
-          <!-- ===== Tab: ประวัติ (แสดงเมื่อกดแท็บประวัติ หรือเมื่อเป็นโหมด isViewOnly) ===== -->
-          <div *ngIf="activeTab === 'history' || isViewOnly" class="history-panel">
-            <div class="history-card">
-              <h4>ประวัติการลงเวลา</h4>
-
-              <div class="history-empty" *ngIf="myHistory.length === 0">
-                ยังไม่มีประวัติการลงเวลา
-              </div>
-
-              <div class="history-row" *ngFor="let log of myHistory">
-                <div class="history-col">
-                  <span class="summary-label">วันที่</span>
-                  <span class="summary-value">{{ formatThaiDate(log.clockInTime) }}</span>
-                </div>
-                <div class="history-col">
-                  <span class="summary-label">เข้างาน:</span>
-                  <span class="summary-value">{{ formatTime(log.clockInTime) }}</span>
-                </div>
-                <div class="history-col">
-                  <span class="summary-label">ออกงาน:</span>
-                  <span class="summary-value">
-                    {{ log.clockOutTime ? formatTime(log.clockOutTime) : '-' }}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </ng-container>
+        </ng-container>
+      </div>
     </div>
-  </div>
-</app-menu-server>
+</ng-template>

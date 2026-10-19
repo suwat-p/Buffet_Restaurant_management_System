@@ -47,7 +47,7 @@ export class MenuCashier {
     { label: 'ลงเวลาเข้างาน', icon: 'history', route: '/Employeecheckin', active: false },
     {
       label: 'เช็คเงินที่ทำงาน',
-      icon: 'EmployeeIncome',
+      icon: 'account_balance_wallet',
       route: '/EmployeeIncome',
       active: false,
     },

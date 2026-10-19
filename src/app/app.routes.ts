@@ -51,47 +51,76 @@ export const routes: Routes = [
     canActivate: [employeeGuard],
     data: { roles: ['เจ้าของร้าน'] },
   },
-  { path: 'Booking', component: Booking, canActivate: [memberGuard], data: { role: ['Member'] } },
-  { path: 'BookingStatus', component: BookingStatus },
+  
+  { path: 'Booking', component: Booking, 
+    canActivate: [memberGuard], 
+    data: { role: ['Member'] } 
+  },
+
+  { path: 'BookingStatus', component: BookingStatus, 
+    canActivate: [memberGuard], 
+    data: { role: ['Member'] } 
+  },
 
   { path: 'Customer', component: CustomerOrder },
+
   { path: 'Cart', component: Cart },
 
   { path: 'StatusCustomer/:billId', component: StatusCustomerOrder },
+
   { path: 'PreOrderStatus/:billId', component: StatusPreOrder, canActivate: [memberGuard] },
-  { path: 'Employeecheckin', component: EmployeeAttendance },
-  { path: 'EmployeeIncome', component: EmployeeIncome },
-  { path: 'KitchenDashboard', component: KitchenDashboard },
+
+  { path: 'Employeecheckin', component: EmployeeAttendance,
+    canActivate: [employeeGuard], 
+    data: { roles: ['พนักงานเสิร์ฟ', 'พนักงานแคชเชียร์','พนักงานครัว'] } 
+  },
+
+  {
+    path: 'EmployeeIncome', component: EmployeeIncome, 
+    canActivate: [employeeGuard],
+    data: { roles: ['พนักงานเสิร์ฟ','พนักงานแคชเชียร์','พนักงานครัว'] },
+  },
+
+  { path: 'KitchenDashboard', component: KitchenDashboard,   
+     canActivate: [employeeGuard],
+    data: { roles: ['พนักงานครัว'] },
+  },
+
   {
     path: 'serve-action',
     component: ServeAction,
     canActivate: [employeeGuard],
     data: { roles: ['พนักงานเสิร์ฟ'] },
   },
+
   {
     path: 'ManageEmployee',
     component: ManageEmployee,
     canActivate: [employeeGuard],
     data: { roles: ['เจ้าของร้าน'] },
   },
+
   {
     path: 'ApproveEmployee',
     component: ApproveEmployee,
     canActivate: [employeeGuard],
     data: { roles: ['เจ้าของร้าน'] },
   },
+
   {
     path: 'ManageTable',
     component: ManageTables,
     canActivate: [employeeGuard],
     data: { route: ['เจ้าของร้าน'] },
   },
+
   {
     path: 'EditDeleteTable',
     component: EditDeleteTables,
     canActivate: [employeeGuard],
     data: { route: ['เจ้าของร้าน'] },
   },
+
   {
     path: 'DetailEmployee/:id',
     component: DetailEmployee,
@@ -105,6 +134,7 @@ export const routes: Routes = [
     canActivate: [employeeGuard],
     data: { roles: ['เจ้าของร้าน'] },
   },
+
   {
     path: 'ManageShop',
     component: ManageShop,
@@ -118,74 +148,87 @@ export const routes: Routes = [
     canActivate: [employeeGuard],
     data: { roles: ['เจ้าของร้าน'] },
   },
+
   {
     path: 'ManageDiscount',
     component: ManageDiscount,
     canActivate: [employeeGuard],
     data: { roles: ['เจ้าของร้าน'] },
   },
+
   {
     path: 'CreateBill',
     component: CreateBill,
     canActivate: [employeeGuard],
     data: { roles: ['พนักงานเสิร์ฟ'] },
   },
+
   {
     path: 'ConfirmCheckin',
     component: ConfrimCheckin,
     canActivate: [employeeGuard],
     data: { roles: ['พนักงานเสิร์ฟ'] },
   },
+
   {
     path: 'BillingList',
     component: BillingList,
     canActivate: [employeeGuard],
     data: { roles: ['พนักงานแคชเชียร์'] },
   },
+
   {
     path: 'HistoryBill',
-    component:Billhistory,
+    component: Billhistory,
     canActivate: [employeeGuard],
     data: { roles: ['เจ้าของร้าน'] },
   },
+
   {
     path: 'CheckOut/:billId',
     component: CheckOut,
     canActivate: [employeeGuard],
     data: { roles: ['พนักงานแคชเชียร์'] },
   },
+
   {
     path: 'Receipt',
     component: Receipt,
     canActivate: [employeeGuard],
     data: { roles: ['พนักงานแคชเชียร์'] },
   },
+
   {
     path: 'display-checkout',
     component: DisplayCheckout,
   },
+
   {
     path: 'reset-password',
     component: ResetPassword,
   },
+
   {
     path: 'cashier-dashboard',
     component: DashboardCashier,
     canActivate: [employeeGuard],
     data: { roles: ['พนักงานแคชเชียร์'] },
   },
+
   {
     path: 'PreOrder',
     component: PreOrder,
     canActivate: [memberGuard],
-    data: { role: ['Member'] },
+    data: { roles: ['Member'] },
   },
+
   {
     path: 'PreOrderCart',
     component: PreOrderCart,
     canActivate: [memberGuard],
-    data: { role: ['Member'] },
+    data: { roles: ['Member'] },
   },
+
   {
     path: 'Profile-Employee',
     component: ProfileEmployee,

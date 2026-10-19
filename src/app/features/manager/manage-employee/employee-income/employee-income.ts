@@ -1,22 +1,24 @@
-import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router'; // 👈 1. เพิ่ม ActivatedRoute
 import { ButtonModule } from 'primeng/button';
-import { TableModule } from 'primeng/table';
 import { ChartModule } from 'primeng/chart';
+import { TableModule } from 'primeng/table';
+import { MenuCashier } from '../../../../components/menu-bar/menu-cashier/menu-cashier';
+import { MenuServer } from '../../../../components/menu-bar/menu-server/menu-server';
+import { Employee, IncomeLog, IncomeSummary } from '../../../../models/employee.model';
 import { AttendanceService } from '../../../../service/api/attendance.service';
 import { AuthService } from '../../../../service/api/auth.service';
-import { IncomeSummary, IncomeLog, Employee } from '../../../../models/employee.model';
-import { MenuServer } from '../../../../components/menu-bar/menu-server/menu-server';
 
 @Component({
   selector: 'app-employee-income',
   standalone: true,
-  imports: [CommonModule, MenuServer, ButtonModule, TableModule, ChartModule],
+  imports: [CommonModule, MenuServer, ButtonModule, TableModule, ChartModule, MenuCashier],
   templateUrl: './employee-income.html',
   styleUrl: './employee-income.scss',
 })
 export class EmployeeIncome implements OnInit {
+  userRole: string = '';
   summary: IncomeSummary = { dailyIncome: 0, monthlyIncome: 0, totalIncome: 0 };
   logs: IncomeLog[] = [];
   employee: Employee | null = null;
@@ -55,6 +57,8 @@ export class EmployeeIncome implements OnInit {
           return;
         }
         this.currentEmpId = Number(member.id);
+        this.userRole = member.role || '';
+        console.log("Role:", this.userRole, "Emp ID:", this.currentEmpId);
       }
 
       this.loadEmployeeData();

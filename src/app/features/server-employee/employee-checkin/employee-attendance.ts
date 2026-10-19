@@ -1,15 +1,16 @@
-import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { RippleModule } from 'primeng/ripple';
 import { ToastModule } from 'primeng/toast';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { MessageService, ConfirmationService } from 'primeng/api';
-import { AttendanceService, AttendanceRecord } from '../../../service/api/attendance.service';
-import { AuthService } from '../../../service/api/auth.service';
+import { MenuCashier } from '../../../components/menu-bar/menu-cashier/menu-cashier';
 import { MenuServer } from '../../../components/menu-bar/menu-server/menu-server';
 import { Constants } from '../../../config/contants';
+import { AttendanceRecord, AttendanceService } from '../../../service/api/attendance.service';
+import { AuthService } from '../../../service/api/auth.service';
 
 type TodayStatus = 'idle' | 'working' | 'done';
 
@@ -25,7 +26,7 @@ interface EmployeeProfile {
 @Component({
   selector: 'app-employee-attendance',
   standalone: true,
-  imports: [CommonModule, ButtonModule, RippleModule, ToastModule, ConfirmDialogModule, MenuServer],
+  imports: [CommonModule, ButtonModule, RippleModule, ToastModule, ConfirmDialogModule, MenuServer, MenuCashier],
   providers: [ConfirmationService],
   templateUrl: './employee-attendance.html',
   styleUrl: './employee-attendance.scss',
@@ -45,7 +46,7 @@ export class EmployeeAttendance implements OnInit {
     'พฤศจิกายน',
     'ธันวาคม',
   ];
-
+  userRole: string = '';
   loadingProfile = true;
   employee: EmployeeProfile | null = null;
 
@@ -56,7 +57,7 @@ export class EmployeeAttendance implements OnInit {
   myHistory: AttendanceRecord[] = [];
   todayRecord: AttendanceRecord | null = null;
   todayStatus: TodayStatus = 'idle';
-
+  currentEmpId: number | null = null;
   isProcessing = false;
   pendingAction: 'in' | 'out' | null = null;
 
@@ -74,9 +75,20 @@ export class EmployeeAttendance implements OnInit {
     this.route.queryParams.subscribe((params) => {
       const paramEmpId = params['emp_id'];
 
-      if (paramEmpId) {
-        this.isViewOnly = true;
-        this.activeTab = 'history';
+       if (paramEmpId) {
+        this.currentEmpId = Number(paramEmpId);
+      } else {
+        // ถ้าไม่มีใน URL ค่อยดึงจากบัญชีที่ล็อกอินอยู่
+        const member = this.authService.getMember();
+        if (!member || !member.id) {
+          this.router.navigate(['/Loginemployee'], {
+            queryParams: { returnUrl: this.router.url },
+          });
+          return;
+        }
+        this.currentEmpId = Number(member.id);
+        this.userRole = member.role || '';
+        console.log("Role:", this.userRole, "Emp ID:", this.currentEmpId);
       }
 
       this.loadCurrentEmployee(paramEmpId ? Number(paramEmpId) : null);
