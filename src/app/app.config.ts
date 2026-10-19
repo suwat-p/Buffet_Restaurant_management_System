@@ -17,14 +17,23 @@ export const appConfig: ApplicationConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     provideAnimationsAsync(),
-    
+
     // 🟢 1. แนบ Interceptor เพื่อส่ง Header 'ngrok-skip-browser-warning' ไปในทุก Request
     provideHttpClient(
       withInterceptors([
         (req, next) => {
+          // 🟢 ตรวจสอบว่าเป็น URL ของ ngrok หรือไม่ ถ้าใช่ให้เติม Query Param และ Header
+          let updatedUrl = req.url;
+          if (req.url.includes('ngrok-free.dev') && !req.url.includes('ngrok-skip-browser-warning')) {
+            const separator = req.url.includes('?') ? '&' : '?';
+            updatedUrl = `${req.url}${separator}ngrok-skip-browser-warning=true`;
+          }
+
           const ngrokReq = req.clone({
+            url: updatedUrl,
             headers: req.headers.set('ngrok-skip-browser-warning', 'true')
           });
+
           return next(ngrokReq);
         }
       ])
