@@ -30,7 +30,11 @@ export class SignalrService {
 
   private initConnection() {
     this.hubConnection = new signalR.HubConnectionBuilder()
-      .withUrl(this.constants.URL_signalR + 'tableStatusHub')
+      .withUrl(this.constants.URL_signalR + 'tableStatusHub', {
+        headers: {
+          'ngrok-skip-browser-warning': 'true'
+        }
+      })
       .withAutomaticReconnect()
       .build();
 
