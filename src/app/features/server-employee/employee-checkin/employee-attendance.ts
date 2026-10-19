@@ -7,6 +7,7 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { RippleModule } from 'primeng/ripple';
 import { ToastModule } from 'primeng/toast';
 import { MenuCashier } from '../../../components/menu-bar/menu-cashier/menu-cashier';
+import { KitchenNavbar } from '../../../components/menu-bar/menu-kitchen/menu-kitchen';
 import { MenuServer } from '../../../components/menu-bar/menu-server/menu-server';
 import { Constants } from '../../../config/contants';
 import { AttendanceRecord, AttendanceService } from '../../../service/api/attendance.service';
@@ -26,7 +27,7 @@ interface EmployeeProfile {
 @Component({
   selector: 'app-employee-attendance',
   standalone: true,
-  imports: [CommonModule, ButtonModule, RippleModule, ToastModule, ConfirmDialogModule, MenuServer, MenuCashier],
+  imports: [CommonModule, ButtonModule, RippleModule, ToastModule, ConfirmDialogModule, MenuServer, MenuCashier, KitchenNavbar],
   providers: [ConfirmationService],
   templateUrl: './employee-attendance.html',
   styleUrl: './employee-attendance.scss',

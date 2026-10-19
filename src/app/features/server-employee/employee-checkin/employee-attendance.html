@@ -1,13 +1,14 @@
-<!-- 1. ถ้าเป็น พนักงานเสิร์ฟ ให้ครอบด้วย app-menu-server -->
 <app-menu-server *ngIf="userRole === 'พนักงานเสิร์ฟ'">
   <ng-container *ngTemplateOutlet="attendance"></ng-container>
 </app-menu-server>
 
-<!-- 2. ถ้าเป็น พนักงานแคชเชียร์ ให้ครอบด้วย app-menu-cashier -->
 <app-menu-cashier *ngIf="userRole === 'พนักงานแคชเชียร์'">
   <ng-container *ngTemplateOutlet="attendance"></ng-container>
 </app-menu-cashier>
 
+<app-kitchen-navbar *ngIf="userRole === 'พนักงานครัว'">
+  <ng-container *ngTemplateOutlet="attendance"></ng-container>
+</app-kitchen-navbar>
 <ng-template #attendance>
 
 
