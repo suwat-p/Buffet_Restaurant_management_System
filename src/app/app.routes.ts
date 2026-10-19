@@ -51,7 +51,7 @@ export const routes: Routes = [
     canActivate: [employeeGuard],
     data: { roles: ['เจ้าของร้าน'] },
   },
-  
+
   { path: 'Booking', component: Booking, 
     canActivate: [memberGuard], 
     data: { role: ['Member'] } 
@@ -69,23 +69,14 @@ export const routes: Routes = [
   { path: 'StatusCustomer/:billId', component: StatusCustomerOrder },
 
   { path: 'PreOrderStatus/:billId', component: StatusPreOrder, canActivate: [memberGuard] },
-
-  { path: 'Employeecheckin', component: EmployeeAttendance,
-    canActivate: [employeeGuard], 
-    data: { roles: ['พนักงานเสิร์ฟ', 'พนักงานแคชเชียร์','พนักงานครัว'] } 
-  },
-
+  { path: 'Employeecheckin', component: EmployeeAttendance },
+  { path: 'EmployeeIncome', component: EmployeeIncome },
   {
-    path: 'EmployeeIncome', component: EmployeeIncome, 
+    path: 'KitchenDashboard',
+    component: KitchenDashboard,
     canActivate: [employeeGuard],
-    data: { roles: ['พนักงานเสิร์ฟ','พนักงานแคชเชียร์','พนักงานครัว'] },
-  },
-
-  { path: 'KitchenDashboard', component: KitchenDashboard,   
-     canActivate: [employeeGuard],
     data: { roles: ['พนักงานครัว'] },
   },
-
   {
     path: 'serve-action',
     component: ServeAction,

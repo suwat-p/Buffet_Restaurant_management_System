@@ -5,12 +5,12 @@ import { Subscription } from 'rxjs';
 
 import { OrderService } from '../../service/api/order.service';
 import { SignalrService } from '../../service/api/signalr.service';
-import { MenuManager } from '../../components/menu-bar/menu-manager/menu-manager';
+import { KitchenNavbar } from '../../components/menu-bar/menu-kitchen/menu-kitchen';
 
 @Component({
   selector: 'app-kitchen-dashboard',
   standalone: true,
-  imports: [CommonModule, MatIconModule, MenuManager],
+  imports: [CommonModule, MatIconModule, KitchenNavbar],
   templateUrl: './kitchen-dashboard.html',
   styleUrl: './kitchen-dashboard.scss',
 })
