@@ -12,6 +12,7 @@ import { PaymentService } from "../../../service/api/payment.service";
 import { PrintService } from "../../../service/api/print.service";
 import { SignalrService } from "../../../service/api/signalr.service";
 import { TableService } from "../../../service/api/table.service";
+
 @Component({
   selector: 'app-receipt',
   standalone: true,
@@ -52,7 +53,7 @@ export class Receipt implements OnInit, OnDestroy {
     private signalRService: SignalrService,
     private messageService: MessageService,
     private tableService: TableService,
-    private printService: PrintService ,
+    private printService: PrintService,
     private configService: ConfigService
   ) { }
 
@@ -150,42 +151,9 @@ export class Receipt implements OnInit, OnDestroy {
     this.billService.getReceipt().subscribe({
       next: (res: any[]) => {
         this.bills = res || [];
-
-        // 🟢 วนลูปดึงข้อมูลโต๊ะของแต่ละบิลเหมือนหน้า Bill
-        this.bills.forEach(bill => {
-          bill.tableNumbers = 'กำลังโหลด...';
-          bill.allTables = [];
-          const targetBillId = bill.bill_id || bill.billId;
-
-          if (targetBillId) {
-            this.tableService.getTableByBillId(targetBillId).subscribe({
-              next: (tables: any[]) => {
-                if (tables && tables.length > 0) {
-                  bill.allTables = tables;
-                  const tableNames = tables.map(t => t.table_Number || t.tableNumber).filter(name => name);
-
-                  if (tableNames.length > 2) {
-                    bill.tableNumbers = tableNames.slice(0, 2).join(', ') + '...';
-                  } else {
-                    bill.tableNumbers = tableNames.join(', ');
-                  }
-                } else {
-                  bill.tableNumbers = 'ไม่พบโต๊ะ';
-                  bill.allTables = [];
-                }
-              },
-              error: (err) => {
-                console.error(`โหลดโต๊ะของบิล ${targetBillId} ไม่สำเร็จ:`, err);
-                bill.tableNumbers = 'ข้อผิดพลาด';
-                bill.allTables = [];
-              }
-            });
-          } else {
-            bill.tableNumbers = 'ไม่มีรหัสบิล';
-          }
-        });
-
         this.applyFilters();
+
+        // เลือกบิลแรกเพื่อแสดงรายละเอียดทันทีที่โหลดเสร็จ
         if (this.filteredBills.length > 0) {
           this.selectBill(this.filteredBills[0]);
         }
@@ -200,6 +168,7 @@ export class Receipt implements OnInit, OnDestroy {
       }
     });
   }
+
   loadResConfig() {
     this.configService.getConfig().subscribe({
       next: (res: any) => {
@@ -221,7 +190,7 @@ export class Receipt implements OnInit, OnDestroy {
       result = result.filter(b =>
         (b.bill_id && b.bill_id.toString().includes(term)) ||
         (b.billNo && b.billNo.toLowerCase().includes(term)) ||
-        (b.tableNumbers && b.tableNumbers.toLowerCase().includes(term)) // 🟢 ค้นหาด้วยหมายเลขโต๊ะได้
+        (b.tableNumbers && b.tableNumbers.toLowerCase().includes(term))
       );
     }
 
@@ -247,9 +216,15 @@ export class Receipt implements OnInit, OnDestroy {
 
   /* Selection Helper */
   selectBill(bill: any) {
+    if (!bill) return;
     this.stopPolling();
     this.selectedBill = bill;
-    this.loadBillOrderItems(bill.bill_id || bill.billId);
+
+    const billId = bill.bill_id || bill.billId;
+
+    // ดึงข้อมูลรายการอาหารและข้อมูลโต๊ะเฉพาะใบบิลที่ถูกเลือก
+    this.loadBillOrderItems(billId);
+    this.loadBillTableSingle(bill);
   }
 
   isSelected(bill: any): boolean {
@@ -257,6 +232,34 @@ export class Receipt implements OnInit, OnDestroy {
     const selectedId = this.selectedBill.bill_id ?? this.selectedBill.billId;
     const currentId = bill.bill_id ?? bill.billId;
     return selectedId !== undefined && selectedId === currentId;
+  }
+
+  loadBillTableSingle(bill: any) {
+    const targetBillId = bill.bill_id || bill.billId;
+    if (!targetBillId) {
+      bill.tableNumbers = 'ไม่มีรหัสบิล';
+      return;
+    }
+
+    bill.tableNumbers = 'กำลังโหลด...';
+    this.tableService.getTableByBillId(targetBillId).subscribe({
+      next: (tables: any[]) => {
+        if (tables && tables.length > 0) {
+          bill.allTables = tables;
+          const tableNames = tables.map(t => t.table_Number || t.tableNumber).filter(name => name);
+          bill.tableNumbers = tableNames.join(', ');
+        } else {
+          bill.tableNumbers = 'ไม่พบโต๊ะ';
+          bill.allTables = [];
+        }
+        this.sendToCustomerDisplay(null);
+      },
+      error: (err) => {
+        console.error(`โหลดโต๊ะของบิล ${targetBillId} ไม่สำเร็จ:`, err);
+        bill.tableNumbers = 'ข้อผิดพลาด';
+        bill.allTables = [];
+      }
+    });
   }
 
   loadBillOrderItems(billId: number) {
@@ -374,7 +377,7 @@ export class Receipt implements OnInit, OnDestroy {
     });
 
     const payload = {
-      tableNumbers: this.selectedBill.tableNumbers || 'ไม่พบโต๊ะ', // 🟢 เปลี่ยนจากค่าคงที่ 'A2' เป็นหมายเลขโต๊ะจริงที่ดึงได้
+      tableNumbers: this.selectedBill.tableNumbers || 'ไม่พบโต๊ะ',
       items: displayItems,
       fineAmount: this.selectedBill.fineAmount || 0,
       discountName: this.selectedBill.discountName || 'ไม่มีโปรโมชั่น',
@@ -407,6 +410,5 @@ export class Receipt implements OnInit, OnDestroy {
         });
       }
     });
-    
   }
 }
