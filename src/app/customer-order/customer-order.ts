@@ -150,6 +150,14 @@ export class CustomerOrder implements OnInit, OnDestroy {
   }
 
   addToCart(item: Menu) {
+    if (!this.tableid) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'กำลังโหลดข้อมูลโต๊ะ',
+        detail: 'ลองใหม่อีกครั้ง',
+      });
+      return;
+    }
     const payload = {
       TableId: this.tableid,
       Booking_id: null,
