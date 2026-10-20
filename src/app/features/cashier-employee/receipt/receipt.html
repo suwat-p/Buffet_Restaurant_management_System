@@ -85,8 +85,12 @@
             <span>{{ selectedBill.billNo || ( (selectedBill.bill_id)) }}</span>
           </div>
           <div class="info-row">
-            <span>วันที่:</span>
-            <span>{{ (selectedBill.created_at || selectedBill.createdAt) | date:'dd/MM/yyyy HH:mm:ss' }}</span>
+            <span>วันที่เปิดบิล:</span>
+            <span>{{ (selectedBill.created_at) | date:'dd/MM/yyyy HH:mm:ss' }}</span>
+          </div>
+          <div class="info-row">
+            <span>วันที่ปิดบิล:</span>
+            <span>{{ (selectedBill.closed_at) | date:'dd/MM/yyyy HH:mm:ss' }}</span>
           </div>
           <div class="info-row">
             <span>โต๊ะ:</span>
@@ -138,7 +142,7 @@
           </div>
           <div class="info-row">
             <span>ชื่อพนักงาน:</span>
-            <span>{{ selectedBill.staffName || '...' }}</span>
+            <span>{{ employeeName }}</span>
           </div>
         </div>
 

@@ -90,7 +90,7 @@ export class CheckOut implements OnInit, OnDestroy {
     console.log('Member info:', member);
     if (member) {
       this.employeeName = member.fullname;
-      this.empId = member.id; 
+      this.empId = member.id;
     }
 
     this.ConfigService.getConfig().subscribe((res) => {
@@ -290,19 +290,27 @@ export class CheckOut implements OnInit, OnDestroy {
   }
   loadamount_Booking() {
     console.log('Loading booking amount for bookingId:', this.bookingId);
+
+    // 🟢 1. ดักเงื่อนไขตรงนี้: ถ้าเป็น 0 หรือไม่มีค่า ให้ข้ามการยิง API ไปเลย
+    if (!this.bookingId || this.bookingId <= 0) {
+      console.log("บิลนี้เป็น Walk-in (ไม่มีการจอง) ไม่ต้องโหลดข้อมูล Booking");
+      this.bookingAmount = 0;
+      this.sendToCustomerDisplay();
+      return;
+    }
+
+
     this.bookingService.getBooking(this.bookingId).subscribe({
       next: (res: any) => {
         if (this.currentBill && this.currentBill.booking_id === res.booking_id) {
           this.bookingAmount = res.deposit_Amount;
           this.sendToCustomerDisplay();
         }
-        else if (this.bookingId === 0) {
-          console.log("ไม่พบการจอง")
-        }
       },
       error: (err) => {
         console.error('โหลดข้อมูลการจองไม่สำเร็จ:', err);
         this.bookingAmount = 0;
+        this.sendToCustomerDisplay();
       }
     });
   }
@@ -553,6 +561,7 @@ export class CheckOut implements OnInit, OnDestroy {
       PaymentMethod: this.paymentMethod === 'cash' ? 'เงินสด' : 'โอนเงิน',
       Emp_id: this.empId
     };
+    console.log('Payload for closing bill:', payload);
 
     this.billService.closeBill(targetBillId, payload).subscribe({
       next: (response) => {
@@ -562,7 +571,7 @@ export class CheckOut implements OnInit, OnDestroy {
           summary: 'Success',
           detail: response.message || 'เช็คบิลและปิดโต๊ะเรียบร้อยแล้ว'
         });
-
+        this.printReceipt(targetBillId);
         this.router.navigate(['/BillingList']);
       },
       error: (err) => {
@@ -575,6 +584,10 @@ export class CheckOut implements OnInit, OnDestroy {
       }
     });
 
+    
+
+  }
+  printReceipt(targetBillId: number) {
     console.log('Print request sent for bill ID:', targetBillId);
     this.printService.printReceipt(targetBillId, this.employeeName).subscribe({
       next: () => {
@@ -593,7 +606,6 @@ export class CheckOut implements OnInit, OnDestroy {
         });
       }
     });
-
   }
 
 

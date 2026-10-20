@@ -30,8 +30,7 @@ export class Receipt implements OnInit, OnDestroy {
   billOrderItems: any[] = [];
   resinfo: any = [];
   employeeName: string = "";
-  empId: number = 0;
-
+  emp_id: number = 0;
   /* Filter Properties */
   limitSize: number = 50;
   searchTerm: string = '';
@@ -58,18 +57,12 @@ export class Receipt implements OnInit, OnDestroy {
     private tableService: TableService,
     private printService: PrintService,
     private configService: ConfigService,
-    private authService: AuthService
+    private authService: AuthService,
   ) { }
 
   ngOnInit() {
     this.loadBills();
     this.loadResConfig();
-    const member = this.authService.getMember();
-    console.log('Member info:', member);
-    if (member) {
-      this.employeeName = member.fullname;
-      this.empId = member.id;
-    }
   }
 
   ngOnDestroy() {
@@ -162,11 +155,12 @@ export class Receipt implements OnInit, OnDestroy {
       next: (res: any[]) => {
         this.bills = res || [];
         this.applyFilters();
-
+        
         // เลือกบิลแรกเพื่อแสดงรายละเอียดทันทีที่โหลดเสร็จ
         if (this.filteredBills.length > 0) {
           this.selectBill(this.filteredBills[0]);
         }
+        
       },
       error: (err) => {
         console.error(err);
@@ -235,6 +229,7 @@ export class Receipt implements OnInit, OnDestroy {
     // ดึงข้อมูลรายการอาหารและข้อมูลโต๊ะเฉพาะใบบิลที่ถูกเลือก
     this.loadBillOrderItems(billId);
     this.loadBillTableSingle(bill);
+    this.loademp(this.selectedBill);
   }
 
   isSelected(bill: any): boolean {
@@ -282,6 +277,21 @@ export class Receipt implements OnInit, OnDestroy {
         console.error(err);
         this.billOrderItems = [];
         this.sendToCustomerDisplay(null);
+      }
+    });
+  }
+  loademp(bill: any) {
+    this.emp_id = bill.emp_id || bill.empId || 0;
+    console.log('Loading employee info for emp_id:', this.emp_id);
+    this.authService.getEmployeebyId(this.emp_id).subscribe({
+      next: (employee: any) => {
+        this.employeeName = employee.fullname || 'ไม่ทราบชื่อ';
+        console.log('Loaded employee info:', employee); 
+        console.log('Employee Name:', this.employeeName);
+      },
+      error: (err) => {
+        console.error(err);
+        this.employeeName = 'ไม่ทราบชื่อ';
       }
     });
   }
