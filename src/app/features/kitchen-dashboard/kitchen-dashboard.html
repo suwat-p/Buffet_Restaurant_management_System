@@ -44,11 +44,10 @@
             <span class="sub-text">เมื่อลูกค้าสั่งอาหาร รายการจะแสดงในแดชบอร์ดอัตโนมัติ</span>
           </div>
 
-          <!-- 🍳 การ์ดตั๋วครัว: อ่านง่ายจากระยะไกล ไม่ต้องแตะจอ -->
           <div class="ticket-grid" *ngIf="activeOrders.length > 0">
             <div
               class="ticket-card"
-              *ngFor="let order of activeOrders"
+              *ngFor="let order of activeOrders; trackBy: trackByOrderId"
               [ngClass]="getUrgencyClass(order.orderTime)"
             >
               <div class="ticket-header">
@@ -58,12 +57,11 @@
 
               <div class="ticket-timer">
                 <mat-icon>schedule</mat-icon>
-                {{ order.orderTime | date: 'HH:mm' }} · ค้าง
-                {{ getElapsedMinutes(order.orderTime) }} นาที
+                {{ formatTime(order.orderTime) }} · ค้าง {{ getElapsedText(order.orderTime) }}
               </div>
 
               <div class="ticket-items">
-                <div class="item-row" *ngFor="let item of order.items">
+                <div class="item-row" *ngFor="let item of order.items || []">
                   <span class="qty">{{ item.quantity }}x</span>
                   <span class="name">{{ item.menuName }}</span>
                 </div>
