@@ -10,6 +10,7 @@ import { ToastModule } from 'primeng/toast';
 import { Subscription } from 'rxjs';
 import { MenuCashier } from "../../../components/menu-bar/menu-cashier/menu-cashier";
 import { Bill } from '../../../models/bill.model';
+import { AuthService } from '../../../service/api/auth.service';
 import { BillService } from '../../../service/api/bill.service';
 import { BookingService } from '../../../service/api/booking.service';
 import { ConfigService } from '../../../service/api/config.service';
@@ -62,6 +63,7 @@ export class CheckOut implements OnInit, OnDestroy {
   showFineModal: boolean = false;
   private pollingTimer: any = null;
   private isPolling: boolean = false;
+  employeeName: string = "";
 
   constructor(
     private billService: BillService,
@@ -75,13 +77,19 @@ export class CheckOut implements OnInit, OnDestroy {
     private router: Router,
     private paymentService: PaymentService,
     private bookingService: BookingService,
-    private printService: PrintService
+    private printService: PrintService,
+    private authService: AuthService
   ) { }
 
   // Lifecycle Hooks
   ngOnInit() {
     this.loadDiscounts();
 
+    const member = this.authService.getMember();
+    console.log('Member info:', member);
+    if (member) {
+      this.employeeName = member.fullname;
+    }
 
     this.ConfigService.getConfig().subscribe((res) => {
       if (res && res.length > 0) {
@@ -565,7 +573,7 @@ export class CheckOut implements OnInit, OnDestroy {
     });
 
     console.log('Print request sent for bill ID:', targetBillId);
-    this.printService.printReceipt(targetBillId).subscribe({
+    this.printService.printReceipt(targetBillId, this.employeeName).subscribe({
       next: () => {
         this.messageService.add({
           severity: 'success',

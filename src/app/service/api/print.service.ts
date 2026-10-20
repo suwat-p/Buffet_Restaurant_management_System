@@ -6,8 +6,8 @@ import { Constants } from '../../config/contants';
 })
 export class PrintService {
   constructor(private constants: Constants, private http: HttpClient) {}
-  printReceipt(billID:number) {
-    const url = `${this.constants.API_ENDPOINT}/Print/print/${billID}`;
+  printReceipt(billID:number, employeeName:string) {
+    const url = `${this.constants.API_ENDPOINT}/Print/print/${billID}?employeeName=${employeeName}`;
     return this.http.get(url);
   }
 }
