@@ -100,7 +100,6 @@ export class CustomerNavbar implements OnInit {
       if (this.billId) {
         this.router.navigate(['/StatusCustomer', this.billId]);
       } else {
-        alert('ยังไม่มีข้อมูลบิลสำหรับโต๊ะนี้ กรุณาแจ้งพนักงานเพื่อเปิดบิล');
       }
     }
   }

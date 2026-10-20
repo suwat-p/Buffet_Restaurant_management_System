@@ -32,17 +32,27 @@ export class KitchenDashboard implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.startClock();
+    this.loadActiveOrders(); // โหลดจาก DB ตอนเปิดหน้า / Refresh
 
-    // 🍳 ออเดอร์ใหม่เข้ามา → ดึงตั๋วมาแสดงบนจอ (ไม่ต้องมีใครกดอะไร)
-    this.newOrderSub = this.signalrService.newKitchenOrder$.subscribe((orderId) => {
-      this.fetchAndAddTicket(orderId);
+    //  ออเดอร์ใหม่เข้ามา → โหลดรายการใหม่จาก DB
+    this.newOrderSub = this.signalrService.newKitchenOrder$.subscribe(() => {
+      this.loadActiveOrders();
     });
 
-    // 📲 ออเดอร์ถูกเสิร์ฟแล้ว (สแกน QR ตอนเดินเสิร์ฟจริง) → หายไปจากจอเอง
-    this.statusSub = this.signalrService.orderStatusUpdated$.subscribe(({ orderId, status }) => {
-      if (status === 'กำลังนำเสิร์ฟ' || status === 'SERVED') {
-        this.removeOrder(orderId);
-      }
+    //  สถานะเปลี่ยน → โหลดใหม่ ออเดอร์ที่ไม่ใช่ "กำลังจัดเตรียมอาหาร" จะหายเอง
+    this.statusSub = this.signalrService.orderStatusUpdated$.subscribe(() => {
+      this.loadActiveOrders();
+    });
+  }
+
+  private loadActiveOrders() {
+    this.orderService.GetKitchenActiveOrders().subscribe({
+      next: (res) => {
+        this.activeOrders = res.activeOrders;
+        this.pendingCount = res.activeOrders.length;
+        this.completedTodayCount = res.completedTodayCount;
+      },
+      error: (err) => console.error('โหลดออเดอร์ครัวไม่สำเร็จ', err),
     });
   }
 
@@ -59,39 +69,36 @@ export class KitchenDashboard implements OnInit, OnDestroy {
     });
   }
 
-  // ⏱️ คำนวณเวลาที่ออเดอร์ค้างอยู่ (นาที) เพื่อใช้เปลี่ยนสีเตือน
-  getElapsedMinutes(orderTime: string | Date): number {
-    const diffMs = Date.now() - new Date(orderTime).getTime();
-    return Math.floor(diffMs / 60000);
-  }
-
-  // 🎨 ระดับความเร่งด่วน: normal (<5นาที) / warning (5-10นาที) / urgent (>10นาที)
+  //  ระดับความเร่งด่วน: normal (<5นาที) / warning (5-10นาที) / urgent (>10นาที)
   getUrgencyClass(orderTime: string | Date): string {
-    const mins = this.getElapsedMinutes(orderTime);
+    const mins = Math.floor((Date.now() - new Date(orderTime).getTime()) / 60000);
     if (mins >= 10) return 'urgent';
     if (mins >= 5) return 'warning';
     return 'normal';
   }
+  //  แสดงเวลาที่ค้าง
+  getElapsedText(orderTime: string | Date): string {
+    const totalSec = Math.max(0, Math.floor((Date.now() - new Date(orderTime).getTime()) / 1000));
+    const mins = Math.floor(totalSec / 60);
+    const secs = totalSec % 60;
 
-  private fetchAndAddTicket(orderId: number) {
-    this.orderService.GetKitchenTicket(orderId).subscribe({
-      next: (ticket: any) => {
-        const exists = this.activeOrders.some((o) => o.orderId === ticket.orderId);
-        if (!exists) {
-          this.activeOrders = [ticket, ...this.activeOrders];
-          this.pendingCount = this.activeOrders.length;
-        }
-      },
-      error: (err) => console.error(`โหลดตั๋วครัว order ${orderId} ไม่สำเร็จ`, err),
-    });
+    if (mins >= 60) {
+      const h = Math.floor(mins / 60);
+      const m = mins % 60;
+      return m === 0 ? `${h} ชม.` : `${h} ชม. ${m} นาที`;
+    }
+    if (mins >= 10) return `${mins} นาที`;
+    return `${mins}.${secs.toString().padStart(2, '0')} นาที`;
+  }
+  formatTime(orderTime: string | Date): string {
+    const d = new Date(orderTime);
+    if (isNaN(d.getTime())) return '--:--';
+    return d.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', hour12: false });
   }
 
-  private removeOrder(orderId: number) {
-    this.activeOrders = this.activeOrders.filter((o) => o.orderId !== orderId);
-    this.pendingCount = this.activeOrders.length;
-    this.completedTodayCount++;
+  trackByOrderId(_: number, order: any) {
+    return order.orderId;
   }
-
   ngOnDestroy() {
     if (this.timer) clearInterval(this.timer);
     if (this.newOrderSub) this.newOrderSub.unsubscribe();

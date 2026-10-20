@@ -67,8 +67,12 @@ export class OrderService {
       throw error;
     }
   }
-
-  // 📲 ดึงโต๊ะ + รายการอาหาร สำหรับหน้า /serve-action
+  //  ดึงออเดอร์ที่สถานะ "กำลังจัดเตรียมอาหาร" ทั้งหมดจาก DB สำหรับ Kitchen Dashboard
+  public GetKitchenActiveOrders(): Observable<any> {
+    const url = this.constants.API_ENDPOINT + `/Order/getKitchenActiveOrders`;
+    return this.http.get<any>(url);
+  }
+  //  ดึงโต๊ะ + รายการอาหาร สำหรับหน้า /serve-action
   public GetServeInfo(orderId: number): Observable<any> {
     try {
       const url = this.constants.API_ENDPOINT + `/Order/getServeInfo/${orderId}`;
