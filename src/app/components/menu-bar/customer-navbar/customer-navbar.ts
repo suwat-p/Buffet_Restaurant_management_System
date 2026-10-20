@@ -46,10 +46,29 @@ export class CustomerNavbar implements OnInit {
 
   ngOnInit(): void {
     this.tableNumber = this.tableService.getTable();
+    if (this.tableNumber) {
+      this.getBillInfo(this.tableNumber);
+    }
 
     // subscribe ค่าจำนวนตะกร้าแบบ real-time
     this.cartService.cartCount$.subscribe((count) => {
       this.cartCount = count;
+    });
+  }
+
+  getBillInfo(tableNum: string) {
+    this.tableService.getTableid(tableNum).subscribe({
+      next: (id: number) => {
+        this.tableId = id;
+        this.cartService.refreshCartCount(this.tableId);
+        this.billService.getBillByTableId(this.tableId).subscribe({
+          next: (res: any) => {
+            if (res && res.bill_id) {
+              this.billId = res.bill_id;
+            }
+          },
+        });
+      },
     });
   }
 
@@ -71,5 +90,17 @@ export class CustomerNavbar implements OnInit {
     }
 
     return [];
+  }
+
+  onMenuItemClick(item: NavMenuItem, event: Event) {
+    this.closeSidebar();
+
+    if (item.dynamic) {
+      event.preventDefault();
+      if (this.billId) {
+        this.router.navigate(['/StatusCustomer', this.billId]);
+      } else {
+      }
+    }
   }
 }
