@@ -6,6 +6,7 @@ import { MessageService } from "primeng/api";
 import { DialogModule } from "primeng/dialog";
 import { ToastModule } from "primeng/toast";
 import { MenuCashier } from "../../../components/menu-bar/menu-cashier/menu-cashier";
+import { AuthService } from '../../../service/api/auth.service';
 import { BillService } from "../../../service/api/bill.service";
 import { ConfigService } from "../../../service/api/config.service";
 import { PaymentService } from "../../../service/api/payment.service";
@@ -28,6 +29,8 @@ export class Receipt implements OnInit, OnDestroy {
   selectedBill: any = null;
   billOrderItems: any[] = [];
   resinfo: any = [];
+  employeeName: string = "";
+  empId: number = 0;
 
   /* Filter Properties */
   limitSize: number = 50;
@@ -54,12 +57,19 @@ export class Receipt implements OnInit, OnDestroy {
     private messageService: MessageService,
     private tableService: TableService,
     private printService: PrintService,
-    private configService: ConfigService
+    private configService: ConfigService,
+    private authService: AuthService
   ) { }
 
   ngOnInit() {
     this.loadBills();
     this.loadResConfig();
+    const member = this.authService.getMember();
+    console.log('Member info:', member);
+    if (member) {
+      this.employeeName = member.fullname;
+      this.empId = member.id;
+    }
   }
 
   ngOnDestroy() {
@@ -393,7 +403,7 @@ export class Receipt implements OnInit, OnDestroy {
 
   printReceipt() {
     console.log('Print request sent for bill ID:', this.selectedBill.bill_id);
-    this.printService.printReceipt(this.selectedBill.bill_id).subscribe({
+    this.printService.printReceipt(this.selectedBill.bill_id, this.employeeName).subscribe({
       next: () => {
         this.messageService.add({
           severity: 'success',

@@ -64,6 +64,7 @@ export class CheckOut implements OnInit, OnDestroy {
   private pollingTimer: any = null;
   private isPolling: boolean = false;
   employeeName: string = "";
+  empId: number = 0;
 
   constructor(
     private billService: BillService,
@@ -89,6 +90,7 @@ export class CheckOut implements OnInit, OnDestroy {
     console.log('Member info:', member);
     if (member) {
       this.employeeName = member.fullname;
+      this.empId = member.id; 
     }
 
     this.ConfigService.getConfig().subscribe((res) => {
@@ -548,7 +550,8 @@ export class CheckOut implements OnInit, OnDestroy {
       Discount_id: this.selectedDiscount?.discount_id || null,
       Discount_amount: this.discountAmount,
       Total_amount: this.grandTotal,
-      PaymentMethod: this.paymentMethod === 'cash' ? 'เงินสด' : 'โอนเงิน'
+      PaymentMethod: this.paymentMethod === 'cash' ? 'เงินสด' : 'โอนเงิน',
+      Emp_id: this.empId
     };
 
     this.billService.closeBill(targetBillId, payload).subscribe({
