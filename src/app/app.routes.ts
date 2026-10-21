@@ -231,5 +231,5 @@ export const routes: Routes = [
   component: Pagenotfound,
   },
   
-  { path: '**', redirectTo: '/404' },
+  { path: '**', redirectTo: '' },
 ];
