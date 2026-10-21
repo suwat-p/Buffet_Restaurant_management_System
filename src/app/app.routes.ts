@@ -25,6 +25,7 @@ import { ManageTables } from './features/manager/manage-tables/manage-tables';
 import { BookingStatus } from './features/member/booking-status/booking-status';
 import { Booking } from './features/member/booking/booking';
 import { PreOrder } from './features/member/pre-order/pre-order';
+import { Pagenotfound } from './features/pagenotfound/pagenotfound';
 import { ProfileEmployee } from './features/profile-employee/profile-employee';
 import { RegisterEmployee } from './features/register-employee/register-employee';
 import { RegisterMember } from './features/register-member/register-member';
@@ -225,6 +226,10 @@ export const routes: Routes = [
     component: ProfileEmployee,
     canActivate: [employeeGuard],
     data: { roles: ['เจ้าของร้าน', 'พนักงานเสิร์ฟ', 'พนักงานแคชเชียร์', 'พนักงานครัว'] },
+  },{
+  path: '404',
+  component: Pagenotfound,
   },
-  { path: '**', redirectTo: '' },
+  
+  { path: '**', redirectTo: '/404' },
 ];

@@ -296,72 +296,72 @@ export class Receipt implements OnInit, OnDestroy {
     });
   }
 
-  /* Payment Actions */
-  openChangePaymentModal() {
-    if (!this.selectedBill) return;
-    this.selectedNewMethod = this.selectedBill.paymentMethod === 'โอน' ? 'โอน' : 'เงินสด';
-    this.showChangePaymentModal = true;
-  }
+  // /* Payment Actions */
+  // openChangePaymentModal() {
+  //   if (!this.selectedBill) return;
+  //   this.selectedNewMethod = this.selectedBill.paymentMethod === 'โอน' ? 'โอน' : 'เงินสด';
+  //   this.showChangePaymentModal = true;
+  // }
 
-  confirmChangePayment() {
-    if (!this.selectedBill) return;
+  // confirmChangePayment() {
+  //   if (!this.selectedBill) return;
 
-    const targetBillId = this.selectedBill.bill_id || this.selectedBill.billId;
-    this.stopPolling();
+  //   const targetBillId = this.selectedBill.bill_id || this.selectedBill.billId;
+  //   this.stopPolling();
 
-    if (this.selectedNewMethod === 'เงินสด') {
-      const payload = { paymentMethod: 'เงินสด', transactionId: null };
-      this.paymentService.updatePaymentMethod(targetBillId, payload).subscribe({
-        next: () => {
-          this.selectedBill.paymentMethod = 'เงินสด';
-          this.showChangePaymentModal = false;
-          this.messageService.add({
-            severity: 'success',
-            summary: 'สำเร็จ',
-            detail: 'เปลี่ยนประเภทเป็น เงินสด เรียบร้อยแล้ว'
-          });
-          this.sendToCustomerDisplay(null);
-        },
-        error: (err) => console.error(err)
-      });
-    } else {
-      this.showChangePaymentModal = false;
-      this.isGeneratingQr = true;
+  //   if (this.selectedNewMethod === 'เงินสด') {
+  //     const payload = { paymentMethod: 'เงินสด', transactionId: null };
+  //     this.paymentService.updatePaymentMethod(targetBillId, payload).subscribe({
+  //       next: () => {
+  //         this.selectedBill.paymentMethod = 'เงินสด';
+  //         this.showChangePaymentModal = false;
+  //         this.messageService.add({
+  //           severity: 'success',
+  //           summary: 'สำเร็จ',
+  //           detail: 'เปลี่ยนประเภทเป็น เงินสด เรียบร้อยแล้ว'
+  //         });
+  //         this.sendToCustomerDisplay(null);
+  //       },
+  //       error: (err) => console.error(err)
+  //     });
+  //   } else {
+  //     this.showChangePaymentModal = false;
+  //     this.isGeneratingQr = true;
 
-      const amount = this.selectedBill.total_amount || this.selectedBill.grandTotal || 0;
+  //     const amount = this.selectedBill.total_amount || this.selectedBill.grandTotal || 0;
 
-      this.paymentService.CreateCheckoutQr(targetBillId, amount).subscribe({
-        next: (res: any) => {
-          this.isGeneratingQr = false;
-          this.selectedBill.paymentMethod = 'โอน';
-          this.qrCodeData = res.qr_data;
-          this.transactionId = res.transaction_id || res.transactionId || '';
-          this.showQrModal = true;
+  //     this.paymentService.CreateCheckoutQr(targetBillId, amount).subscribe({
+  //       next: (res: any) => {
+  //         this.isGeneratingQr = false;
+  //         this.selectedBill.paymentMethod = 'โอน';
+  //         this.qrCodeData = res.qr_data;
+  //         this.transactionId = res.transaction_id || res.transactionId || '';
+  //         this.showQrModal = true;
 
-          this.sendToCustomerDisplay(this.qrCodeData);
+  //         this.sendToCustomerDisplay(this.qrCodeData);
 
-          this.messageService.add({
-            severity: 'info',
-            summary: 'QR Code Ready',
-            detail: 'แสดง QR Code บนหน้าจอลูกค้าเรียบร้อยแล้ว'
-          });
+  //         this.messageService.add({
+  //           severity: 'info',
+  //           summary: 'QR Code Ready',
+  //           detail: 'แสดง QR Code บนหน้าจอลูกค้าเรียบร้อยแล้ว'
+  //         });
 
-          if (this.transactionId) {
-            this.startAutoCheckStatus(targetBillId, this.transactionId);
-          }
-        },
-        error: (err) => {
-          this.isGeneratingQr = false;
-          console.error(err);
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Error',
-            detail: 'ไม่สามารถสร้าง QR Code สำหรับโอนเงินได้'
-          });
-        }
-      });
-    }
-  }
+  //         if (this.transactionId) {
+  //           this.startAutoCheckStatus(targetBillId, this.transactionId);
+  //         }
+  //       },
+  //       error: (err) => {
+  //         this.isGeneratingQr = false;
+  //         console.error(err);
+  //         this.messageService.add({
+  //           severity: 'error',
+  //           summary: 'Error',
+  //           detail: 'ไม่สามารถสร้าง QR Code สำหรับโอนเงินได้'
+  //         });
+  //       }
+  //     });
+  //   }
+  // }
 
   /* Customer Display & Print */
   sendToCustomerDisplay(qrCodeData: string | null = null, isPaidSuccess: boolean = false) {

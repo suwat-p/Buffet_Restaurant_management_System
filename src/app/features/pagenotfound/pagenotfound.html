@@ -1,0 +1,28 @@
+<div class="not-found-container">
+  <div class="not-found-content">
+    <!-- ภาพประกอบ / ไอคอนจานอาหารว่างเปล่า -->
+    <div class="illustration-wrapper">
+      <div class="plate-illustration">
+        <span class="error-code">404</span>
+        <div class="food-icon">🍽️</div>
+      </div>
+    </div>
+
+    <!-- ข้อความแจ้งเตือน -->
+    <h1 class="title">ขออภัย ไม่พบหน้าที่คุณต้องการ!</h1>
+    <p class="description">
+      เมนูหรือหน้าที่คุณกำลังตามหาอาจถูกย้าย ลบออกไปแล้ว <br>
+      หรือคุณอาจจะพิมพ์ URL ไม่ถูกต้อง
+    </p>
+
+    <!-- ปุ่ม Action สำหรับนำทางกลับ -->
+    <div class="action-buttons">
+      <button class="btn btn-primary" (click)="goHome()">
+        <i class="pi pi-home"></i> กลับหน้าหลัก
+      </button>
+      <button class="btn btn-secondary" (click)="goBack()">
+        <i class="pi pi-arrow-left"></i> ย้อนกลับ
+      </button>
+    </div>
+  </div>
+</div>
