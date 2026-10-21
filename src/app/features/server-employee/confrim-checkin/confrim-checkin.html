@@ -1,7 +1,6 @@
 <app-menu-server>
   <div class="checkin-container">
     <div class="main-content">
-      
       <!-- Header -->
       <div class="page-title-bar">
         <button class="btn-back" (click)="goBack()">
@@ -18,7 +17,7 @@
           <div class="corner top-right"></div>
           <div class="corner bottom-left"></div>
           <div class="corner bottom-right"></div>
-          
+
           <!-- เลเซอร์วิ่งเมื่อกล้องเปิด -->
           <div class="scan-laser" *ngIf="isCameraActive"></div>
 
@@ -27,7 +26,8 @@
             *ngIf="isCameraActive"
             [formats]="allowedFormats"
             (scanSuccess)="onCodeResult($event)"
-            (permissionResponse)="onHasPermission($event)">
+            (permissionResponse)="onHasPermission($event)"
+          >
           </zxing-scanner>
 
           <!-- Placeholder แสดงตอนยังไม่เปิดกล้อง -->
@@ -91,7 +91,10 @@
           </div>
           <div class="info-row">
             <span class="label"><mat-icon>groups</mat-icon> จำนวนลูกค้า</span>
-            <span class="value">ผู้ใหญ่ {{ checkinInfo.adult_count }} คน / เด็ก {{ checkinInfo.child_count }} คน</span>
+            <span class="value"
+              >ผู้ใหญ่ {{ checkinInfo.adult_count }} คน / เด็ก
+              {{ checkinInfo.child_count }} คน</span
+            >
           </div>
 
           <div class="divider"></div>
@@ -99,9 +102,11 @@
           <div class="info-row table-row">
             <span class="label"><mat-icon>table_restaurant</mat-icon> โต๊ะที่จอง</span>
             <span class="table-badge">
-              {{ (checkinInfo.all_tables && checkinInfo.all_tables.length > 0) 
-          ? checkinInfo.all_tables.join(', ') 
-          : (checkinInfo.table?.table_number || '-') }}
+              {{
+                checkinInfo.all_tables && checkinInfo.all_tables.length > 0
+                  ? checkinInfo.all_tables.join(', ')
+                  : checkinInfo.table?.table_number || '-'
+              }}
             </span>
           </div>
         </div>
@@ -109,21 +114,25 @@
         <!-- Footer ปุ่มกดเช็คอิน -->
         <div class="card-footer">
           <button
-            *ngIf="isAuthorized"
+            *ngIf="isAuthorized && checkinInfo.booking_status === 'Confirmed'"
             class="btn-confirm"
             (click)="confirmCheckin()"
-            [disabled]="loading">
+            [disabled]="loading"
+          >
             ✅ ยืนยันเช็คอินเข้าโต๊ะ
           </button>
 
           <button class="btn-cancel" (click)="resetScanner()">ยกเลิก / สแกนใหม่</button>
+
+          <div class="no-access" *ngIf="checkinInfo.booking_status === 'Cancelled'">
+            ❌ ยกเลิกการจอง (เกินเวลา 30 นาที)
+          </div>
 
           <div class="no-access" *ngIf="!isAuthorized">
             🚫 เฉพาะพนักงานเสิร์ฟเท่านั้นที่มีสิทธิ์เช็คอิน
           </div>
         </div>
       </div>
-
     </div>
   </div>
 </app-menu-server>
